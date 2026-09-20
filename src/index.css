@@ -1,1 +1,580 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 @import "tailwindcss";
+
+
+
+/* ─────────────────────────────────────────────
+   OSTEOVISION MASTER CLINICAL COLOR TOKENS (LIGHT THEME)
+───────────────────────────────────────────── */
+:root {
+  /* Brand Blue Scale */
+  --primary-50:  #EFF6FF;
+  --primary-100: #DBEAFE;
+  --primary-200: #BFDBFE;
+  --primary-300: #93C5FD;
+  --primary-400: #60A5FA;
+  --primary-500: #3B82F6;
+  --primary-600: #2563EB; /* Main Action Blue */
+  --primary-700: #1D4ED8;
+  --primary-800: #1E40AF;
+  --primary-900: #1E3A8A;
+
+  /* Secondary Supporting Cyan */
+  --cyan-400: #22D3EE;
+  --cyan-500: #06B6D4;
+  --cyan-600: #0891B2;
+
+  /* Page Foundation & Neutral Surfaces */
+  --bg:                #F7F9FC; /* Main page background (cool tinted white) */
+  --surface:           #FFFFFF; /* Primary cards, panels, modals, reports */
+  --surface-secondary: #F8FAFC; /* Secondary panels, headers, hover states */
+  --surface-tertiary:  #F1F5F9; /* Input backgrounds, small infoboxes, footer */
+
+  /* Text Hierarchy (Deep Navy System) */
+  --text-primary:   #0F172A; /* Major headings, high-contrast values */
+  --text-secondary: #475569; /* Body content, readable neutral */
+  --text-tertiary:  #64748B; /* Metadata, supporting descriptions */
+  --text-muted:     #94A3B8; /* Placeholders, timestamps, borders */
+  --text-disabled:  #CBD5E1;
+
+  /* Border System */
+  --border:          #E2E8F0;
+  --border-strong:   #CBD5E1;
+  --border-subtle:   #F1F5F9;
+  --border-selected: #93C5FD;
+
+  /* Semantic Status Palette */
+  --success:        #16A34A;
+  --success-bg:     #F0FDF4;
+  --success-border: #BBF7D0;
+
+  --warning:        #D97706;
+  --warning-bg:     #FFFBEB;
+  --warning-border: #FDE68A;
+
+  --danger:         #DC2626;
+  --danger-bg:      #FEF2F2;
+  --danger-border:  #FECACA;
+
+  --info:           #2563EB;
+  --info-bg:        #EFF6FF;
+  --info-border:    #BFDBFE;
+
+  /* X-Ray Viewing Canvas (Dedicated Medical Transillumination) */
+  --viewer-bg:      #0F172A;
+
+  /* Elevation Shadows */
+  --shadow-sm: 0 2px 8px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 6px 20px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.08);
+  --shadow-primary: 0 8px 24px rgba(37, 99, 235, 0.16);
+  --shadow-primary-hover: 0 10px 28px rgba(37, 99, 235, 0.22);
+
+  /* Webflow IX2 exact easeOutBounce linear easing curve */
+  --ease-out-bounce: linear(
+    0.0000, 0.0030, 0.0121, 0.0272, 0.0484, 0.0756, 0.1089, 0.1482, 0.1936, 0.2450, 
+    0.3025, 0.3660, 0.4356, 0.5112, 0.5929, 0.6806, 0.7744, 0.8742, 0.9801, 0.9570, 
+    0.9100, 0.8690, 0.8341, 0.8052, 0.7823, 0.7654, 0.7546, 0.7582, 0.7765, 0.8094, 
+    0.8570, 0.9192, 0.9961, 0.9701, 0.9502, 0.9365, 0.9288, 0.9272, 0.9317, 0.9422, 
+    0.9588, 0.9815, 0.9997, 0.9928, 0.9880, 0.9852, 0.9845, 0.9858, 0.9892, 0.9946, 
+    1.0000
+  );
+}
+
+
+/* ─────────────────────────────────────────────
+   Base Layer & Typography
+───────────────────────────────────────────── */
+@layer base {
+  html {
+    color-scheme: light;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--bg);
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image: 
+      radial-gradient(circle at 85% 15%, rgba(37, 99, 235, 0.035) 0%, transparent 45%),
+      radial-gradient(circle at 15% 85%, rgba(6, 182, 212, 0.03) 0%, transparent 40%);
+    background-attachment: fixed;
+  }
+
+  /* Section anchor offsets */
+  #how-it-works,
+  #services,
+  #about-us,
+  #testimonial,
+  #features,
+  #cta {
+    scroll-margin-top: 100px;
+  }
+
+  /* Clinical Precision Scrollbar */
+  ::-webkit-scrollbar        { width: 7px; }
+  ::-webkit-scrollbar-track  { background: #F1F5F9; }
+  ::-webkit-scrollbar-thumb  { background: #CBD5E1; border-radius: 9999px; }
+  ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+  /* Selection */
+  ::selection {
+    background: rgba(37, 99, 235, 0.18);
+    color: #0F172A;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Clinical Card & Surface Utilities
+───────────────────────────────────────────── */
+.card-clinical {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.25s ease;
+}
+
+.card-clinical:hover {
+  transform: translateY(-2px);
+  border-color: #BFDBFE;
+  box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+}
+
+.card-clinical-elevated {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.07);
+}
+
+.pill-clinical {
+  background-color: #FFFFFF;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+}
+
+/* ─────────────────────────────────────────────
+   Clinical Semantic Badges
+───────────────────────────────────────────── */
+.badge-green {
+  background-color: var(--success-bg);
+  color: var(--success);
+  border: 1px solid var(--success-border);
+}
+
+.badge-amber {
+  background-color: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid var(--warning-border);
+}
+
+.badge-red {
+  background-color: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
+}
+
+.badge-blue {
+  background-color: var(--info-bg);
+  color: var(--primary-700);
+  border: 1px solid var(--info-border);
+}
+
+.badge-cyan {
+  background-color: #ECFEFF;
+  color: var(--cyan-600);
+  border: 1px solid #A5F3FC;
+}
+
+.badge-neutral {
+  background-color: var(--surface-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+/* ─────────────────────────────────────────────
+   Liquid Glass & 3D Water Effect System (visionOS / Liquid Droplet)
+───────────────────────────────────────────── */
+.card-glass-water,
+.card-tactile {
+  position: relative;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 28px;
+  box-shadow: 
+    0 20px 40px -15px rgba(15, 23, 42, 0.07),
+    0 0 0 1px rgba(226, 232, 240, 0.4),
+    inset 0 2px 2px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1.5px 2px 0 rgba(15, 23, 42, 0.02);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.card-glass-water::before,
+.card-tactile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.5) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(240, 249, 255, 0.2) 100%
+  );
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.card-glass-water:hover,
+.card-tactile:hover {
+  transform: translateY(-3px);
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 26px 50px -12px rgba(37, 99, 235, 0.12),
+    0 0 0 1px rgba(147, 197, 253, 0.5),
+    inset 0 2px 3px 0 rgba(255, 255, 255, 1),
+    inset 0 -1px 2px 0 rgba(37, 99, 235, 0.04);
+}
+
+.glass-water {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 16px 36px -10px rgba(15, 23, 42, 0.08),
+    inset 0 2px 2px rgba(255, 255, 255, 1),
+    inset 0 -1px 1.5px rgba(15, 23, 42, 0.02);
+}
+
+.badge-glass-water,
+.badge-tactile {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 4px 14px rgba(15, 23, 42, 0.05),
+    inset 0 1.5px 1.5px rgba(255, 255, 255, 1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.badge-glass-water:hover,
+.badge-tactile:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 
+    0 6px 18px rgba(37, 99, 235, 0.1),
+    inset 0 1.5px 2px rgba(255, 255, 255, 1);
+}
+
+.btn-glass-water-dark,
+.btn-tactile-dark {
+  position: relative;
+  background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+  color: #FFFFFF;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 12px 28px -4px rgba(15, 23, 42, 0.38),
+    0 4px 10px rgba(15, 23, 42, 0.2),
+    inset 0 1.8px 1.5px rgba(255, 255, 255, 0.45),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.btn-glass-water-dark::after,
+.btn-tactile-dark::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 100%
+  );
+  transform: skewX(-25deg);
+  transition: 0.6s ease;
+}
+
+.btn-glass-water-dark:hover::after,
+.btn-tactile-dark:hover::after {
+  left: 140%;
+}
+
+.btn-glass-water-dark:hover,
+.btn-tactile-dark:hover {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 
+    0 18px 36px -4px rgba(15, 23, 42, 0.46),
+    0 6px 14px rgba(37, 99, 235, 0.25),
+    inset 0 2px 2px rgba(255, 255, 255, 0.6);
+}
+
+.btn-glass-water-dark:active,
+.btn-tactile-dark:active {
+  transform: translateY(0.5px) scale(0.99);
+  box-shadow: 
+    0 4px 14px rgba(15, 23, 42, 0.3),
+    inset 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.btn-glass-water-light,
+.btn-tactile-light {
+  position: relative;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(248, 250, 252, 0.72) 100%);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  color: #0F172A;
+  border: 1px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 
+    0 10px 24px -4px rgba(15, 23, 42, 0.08),
+    0 2px 6px rgba(15, 23, 42, 0.03),
+    inset 0 1.8px 2px #FFFFFF,
+    inset 0 -1px 2px rgba(15, 23, 42, 0.03);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.btn-glass-water-light:hover,
+.btn-tactile-light:hover {
+  transform: translateY(-2px) scale(1.015);
+  background: linear-gradient(180deg, #FFFFFF 0%, rgba(241, 245, 249, 0.9) 100%);
+  border-color: rgba(255, 255, 255, 1);
+  box-shadow: 
+    0 14px 30px -4px rgba(37, 99, 235, 0.14),
+    inset 0 2px 2px #FFFFFF;
+}
+
+.btn-glass-water-light:active,
+.btn-tactile-light:active {
+  transform: translateY(0.5px) scale(0.99);
+  background: rgba(241, 245, 249, 0.9);
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+.btn-primary-clinical {
+  background-color: var(--primary-600);
+  color: #FFFFFF;
+  font-weight: 600;
+  box-shadow: var(--shadow-primary);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.btn-primary-clinical:hover {
+  background-color: var(--primary-700);
+  box-shadow: var(--shadow-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-primary-clinical:active {
+  background-color: var(--primary-800);
+  transform: translateY(0);
+}
+
+.btn-secondary-clinical {
+  background-color: #FFFFFF;
+  color: #1E293B;
+  border: 1px solid var(--border-strong);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-clinical:hover {
+  background-color: var(--surface-secondary);
+  border-color: var(--primary-300);
+  color: var(--primary-700);
+}
+
+/* ─────────────────────────────────────────────
+   Animations & Transitions
+───────────────────────────────────────────── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes navBorderSpin {
+  0%   { background-position: 0% 50%;   }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%;   }
+}
+
+@keyframes ctaShimmer {
+  0%   { transform: skewX(-20deg) translateX(-120%); }
+  60%  { transform: skewX(-20deg) translateX(220%);  }
+  100% { transform: skewX(-20deg) translateX(220%);  }
+}
+
+@keyframes scrollDot {
+  0%   { transform: translateY(0);    opacity: 1; }
+  60%  { transform: translateY(12px); opacity: 0.3; }
+  100% { transform: translateY(0);    opacity: 1; }
+}
+
+@keyframes holographicScan {
+  0%   { top: 0%; opacity: 0.85; }
+  50%  { top: 96%; opacity: 1;   }
+  100% { top: 0%; opacity: 0.85; }
+}
+
+.animate-pageEnter { animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.animate-scanBeam  { animation: holographicScan 2.4s ease-in-out infinite; }
+
+/* ─────────────────────────────────────────────
+   Reduced Motion
+───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─────────────────────────────────────────────
+   Stakeholder Value Cards — 1:1 Match to Reference
+───────────────────────────────────────────── */
+.impact-card-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.impact-card-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  background-color: #eeeeee;
+  overflow: hidden;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  transform-origin: 50% 50%;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
+  will-change: transform;
+}
+
+.impact-card-wrapper:hover .impact-card-photo,
+.impact-card-wrapper.is-active .impact-card-photo {
+  transform: translate3d(0, -135px, 0) rotate(-6.5deg);
+}
+
+.impact-card-glass {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  padding: 24px;
+  z-index: 6;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  background-color: rgba(134, 168, 255, 1);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+  transform-origin: 50% 50%;
+  transform: translate3d(0, 0, 0) rotate(0deg);
+  transition: transform 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              background-color 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              border-color 400ms ease,
+              box-shadow 400ms ease;
+  will-change: transform, background-color;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.impact-card-wrapper:hover .impact-card-glass,
+.impact-card-wrapper.is-active .impact-card-glass {
+  transform: translate3d(-18px, 105px, 0) rotate(6.5deg);
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.65);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+}
+
+.impact-card-title-text {
+  font-family: 'Inter Tight', Inter, sans-serif;
+  color: #000000;
+  font-size: 1.5rem;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.impact-card-body-text {
+  font-family: 'Inter Tight', Inter, sans-serif;
+  color: #000000;
+  font-size: 1rem;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* ─────────────────────────────────────────────
+   Hero Two-Zone Grid — Responsive Behavior
+───────────────────────────────────────────── */
+
+/* Desktop default: content left ~45%, X-ray right ~55% */
+.hero-content-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 45%) 1fr;
+  align-items: center;
+}
+
+/* Tablet (≤1024px): widen content zone slightly */
+@media (max-width: 1024px) {
+  .hero-content-grid {
+    grid-template-columns: minmax(0, 56%) 1fr;
+  }
+
+  .hero-left-content {
+    max-width: 480px !important;
+  }
+}
+
+/* Mobile (≤768px): full-width single column, video stays as backdrop */
+@media (max-width: 768px) {
+  .hero-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-left-content {
+    max-width: 100% !important;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 480px) {
+  .hero-badge {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+  }
+}
+
+
