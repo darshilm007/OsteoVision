@@ -20,7 +20,231 @@ import {
   Twitter,
   Instagram,
   FileCheck2,
+  ScanLine,
+  CheckCircle2,
 } from 'lucide-react';
+import { InteractiveFooterWordmark } from '../components/InteractiveFooterWordmark';
+
+/* ─────────────────────────────────────────────
+   Floating Diagnostic Glass Cards — Hero overlay
+   Style: Premium Translucent Glass with Dark Clinical Navy Typography
+───────────────────────────────────────────── */
+const DiagnosticFloatingCards: React.FC = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 120);
+    return () => clearTimeout(t);
+  }, []);
+
+  /* Premium translucent glass — exact specification */
+  const glassBase: React.CSSProperties = {
+    background: 'rgba(255, 255, 255, 0.16)',
+    backdropFilter: 'blur(20px) saturate(115%)',
+    WebkitBackdropFilter: 'blur(20px) saturate(115%)',
+    border: '1px solid rgba(255, 255, 255, 0.30)',
+    borderRadius: '20px',
+    transition: 'transform 220ms ease, background 220ms ease, border-color 220ms ease, box-shadow 220ms ease',
+    willChange: 'transform',
+    overflow: 'visible',
+  };
+
+  const entranceStyle = (delay: number): React.CSSProperties => ({
+    opacity: mounted ? 1 : 0,
+    transform: mounted ? 'translateY(0)' : 'translateY(8px)',
+    transition: `opacity 700ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+  });
+
+  const hoverHandlers = {
+    onMouseEnter: (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = e.currentTarget as HTMLDivElement;
+      el.style.transform = 'translateY(-2px)';
+      el.style.background = 'rgba(255, 255, 255, 0.19)';
+      el.style.borderColor = 'rgba(255, 255, 255, 0.38)';
+    },
+    onMouseLeave: (e: React.MouseEvent<HTMLDivElement>) => {
+      const el = e.currentTarget as HTMLDivElement;
+      el.style.transform = '';
+      el.style.background = 'rgba(255, 255, 255, 0.16)';
+      el.style.borderColor = 'rgba(255, 255, 255, 0.30)';
+    },
+  };
+
+  return (
+    <div aria-hidden="true" className="diag-cluster-root">
+      {/* ── Triangular Cluster Container (x ≈ 68%, y ≈ 58%) ── */}
+      <div className="diag-cluster-container">
+
+        {/* ── CARD 1: Detection (Upper-Left of Cluster — 230px x 175px) ── */}
+        <div
+          data-diag-card="1"
+          className="diag-card-detection"
+          style={{
+            ...glassBase,
+            ...entranceStyle(0),
+            padding: '14px 16px',
+            boxShadow: '0 12px 32px rgba(12, 30, 55, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.25)',
+            animation: mounted ? 'diagFloat1 7s ease-in-out infinite' : 'none',
+          }}
+          {...hoverHandlers}
+        >
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+            <Layers size={12} color="#18304D" />
+            <span style={{
+              fontSize: '9.5px', fontWeight: 700, letterSpacing: '1.2px',
+              color: '#18304D', textTransform: 'uppercase',
+            }}>
+              Detection
+            </span>
+          </div>
+
+          {/* Three translucent internal rows */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            {([
+              { label: 'Normal',       dot: '#22c55e' },
+              { label: 'Osteopenia',   dot: '#f59e0b' },
+              { label: 'Osteoporosis', dot: '#25BFD6' },
+            ] as const).map(({ label, dot }) => (
+              <div
+                key={label}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '8px',
+                  background: 'rgba(255, 255, 255, 0.18)',
+                  border: '1px solid rgba(255, 255, 255, 0.22)',
+                  borderRadius: '9px',
+                  height: '31px',
+                  padding: '0 10px',
+                }}
+              >
+                <div style={{ width: '5.5px', height: '5.5px', borderRadius: '50%', background: dot, flexShrink: 0 }} />
+                <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#10233F', letterSpacing: '0.01em' }}>
+                  {label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── CARD 2: Radiograph (Upper-Right of Cluster — 225px x 170px, 24px gap) ── */}
+        <div
+          data-diag-card="2"
+          className="diag-card-radiograph"
+          style={{
+            ...glassBase,
+            ...entranceStyle(100),
+            padding: '15px 16px',
+            boxShadow: '0 10px 28px rgba(12, 30, 55, 0.10), inset 0 1px 0 rgba(255, 255, 255, 0.22)',
+            animation: mounted ? 'diagFloat2 7.5s ease-in-out infinite' : 'none',
+          }}
+          {...hoverHandlers}
+        >
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
+            <ScanLine size={12} color="#18304D" />
+            <span style={{
+              fontSize: '9.5px', fontWeight: 700, letterSpacing: '1.2px',
+              color: '#18304D', textTransform: 'uppercase',
+            }}>
+              Radiograph
+            </span>
+          </div>
+
+          {/* Content */}
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{
+              fontSize: '15px', fontWeight: 700, color: '#10233F',
+              marginBottom: '2px', letterSpacing: '-0.01em', lineHeight: 1.25,
+            }}>
+              Trabecular Pattern
+            </div>
+            <div style={{ fontSize: '11px', color: '#49627E', fontWeight: 500 }}>
+              Analysis layer active
+            </div>
+          </div>
+
+          {/* Analysis Ready status pill */}
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            background: 'rgba(255, 255, 255, 0.18)',
+            border: '1px solid rgba(255, 255, 255, 0.22)',
+            borderRadius: '8px',
+            padding: '4.5px 9px',
+          }}>
+            <span style={{
+              width: '5.5px', height: '5.5px', borderRadius: '50%',
+              background: '#25BFD6',
+              boxShadow: '0 0 6px rgba(37, 191, 214, 0.70)',
+              flexShrink: 0,
+              display: 'inline-block',
+            }} />
+            <span style={{ fontSize: '11px', fontWeight: 600, color: '#10233F', letterSpacing: '0.01em' }}>
+              Analysis Ready
+            </span>
+          </div>
+        </div>
+
+        {/* ── CARD 3: Bone Health Score (Centered Below Upper Cards — 255px x 180px, 31px gap) ── */}
+        <div
+          data-diag-card="3"
+          className="diag-card-score"
+          style={{
+            ...glassBase,
+            ...entranceStyle(180),
+            padding: '16px 18px',
+            boxShadow: '0 16px 36px rgba(12, 30, 55, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.28)',
+            animation: mounted ? 'diagFloat3 8s ease-in-out infinite' : 'none',
+          }}
+          {...hoverHandlers}
+        >
+          {/* Header row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
+            <Bone size={12} color="#18304D" />
+            <span style={{
+              fontSize: '9.5px', fontWeight: 700, letterSpacing: '1.2px',
+              color: '#18304D', textTransform: 'uppercase',
+            }}>
+              Bone Health Score
+            </span>
+          </div>
+
+          {/* Score value */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px', marginBottom: '9px' }}>
+            <span style={{
+              fontSize: '46px', fontWeight: 800, lineHeight: 1,
+              color: '#10233F',
+              letterSpacing: '-0.04em',
+            }}>
+              92
+            </span>
+            <span style={{ fontSize: '18px', fontWeight: 600, color: '#49627E', paddingBottom: '3px' }}>
+              /100
+            </span>
+          </div>
+
+          {/* Sub-label row */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span style={{ fontSize: '11px', color: '#49627E', fontWeight: 500 }}>
+              Calibrated assessment
+            </span>
+            <span style={{
+              fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em',
+              color: '#5D7590',
+              background: 'rgba(255, 255, 255, 0.20)',
+              border: '1px solid rgba(255, 255, 255, 0.25)',
+              borderRadius: '5px', padding: '2px 5px',
+              textTransform: 'uppercase',
+            }}>
+              SAMPLE
+            </span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+};
+
 
 interface HomePageProps {
   onOpenUpload: () => void;
@@ -189,6 +413,23 @@ export const HomePage: React.FC<HomePageProps> = ({
   // Active hover card in Stakeholder section (matching reference video interaction)
   const [hoveredStakeholder, setHoveredStakeholder] = useState<string | null>(null);
 
+  /* Pause hero video when it scrolls out of view — decoded frames otherwise
+     keep consuming CPU/GPU during the entire page scroll (major jank source). */
+  const heroVideoRef = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = heroVideoRef.current;
+    if (!v) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) { void v.play().catch(() => {}); }
+        else { v.pause(); }
+      },
+      { threshold: 0 },
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, []);
+
   // Handle section scrolling
   React.useLayoutEffect(() => {
     if (targetSection) {
@@ -261,27 +502,35 @@ export const HomePage: React.FC<HomePageProps> = ({
   const stakeholderCards = [
     {
       id: 'patient',
-      title: 'Patient',
-      desc: 'Early detection, reduced fracture risk, no extra procedure.',
-      image: '/portraits/patient.png',
+      title: 'Patients',
+      desc: 'Opportunistic knee X-ray screening detects silent bone loss years before fractures — with zero extra radiation or visits.',
+      image: '/card-1.png',
+      fallbackImage: '/portraits/card-1.png',
+      defaultImage: '/portraits/patient.png',
     },
     {
       id: 'clinician',
-      title: 'Clinician',
-      desc: 'More diagnostic clarity, medico-legal protection, safer surgical planning.',
-      image: '/portraits/clinician.png',
+      title: 'Orthopedic Clinicians',
+      desc: 'Quantitative 0–100 bone scores and 3-class diagnosis for safer knee arthroplasty, implant sizing, and surgical confidence.',
+      image: '/card-2.png',
+      fallbackImage: '/portraits/card-2.png',
+      defaultImage: '/portraits/clinician.png',
     },
     {
       id: 'imaging',
-      title: 'Imaging',
-      desc: 'Higher throughput, new revenue streams, zero hardware investment.',
-      image: '/portraits/imaging.png',
+      title: 'Radiology & Imaging',
+      desc: 'Automated trabecular analysis integrated into PACS/DICOM pipelines, creating clinical value with zero new hardware.',
+      image: '/card-3.png',
+      fallbackImage: '/portraits/card-3.png',
+      defaultImage: '/portraits/imaging.png',
     },
     {
       id: 'hospital',
-      title: 'Hospital',
-      desc: 'Lower complication rates, better outcomes, and reduced costs.',
-      image: '/portraits/hospital.png',
+      title: 'Hospitals & Networks',
+      desc: 'Reduces secondary fragility fracture readmissions, lowers complication costs, and standardizes bone triage at scale.',
+      image: '/card-4.png',
+      fallbackImage: '/portraits/card-4.png',
+      defaultImage: '/portraits/hospital.png',
     },
   ];
 
@@ -306,6 +555,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       >
         {/* ── LAYER 1: Full-bleed Background Video ── */}
         <video
+          ref={heroVideoRef}
           src="/videos/watermark-removed (2).mp4"
           autoPlay
           loop
@@ -353,6 +603,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* ── LAYER 3: Hero Content ── */}
         <div
+          className="hero-main-content-wrap"
           style={{
             position: 'absolute',
             inset: 0,
@@ -512,6 +763,9 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>{/* end max-w-7xl */}
         </div>{/* end layer 3 content */}
 
+
+        {/* ── Floating Diagnostic Glass Cards ── */}
+        <DiagnosticFloatingCards />
 
         {/* ── Scroll indicator at bottom-center ── */}
         <div
@@ -739,10 +993,10 @@ export const HomePage: React.FC<HomePageProps> = ({
           2.5 STAKEHOLDER VALUE CARDS (Matching Reference Video Hover Interaction)
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-20 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-12 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
           {/* Header */}
-          <div className="max-w-3xl mb-8">
+          <div className="max-w-3xl mb-6">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
               Knee Osteoporosis Diagnostic Impact
             </span>
@@ -755,7 +1009,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* 4 Interactive Stakeholder Cards (Exact 1:1 Match to Reference Video) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-36 pb-40">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-28 pb-20">
             {stakeholderCards.map((card) => {
               const isHovered = hoveredStakeholder === card.id;
 
@@ -771,8 +1025,18 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <img
                       src={card.image}
                       alt={card.title}
-                      className="w-full h-full object-cover object-top pointer-events-none select-none"
+                      className="w-full h-full object-cover object-center pointer-events-none select-none"
                       loading="lazy"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        if (!target.dataset.triedFallback) {
+                          target.dataset.triedFallback = '1';
+                          target.src = card.fallbackImage;
+                        } else if (target.dataset.triedFallback === '1') {
+                          target.dataset.triedFallback = '2';
+                          target.src = card.defaultImage;
+                        }
+                      }}
                     />
                   </div>
 
@@ -1315,12 +1579,8 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           </div>
 
-          {/* Giant Watermark Typography */}
-          <div className="relative py-6 select-none pointer-events-none text-center">
-            <span className="text-[13vw] font-black tracking-tighter text-slate-200/50 leading-none block">
-              OsteoVision
-            </span>
-          </div>
+          {/* Giant Watermark Typography with Subtle Interactive Cursor Effect */}
+          <InteractiveFooterWordmark />
 
           {/* Bottom Disclaimer & Copyright */}
           <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">

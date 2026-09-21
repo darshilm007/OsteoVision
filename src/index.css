@@ -101,7 +101,9 @@
     background-image: 
       radial-gradient(circle at 85% 15%, rgba(37, 99, 235, 0.035) 0%, transparent 45%),
       radial-gradient(circle at 15% 85%, rgba(6, 182, 212, 0.03) 0%, transparent 40%);
-    background-attachment: fixed;
+    /* background-attachment: fixed removed — it forces a full-viewport repaint
+       on every scroll frame (classic scroll-stutter cause on Windows/Chromium).
+       The gradient is covered by the opaque app root anyway. */
   }
 
   /* Section anchor offsets */
@@ -435,6 +437,25 @@
 .animate-pageEnter { animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 .animate-scanBeam  { animation: holographicScan 2.4s ease-in-out infinite; }
 
+/* Diagnostic floating card idle animations — subtle 2px max float (6-8s) */
+@keyframes diagFloat1 {
+  0%   { transform: translateY(0px);   }
+  50%  { transform: translateY(-2px);  }
+  100% { transform: translateY(0px);   }
+}
+
+@keyframes diagFloat2 {
+  0%   { transform: translateY(0px);   }
+  50%  { transform: translateY(-1.8px);}
+  100% { transform: translateY(0px);   }
+}
+
+@keyframes diagFloat3 {
+  0%   { transform: translateY(0px);   }
+  50%  { transform: translateY(-1.5px);}
+  100% { transform: translateY(0px);   }
+}
+
 /* ─────────────────────────────────────────────
    Reduced Motion
 ───────────────────────────────────────────── */
@@ -489,7 +510,7 @@
   width: 100%;
   height: 100%;
   border-radius: 16px;
-  padding: 24px;
+  padding: 18px 16px;
   z-index: 6;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
@@ -519,9 +540,9 @@
 
 .impact-card-title-text {
   font-family: 'Inter Tight', Inter, sans-serif;
-  color: #000000;
-  font-size: 1.5rem;
-  font-weight: 500;
+  color: #0f172a;
+  font-size: 1.25rem;
+  font-weight: 600;
   line-height: 1.2;
   margin: 0;
   letter-spacing: -0.01em;
@@ -529,10 +550,10 @@
 
 .impact-card-body-text {
   font-family: 'Inter Tight', Inter, sans-serif;
-  color: #000000;
-  font-size: 1rem;
-  font-weight: 400;
-  line-height: 1.4;
+  color: #1e293b;
+  font-size: 0.84rem;
+  font-weight: 450;
+  line-height: 1.38;
   margin: 0;
 }
 
@@ -576,5 +597,165 @@
     padding-right: 10px !important;
   }
 }
+
+/* ─────────────────────────────────────────────
+   Diagnostic Floating Cards — Triangular Cluster
+   Cohesive 3-card information group
+───────────────────────────────────────────── */
+
+.diag-cluster-root {
+  position: absolute;
+  inset: 0;
+  z-index: 11;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* Cluster container: width 480px, height 386px (x ≈ 68%, y ≈ 58%) */
+.diag-cluster-container {
+  position: absolute;
+  left: 54%;
+  top: 46%;
+  width: 480px;
+  height: 386px;
+  pointer-events: none;
+}
+
+/* Card 1: Detection (upper-left of cluster — 230px x 175px) */
+.diag-card-detection {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 230px;
+  min-height: 175px;
+  box-sizing: border-box;
+  z-index: 3;
+  pointer-events: auto;
+}
+
+/* Card 2: Radiograph (upper-right of cluster — 225px x 170px, 24px gap) */
+.diag-card-radiograph {
+  position: absolute;
+  left: 254px; /* 230px + 24px gap */
+  top: 6px;    /* approximately aligned with Detection */
+  width: 225px;
+  min-height: 170px;
+  box-sizing: border-box;
+  z-index: 2;  /* subtle depth behind */
+  pointer-events: auto;
+}
+
+/* Card 3: Bone Health Score (centered below upper cards — 255px x 180px, 31px gap) */
+.diag-card-score {
+  position: absolute;
+  left: 112px; /* (479px - 255px) / 2 = 112px */
+  top: 206px;  /* 175px + 31px gap */
+  width: 255px;
+  min-height: 180px;
+  box-sizing: border-box;
+  z-index: 4;  /* primary anchor card */
+  pointer-events: auto;
+}
+
+/* Large / Ultra-wide screens (≥1500px): keep cluster visually attached to knee, max-width bounded */
+@media (min-width: 1500px) {
+  .diag-cluster-container {
+    left: clamp(52%, 54vw, calc(50% + 200px));
+  }
+}
+
+/* Short desktop viewports (≤740px height like laptop screens): scale slightly so all cards fit with generous margins */
+@media (max-height: 740px) and (min-width: 1025px) {
+  .diag-cluster-container {
+    top: 36%;
+    transform: scale(0.85);
+    transform-origin: top left;
+  }
+}
+
+/* Very short laptop viewports (≤620px height) */
+@media (max-height: 620px) and (min-width: 1025px) {
+  .diag-cluster-container {
+    top: 30%;
+    transform: scale(0.76);
+    transform-origin: top left;
+  }
+}
+
+/* Tablet screens (769px–1024px): scale down proportionally, preserve exact triangular composition */
+@media (max-width: 1024px) and (min-width: 769px) {
+  .diag-cluster-container {
+    left: 50%;
+    top: 40%;
+    transform: scale(0.78);
+    transform-origin: top left;
+  }
+}
+
+/* Tablet short viewports */
+@media (max-width: 1024px) and (min-width: 769px) and (max-height: 740px) {
+  .diag-cluster-container {
+    top: 32%;
+    transform: scale(0.70);
+    transform-origin: top left;
+  }
+}
+
+/* Mobile (≤768px): clean vertical stack, no horizontal scroll, inside viewport, no overlap */
+@media (max-width: 768px) {
+  .hero-viewport {
+    height: auto !important;
+    min-height: 100vh !important;
+    overflow-y: visible !important;
+    overflow-x: hidden !important;
+  }
+
+  .hero-main-content-wrap {
+    position: relative !important;
+    inset: auto !important;
+    min-height: auto !important;
+    padding-top: 96px !important;
+    padding-bottom: 24px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-start !important;
+  }
+
+  .diag-cluster-root {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    overflow: visible !important;
+    padding: 0 16px 48px !important;
+    pointer-events: auto !important;
+  }
+
+  .diag-cluster-container {
+    position: static !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 310px !important;
+    height: auto !important;
+    margin: 0 auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important; /* 12-16px vertical gap */
+    pointer-events: auto !important;
+  }
+
+  .diag-card-detection,
+  .diag-card-radiograph,
+  .diag-card-score {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    min-height: auto !important;
+    transform: none !important;
+    animation: none !important;
+  }
+}
+
+
 
 

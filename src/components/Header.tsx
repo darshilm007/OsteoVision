@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Bone,
   ArrowRight,
@@ -111,13 +111,41 @@ function useTicker(strings: string[], speed = 45, pauseMs = 1800) {
   return { display, cursor };
 }
 
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   Main Header Component
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* Isolated ticker — its ~24 state updates/sec re-render only this tiny span,
+   never the whole 600-line header tree (major continuous CPU win). */
+const TerminalTicker: React.FC<{ scrolled: boolean }> = ({ scrolled }) => {
+  const { display, cursor } = useTicker(TICKER_STRINGS, 42, 1600);
+  return (
+    <span
+      className="text-[9.5px] font-bold tracking-wider mt-1 uppercase leading-none font-mono"
+      style={{
+        color: scrolled ? '#334155' : 'rgba(255,255,255,0.85)',
+        textShadow: !scrolled ? '0 1px 2px rgba(0,0,0,0.45)' : 'none',
+        minWidth: '164px',
+        display: 'inline-block',
+        whiteSpace: 'nowrap',
+        overflow: 'hidden',
+        transition: 'color 0.2s ease',
+      }}
+    >
+      {display}
+      <span
+        style={{
+          opacity: cursor ? 1 : 0,
+          transition: 'opacity 0.1s',
+          color: scrolled ? '#2563EB' : '#38BDF8',
+          marginLeft: '1px',
+        }}
+      >
+        |
+      </span>
+    </span>
+  );
+};
+
+/* ─── Main Header Component ─── */
 export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
   const [scrollY, setScrollY]             = useState(0);
-  const [prevScrollY, setPrevScrollY]     = useState(0);
-  const [hidden, setHidden]               = useState(false);         // Headroom
   const [mobileOpen, setMobileOpen]       = useState(false);
   const [activeSection, setActiveSection] = useState<string>('home');
   const [logoTilt, setLogoTilt]           = useState({ x: 0, y: 0 }); // 3D tilt
@@ -130,34 +158,27 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
   const itemRefs          = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicatorPos, setIndicatorPos] = useState<{ left: number; width: number } | null>(null);
 
-  /* Terminal ticker */
-  const { display: tickerText, cursor: tickerCursor } = useTicker(TICKER_STRINGS, 42, 1600);
+  /* Terminal ticker state is isolated inside <TerminalTicker /> */
 
-  /* â”€â”€ Scroll progress 0â†’1 over first 120px â”€â”€ */
+  /* ── Route & Scroll State: on subpages (like /studio), always keep consistent solid styling ── */
+  const isSubpage    = currentRoute !== '/';
   const SCROLL_START = 20;
   const SCROLL_END   = 120;
-  const rawProgress  = Math.min(1, Math.max(0, (scrollY - SCROLL_START) / (SCROLL_END - SCROLL_START)));
-  const paddingY     = lerp(20, 10, rawProgress);
-  const isScrolled   = rawProgress > 0.5;
+  const scrollRatio  = Math.min(1, Math.max(0, (scrollY - SCROLL_START) / (SCROLL_END - SCROLL_START)));
+  const rawProgress  = isSubpage ? 1 : scrollRatio;
+  const paddingY     = isSubpage ? 10 : lerp(20, 10, scrollRatio);
+  const isScrolled   = isSubpage || scrollRatio > 0.5;
 
-  /* â”€â”€ Headroom: hide on scroll down, show on scroll up â”€â”€ */
+  /* ── Scroll listener: rAF-throttled + clamped ──
+     Header styling only varies within the first 120px, so scrollY state is
+     clamped past that band — zero React re-renders fire during deep-page scroll. */
   useEffect(() => {
-    const handleScroll = () => {
+    let ticking = false;
+
+    const update = () => {
+      ticking = false;
       const sy = window.scrollY ?? document.documentElement.scrollTop;
-
-      // Headroom logic â€” only activate after hero (>180px)
-      if (sy > 180) {
-        if (sy > prevScrollY + 4) {
-          setHidden(true);
-        } else if (sy < prevScrollY - 4) {
-          setHidden(false);
-        }
-      } else {
-        setHidden(false);
-      }
-
-      setPrevScrollY(sy);
-      setScrollY(sy);
+      setScrollY(Math.min(sy, SCROLL_END + 1));
 
       if (isNavigatingRef.current) return;
 
@@ -178,10 +199,16 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
       }
     };
 
+    const handleScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
     window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    update();
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [currentRoute, prevScrollY]);
+  }, [currentRoute]);
 
   /* â”€â”€ Body scroll lock â”€â”€ */
   useEffect(() => {
@@ -226,17 +253,22 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
   }, [onNavigate]);
 
   const isActive = (item: NavItemType): boolean => {
+    if (currentRoute !== '/') return false;
     if (item.type === 'section') {
-      if (item.id === 'home') return currentRoute === '/' && activeSection === 'home';
-      return currentRoute === '/' && activeSection === item.id;
+      if (item.id === 'home') return activeSection === 'home';
+      return activeSection === item.id;
     }
-    return currentRoute === item.target;
+    return false;
   };
 
-  const activeItemId = NAV_ITEMS.find((item) => isActive(item))?.id || 'home';
+  const activeItemId = currentRoute === '/' ? (NAV_ITEMS.find((item) => isActive(item))?.id || 'home') : null;
 
-  /* â”€â”€ Sliding indicator position â”€â”€ */
+  /* ── Sliding indicator position ── */
   useEffect(() => {
+    if (!activeItemId) {
+      setIndicatorPos(null);
+      return;
+    }
     const updatePosition = () => {
       const activeEl = itemRefs.current[activeItemId];
       if (activeEl) setIndicatorPos({ left: activeEl.offsetLeft, width: activeEl.offsetWidth });
@@ -379,7 +411,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
       <motion.header
         aria-label="Primary Navigation"
         animate={{
-          y: hidden ? '-120%' : '0%',
+          y: '0%',
         }}
         transition={{
           type: 'spring',
@@ -423,15 +455,19 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               borderRadius: '9999px',
               transformStyle: 'preserve-3d',
               perspective: '600px',
-              /* â”€â”€ KEY FIX: frosted glass pill fades in exactly like nav capsule â”€â”€ */
-              background: `rgba(255,255,255,${lerp(0, 0.82, rawProgress)})`,
-              backdropFilter: `blur(${lerp(0, 18, rawProgress)}px) saturate(${lerp(100, 200, rawProgress)}%)`,
-              WebkitBackdropFilter: `blur(${lerp(0, 18, rawProgress)}px) saturate(${lerp(100, 200, rawProgress)}%)`,
-              border: `1px solid rgba(255,255,255,${lerp(0, 0.88, rawProgress)})`,
-              boxShadow: rawProgress > 0.1
-                ? `0 8px 24px -6px rgba(15,23,42,${0.07 * rawProgress}), inset 0 1.5px 1.5px rgba(255,255,255,${rawProgress})`
-                : 'none',
-              transition: 'box-shadow 0.2s ease',
+              /* Ultra-transparent iOS liquid glass */
+              background: isSubpage
+                ? 'rgba(255, 255, 255, 0.65)'
+                : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
+              backdropFilter: 'blur(30px) saturate(190%)',
+              WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+              border: isSubpage
+                ? '1px solid rgba(226, 232, 240, 0.90)'
+                : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
+              boxShadow: isSubpage
+                ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+                : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
+              transition: 'box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease',
             }}
           >
             <div className="relative" style={{ transformStyle: 'preserve-3d' }}>
@@ -455,14 +491,13 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                   width: 34, height: 34,
                   borderRadius: 11,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  /* Over video: white glass icon. Scrolled: blue-tinted glass on white pill */
-                  background: rawProgress > 0.5
-                    ? 'linear-gradient(135deg, rgba(37,99,235,0.1) 0%, rgba(219,234,254,0.7) 100%)'
-                    : 'rgba(255,255,255,0.18)',
-                  border: rawProgress > 0.5
-                    ? '1px solid rgba(37,99,235,0.25)'
-                    : '1px solid rgba(255,255,255,0.38)',
-                  color: rawProgress > 0.5 ? '#2563EB' : '#FFFFFF',
+                  background: isScrolled
+                    ? 'rgba(37, 99, 235, 0.12)'
+                    : 'rgba(255, 255, 255, 0.18)',
+                  border: isScrolled
+                    ? '1px solid rgba(37, 99, 235, 0.28)'
+                    : '1px solid rgba(255, 255, 255, 0.38)',
+                  color: isScrolled ? '#2563EB' : '#FFFFFF',
                   transition: 'color 0.2s ease, background 0.2s ease, border-color 0.2s ease',
                 }}
               >
@@ -476,87 +511,50 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             </div>
 
             <div className="flex flex-col text-left">
-              {/* Brand name â€” always crisp, no muddy intermediate */}
+              {/* Brand name — high contrast bold */}
               <span
-                className="font-bold text-base tracking-tight leading-none"
+                className="font-extrabold text-base tracking-tight leading-none"
                 style={{
-                  /* Sharp two-state: white over video, deep navy when scrolled */
-                  color: isScrolled ? '#0F172A' : 'rgba(255,255,255,0.97)',
-                  transition: 'color 0.25s ease',
-                  textShadow: !isScrolled ? '0 1px 4px rgba(0,0,0,0.45)' : 'none',
+                  color: isScrolled ? '#0F172A' : '#FFFFFF',
+                  transition: 'color 0.2s ease',
+                  textShadow: !isScrolled ? '0 1px 3px rgba(0,0,0,0.55)' : 'none',
                 }}
               >
-                Osteo<span style={{ color: '#2563EB' }}>Vision</span>
+                Osteo<span style={{ color: isScrolled ? '#2563EB' : '#38BDF8' }}>Vision</span>
               </span>
 
-              {/* â”€â”€ CLINICAL TERMINAL TICKER â”€â”€ */}
-              <span
-                className="text-[9px] font-semibold tracking-wider mt-1 uppercase leading-none font-mono"
-                style={{
-                  /* Always readable: light over video, muted slate when scrolled */
-                  color: isScrolled ? '#64748B' : 'rgba(255,255,255,0.72)',
-                  textShadow: !isScrolled ? '0 1px 2px rgba(0,0,0,0.35)' : 'none',
-                  minWidth: '164px',
-                  display: 'inline-block',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  transition: 'color 0.25s ease',
-                }}
-              >
-                {tickerText}
-                <span
-                  style={{
-                    opacity: tickerCursor ? 1 : 0,
-                    transition: 'opacity 0.1s',
-                    color: isScrolled ? '#2563EB' : 'rgba(147,197,253,0.85)',
-                    marginLeft: '1px',
-                  }}
-                >
-                  |
-                </span>
-              </span>
+              {/* ── CLINICAL TERMINAL TICKER — isolated component, see TerminalTicker ── */}
+              <TerminalTicker scrolled={isScrolled} />
             </div>
           </motion.button>
 
-          {/* â”€â”€ CENTER: Nav Capsule â€” blur-to-sharp hover + gradient border â”€â”€ */}
+          {/* ── CENTER: Nav Capsule — Ultra-Transparent iOS Glass ── */}
           <div className="relative pointer-events-auto hidden lg:block">
-            {/* Animated gradient border (only visible when scrolled) */}
-            {isScrolled && (
-              <div
-                aria-hidden="true"
-                style={{
-                  position: 'absolute',
-                  inset: '-1.5px',
-                  borderRadius: '9999px',
-                  background: 'linear-gradient(90deg, rgba(37,99,235,0.0) 0%, rgba(37,99,235,0.35) 40%, rgba(6,182,212,0.3) 60%, rgba(37,99,235,0.0) 100%)',
-                  animation: 'navBorderSpin 3s linear infinite',
-                  zIndex: -1,
-                  pointerEvents: 'none',
-                }}
-              />
-            )}
-
             <nav
               className="flex items-center rounded-full relative overflow-hidden"
               style={{
                 padding: '6px',
-                background: `rgba(255,255,255,${lerp(0, 0.75, rawProgress)})`,
-                backdropFilter: `blur(${lerp(0, 18, rawProgress)}px) saturate(${lerp(100,200,rawProgress)}%)`,
-                WebkitBackdropFilter: `blur(${lerp(0, 18, rawProgress)}px) saturate(${lerp(100,200,rawProgress)}%)`,
-                border: `1px solid rgba(255,255,255,${lerp(0, 0.88, rawProgress)})`,
-                boxShadow: rawProgress > 0.1
-                  ? `0 16px 36px -10px rgba(15,23,42,${0.08 * rawProgress}), inset 0 2px 2px rgba(255,255,255,${rawProgress}), inset 0 -1px 1.5px rgba(15,23,42,${0.02 * rawProgress})`
-                  : 'none',
+                background: isSubpage
+                  ? 'rgba(255, 255, 255, 0.65)'
+                  : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
+                backdropFilter: 'blur(30px) saturate(190%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+                border: isSubpage
+                  ? '1px solid rgba(226, 232, 240, 0.90)'
+                  : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
+                boxShadow: isSubpage
+                  ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+                  : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
               }}
               aria-label="Desktop Primary Navigation"
             >
               {/* Sliding Active Pill */}
               {indicatorPos && (
                 <motion.div
-                  className="absolute top-1.5 bottom-1.5 rounded-full bg-gradient-to-r from-[#2563EB] to-[#1D4ED8] z-0 pointer-events-none"
+                  className="absolute top-1.5 bottom-1.5 rounded-full bg-[#2563EB] z-0 pointer-events-none"
                   style={{
                     left: 0,
-                    boxShadow: '0 4px 16px rgba(37,99,235,0.4),inset 0 1.5px 1.5px rgba(255,255,255,0.45),inset 0 -1px 2px rgba(0,0,0,0.2)',
+                    boxShadow: '0 4px 14px rgba(37,99,235,0.38), inset 0 1px 0 rgba(255,255,255,0.35)',
                   }}
                   initial={false}
                   animate={{ x: indicatorPos.left, width: indicatorPos.width }}
@@ -575,18 +573,16 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                     onClick={() => handleItemClick(item)}
                     onMouseEnter={() => setHoveredNav(item.id)}
                     onMouseLeave={() => setHoveredNav(null)}
-                    className="relative z-10 px-4 py-1.5 rounded-full text-xs font-semibold tracking-normal cursor-pointer flex items-center gap-1.5 focus-visible:outline-none"
+                    className="relative z-10 px-4 py-1.5 rounded-full text-xs font-bold tracking-normal cursor-pointer flex items-center gap-1.5 focus-visible:outline-none"
                     style={{
                       color: active
                         ? '#FFFFFF'
-                        : rawProgress < 0.5
-                          ? `rgba(255,255,255,${lerp(0.92, 0.7, rawProgress * 2)})`
-                          : `rgba(71,85,105,${lerp(0, 1, (rawProgress - 0.5) * 2)})`,
-                      textShadow: !active && rawProgress < 0.4 ? '0 1px 3px rgba(0,0,0,0.5)' : 'none',
-                      /* blur-to-sharp on hover (non-active items) */
-                      filter: !active && hovered ? 'none' : !active && !hovered && isScrolled ? 'blur(0px)' : 'none',
-                      transform: hovered && !active ? 'scale(1.08)' : 'scale(1)',
-                      transition: 'color 0.2s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1), filter 0.2s ease',
+                        : isScrolled
+                          ? '#0F172A'
+                          : '#FFFFFF',
+                      textShadow: !active && !isScrolled ? '0 1px 3px rgba(0,0,0,0.55)' : 'none',
+                      transform: hovered && !active ? 'scale(1.05)' : 'scale(1)',
+                      transition: 'color 0.2s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1)',
                     }}
                     aria-current={active ? 'page' : undefined}
                   >
@@ -597,20 +593,26 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             </nav>
           </div>
 
-          {/* â”€â”€ RIGHT: Status + CTA + Mobile trigger â”€â”€ */}
+          {/* ── RIGHT: Status + CTA + Mobile trigger ── */}
           <div className="pointer-events-auto flex items-center gap-2.5 flex-shrink-0">
 
-            {/* Status capsule â€” shows terminal-style text */}
+            {/* Status capsule — Ultra-Transparent iOS glass */}
             <div
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-medium"
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold"
               style={{
-                background: `rgba(255,255,255,${lerp(0.15, 0.78, rawProgress)})`,
-                backdropFilter: `blur(${lerp(0, 16, rawProgress)}px) saturate(180%)`,
-                WebkitBackdropFilter: `blur(${lerp(0, 16, rawProgress)}px) saturate(180%)`,
-                border: `1px solid rgba(255,255,255,${lerp(0.2, 0.9, rawProgress)})`,
-                boxShadow: `0 4px 14px rgba(15,23,42,${lerp(0, 0.05, rawProgress)}), inset 0 1.5px 1.5px rgba(255,255,255,${lerp(0.3, 1, rawProgress)})`,
-                color: rawProgress < 0.4 ? 'rgba(255,255,255,0.92)' : '#374151',
-                textShadow: rawProgress < 0.4 ? '0 1px 3px rgba(0,0,0,0.4)' : 'none',
+                background: isSubpage
+                  ? 'rgba(255, 255, 255, 0.65)'
+                  : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
+                backdropFilter: 'blur(30px) saturate(190%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+                border: isSubpage
+                  ? '1px solid rgba(226, 232, 240, 0.90)'
+                  : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
+                boxShadow: isSubpage
+                  ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+                  : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
+                color: isScrolled ? '#0F172A' : '#FFFFFF',
+                textShadow: !isScrolled ? '0 1px 3px rgba(0,0,0,0.45)' : 'none',
               }}
             >
               {/* Pulsing green dot */}
@@ -628,17 +630,19 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               whileHover={{ scale: 1.04, y: -1 }}
               whileTap={{ scale: 0.97 }}
               transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-xs text-white cursor-pointer overflow-hidden"
+              className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs text-white cursor-pointer overflow-hidden"
               style={{
-                background: rawProgress < 0.4
-                  ? `rgba(255,255,255,${lerp(0.18, 0.3, rawProgress)})`
-                  : `linear-gradient(135deg, #1E40AF 0%, #1E293B 60%, #0F172A 100%)`,
-                backdropFilter: rawProgress < 0.5 ? `blur(${lerp(10, 0, rawProgress)}px)` : 'none',
-                WebkitBackdropFilter: rawProgress < 0.5 ? `blur(${lerp(10, 0, rawProgress)}px)` : 'none',
-                border: `1px solid rgba(255,255,255,${lerp(0.35, 0.28, rawProgress)})`,
-                boxShadow: rawProgress < 0.4
-                  ? `0 8px 24px rgba(0,0,0,0.15), inset 0 1px 1px rgba(255,255,255,0.4)`
-                  : `0 12px 28px -4px rgba(15,23,42,0.38), 0 4px 10px rgba(37,99,235,0.2), inset 0 1.8px 1.5px rgba(255,255,255,0.45)`,
+                background: isScrolled
+                  ? 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)'
+                  : 'rgba(255,255,255,0.18)',
+                backdropFilter: 'blur(30px) saturate(190%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+                border: isScrolled
+                  ? '1px solid rgba(255,255,255,0.35)'
+                  : '1px solid rgba(255,255,255,0.40)',
+                boxShadow: isScrolled
+                  ? '0 8px 24px rgba(37,99,235,0.32), inset 0 1px 0 rgba(255,255,255,0.35)'
+                  : '0 8px 24px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.45)',
               }}
               aria-label="Upload Knee X-Ray to AI Studio"
             >
@@ -653,7 +657,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                 }}
               />
               <UploadCloud size={14} />
-              <span className="whitespace-nowrap font-medium">Upload Knee X-Ray</span>
+              <span className="whitespace-nowrap font-semibold">Upload Knee X-Ray</span>
               <ArrowRight size={13} />
             </motion.button>
 
@@ -662,11 +666,18 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 cursor-pointer"
               style={{
-                background: `rgba(255,255,255,${lerp(0.15, 0.75, rawProgress)})`,
-                backdropFilter: `blur(${lerp(6, 24, rawProgress)}px) saturate(180%)`,
-                WebkitBackdropFilter: `blur(${lerp(6, 24, rawProgress)}px) saturate(180%)`,
-                border: `1px solid rgba(255,255,255,${lerp(0.2, 0.9, rawProgress)})`,
-                color: rawProgress < 0.5 ? 'rgba(255,255,255,0.92)' : '#0F172A',
+                background: isSubpage
+                  ? 'rgba(255, 255, 255, 0.65)'
+                  : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
+                backdropFilter: 'blur(30px) saturate(190%)',
+                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+                border: isSubpage
+                  ? '1px solid rgba(226, 232, 240, 0.90)'
+                  : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
+                boxShadow: isSubpage
+                  ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
+                  : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
+                color: isScrolled ? '#0F172A' : '#FFFFFF',
               }}
               aria-label={mobileOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={mobileOpen}
