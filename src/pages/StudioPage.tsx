@@ -38,6 +38,17 @@ interface SampleCase {
   heatmapImageIndex: number;
 }
 
+interface BackendResult {
+  prediction: string;
+  confidence: number;
+  class_probabilities: {
+    normal: number;
+    osteopenia: number;
+    osteoporosis: number;
+  };
+  heatmap_base64: string;
+}
+
 /* ─────────────────────────────────────────────
    Clinical Sample Data (PRESERVED)
 ───────────────────────────────────────────── */
@@ -102,37 +113,149 @@ const getFramePath = (index: number) =>
   `/frames/frame_${index.toString().padStart(6, '0')}.jpg`;
 
 /* ─────────────────────────────────────────────
-   StudioPage Component - Light Clinical Design
+   StudioPage Component - Full API Integration
 ───────────────────────────────────────────── */
 export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   React.useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, []);
 
-  const [selectedCaseIdx, setSelectedCaseIdx]   = useState(0);
-  const [activeLayer, setActiveLayer]           = useState<'raw' | 'heatmap'>('heatmap');
-  const [isAnalyzing, setIsAnalyzing]           = useState(false);
-  const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
-  const [reportGenerated, setReportGenerated]   = useState(false);
+  // Application State
+  const [selectedCaseIdx, setSelectedCaseIdx] = useState<number | null>(0);
+  const [activeLayer, setActiveLayer] = useState<'raw' | 'heatmap'>('raw');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [reportGenerated, setReportGenerated] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
 
-  const currentCase = CLINICAL_SAMPLES[selectedCaseIdx];
+  // Custom Upload State
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [backendResult, setBackendResult] = useState<BackendResult | null>(null);
 
-  const triggerAnalysis = (fileName?: string) => {
-    if (fileName) setUploadedFileName(fileName);
-    setIsAnalyzing(true);
-    setReportGenerated(false);
-    setTimeout(() => setIsAnalyzing(false), 1400);
-  };
-
+  // Handle local file selection
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) triggerAnalysis(file.name);
+    if (file) {
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+      setBackendResult(null);
+      setSelectedCaseIdx(null); // Switch off clinical samples
+      setApiError(null);
+      setActiveLayer('raw');
+    }
+  };
+
+  // Switch back to hardcoded samples
+  const selectClinicalSample = (idx: number) => {
+    setSelectedCaseIdx(idx);
+    setSelectedFile(null);
+    setPreviewUrl(null);
+    setBackendResult(null);
+    setApiError(null);
+    setActiveLayer('heatmap'); // Default to showing off the heatmap for samples
+  };
+
+  // Central analysis trigger (handles both fake samples and real API calls)
+  const triggerAnalysis = async () => {
+    setIsAnalyzing(true);
+    setReportGenerated(false);
+    setApiError(null);
+
+    // If using a hardcoded sample, simulate a fast delay
+    if (selectedCaseIdx !== null) {
+      setTimeout(() => {
+        setIsAnalyzing(false);
+        setActiveLayer('heatmap');
+      }, 1400);
+      return;
+    }
+
+    // If custom image, call the FastAPI backend
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error("API request failed");
+        
+        const data = await response.json();
+        setBackendResult(data);
+        setActiveLayer('heatmap');
+      } catch (err) {
+        console.error(err);
+        setApiError("Failed to reach OsteoVision AI. Ensure your backend server is running.");
+      } finally {
+        setIsAnalyzing(false);
+      }
+    }
   };
 
   const handleDownloadReport = () => {
     setReportGenerated(true);
     setTimeout(() => setReportGenerated(false), 3000);
   };
+
+  // Helper to dynamically style UI based on FastAPI response
+  const getDisplayCase = (): SampleCase => {
+    // If a sample is selected, use it directly
+    if (selectedCaseIdx !== null) return CLINICAL_SAMPLES[selectedCaseIdx];
+
+    // If custom file but NO backend result yet, show pending state
+    if (!backendResult) {
+      return {
+        id: 'custom',
+        title: selectedFile?.name || 'Custom Upload',
+        view: 'Unknown Protocol',
+        diagnosis: 'Pending Analysis...',
+        score: 0,
+        confidence: 'N/A',
+        riskCategory: 'Moderate Risk',
+        riskColor: 'text-[#94A3B8]',
+        riskBadgeClass: 'bg-slate-100 border-slate-200 text-slate-500',
+        riskBarColor: 'from-slate-200 to-slate-300',
+        findings: 'Upload an image and run diagnostic analysis to view AI extraction features.',
+        recommendations: 'Pending AI evaluation.',
+        rawImageIndex: 0,
+        heatmapImageIndex: 0,
+      };
+    }
+
+    // Map FastAPI values to the UI theme
+    const isOsteo = backendResult.prediction === 'osteoporosis';
+    const isNormal = backendResult.prediction === 'normal';
+    
+    return {
+      id: 'custom',
+      title: selectedFile?.name || 'Custom Upload',
+      view: 'AI Extracted Features',
+      diagnosis: isOsteo ? 'Osteoporosis Indication' : isNormal ? 'Normal Healthy Bone Density' : 'Osteopenia (Mild Reduction)',
+      score: Math.round(backendResult.confidence), 
+      confidence: `${backendResult.confidence.toFixed(1)}%`,
+      riskCategory: isOsteo ? 'High Risk' : isNormal ? 'Healthy / Low Risk' : 'Moderate Risk',
+      riskColor: isOsteo ? 'text-[#DC2626]' : isNormal ? 'text-[#16A34A]' : 'text-[#D97706]',
+      riskBadgeClass: isOsteo ? 'bg-[#FEF2F2] border border-[#FECACA] text-[#B91C1C]' :
+                      isNormal ? 'bg-[#F0FDF4] border border-[#BBF7D0] text-[#15803D]' :
+                      'bg-[#FFFBEB] border border-[#FDE68A] text-[#B45309]',
+      riskBarColor: isOsteo ? 'from-[#2563EB] via-[#D97706] to-[#DC2626]' :
+                    isNormal ? 'from-[#2563EB] to-[#16A34A]' :
+                    'from-[#2563EB] to-[#D97706]',
+      findings: isOsteo ? 'AI detected significant trabecular loss and cortical thinning consistent with osteoporosis.' :
+                isNormal ? 'Uniform trabecular network preserved. No significant signs of density degradation.' :
+                'Early signs of density attenuation detected by the AI model. Borderline trabecular rarefaction.',
+      recommendations: isOsteo ? 'Clinical correlation with DXA required. Consider anti-resorptive therapy consultation.' :
+                       isNormal ? 'Maintain routine wellness protocols and calcium intake.' :
+                       'Lifestyle modifications and calcium/Vit-D supplementation. Routine surveillance.',
+      rawImageIndex: 0,
+      heatmapImageIndex: 0,
+    };
+  };
+
+  const displayCase = getDisplayCase();
 
   return (
     <div className="animate-pageEnter pt-28 pb-20 min-h-screen relative overflow-hidden">
@@ -196,7 +319,6 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 </span>
               </div>
 
-              {/* Master Spec #23 Upload Area Styles */}
               <label className="relative flex flex-col items-center justify-center text-center cursor-pointer rounded-2xl border-2 border-dashed border-[#CBD5E1] hover:border-[#60A5FA] bg-[#F8FAFC]/50 hover:bg-[#F0F7FF] transition-all duration-200 p-8 gap-3 group">
                 <input
                   type="file"
@@ -209,8 +331,8 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 </div>
                 <div>
                   <p className="text-sm font-bold text-[#1E293B] tracking-tight">
-                    {uploadedFileName ? (
-                      <span className="text-[#2563EB] truncate max-w-[220px] block">{uploadedFileName}</span>
+                    {selectedFile ? (
+                      <span className="text-[#2563EB] truncate max-w-[220px] block">{selectedFile.name}</span>
                     ) : (
                       'Drag & drop patient radiograph or Browse'
                     )}
@@ -236,15 +358,11 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
 
               <div className="flex flex-col gap-2.5">
                 {CLINICAL_SAMPLES.map((c, idx) => {
-                  const isSelected = selectedCaseIdx === idx && !uploadedFileName;
+                  const isSelected = selectedCaseIdx === idx;
                   return (
                     <button
                       key={c.id}
-                      onClick={() => {
-                        setSelectedCaseIdx(idx);
-                        setUploadedFileName(null);
-                        triggerAnalysis();
-                      }}
+                      onClick={() => selectClinicalSample(idx)}
                       className={`
                         flex items-center justify-between p-3.5 rounded-xl text-left
                         transition-all duration-200 cursor-pointer border
@@ -267,25 +385,33 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Run Analysis Action CTA (Tactile 3D Button) */}
-            <button
-              onClick={() => triggerAnalysis()}
-              disabled={isAnalyzing}
-              className="btn-tactile-dark w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-full font-bold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isAnalyzing ? (
-                <>
-                  <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  <span>Computing Attention Heatmaps...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles size={16} />
-                  <span>Execute Diagnostic Analysis</span>
-                  <ArrowRight size={15} />
-                </>
+            {/* Run Analysis Action CTA */}
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={triggerAnalysis}
+                disabled={isAnalyzing || (!selectedFile && selectedCaseIdx === null)}
+                className="btn-tactile-dark w-full flex items-center justify-center gap-2.5 py-3.5 px-6 rounded-full font-bold text-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <div className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    <span>Computing Attention Heatmaps...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles size={16} />
+                    <span>Execute Diagnostic Analysis</span>
+                    <ArrowRight size={15} />
+                  </>
+                )}
+              </button>
+              
+              {apiError && (
+                <div className="mt-2 text-xs font-medium text-red-600 flex items-center justify-center gap-1 bg-red-50 py-2 rounded-lg border border-red-100">
+                  <AlertTriangle size={14} /> {apiError}
+                </div>
               )}
-            </button>
+            </div>
 
           </div>
 
@@ -294,7 +420,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           ════════════════════════════════════════ */}
           <div className="lg:col-span-7 flex flex-col gap-6">
 
-            {/* High-Resolution DICOM / Radiograph Viewport Card (Tactile 3D Card) */}
+            {/* High-Resolution DICOM / Radiograph Viewport Card */}
             <div className="card-tactile p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                 <div>
@@ -309,7 +435,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                   </p>
                 </div>
 
-                {/* Layer Toggle Switcher — Tactile Pill */}
+                {/* Layer Toggle Switcher */}
                 <div className="inline-flex rounded-full p-1 bg-slate-100 border border-slate-200 shadow-xs">
                   <button
                     onClick={() => setActiveLayer('raw')}
@@ -323,7 +449,10 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                   </button>
                   <button
                     onClick={() => setActiveLayer('heatmap')}
-                    className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer ${
+                    disabled={!backendResult && selectedCaseIdx === null}
+                    className={`px-3 py-1.5 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                      (!backendResult && selectedCaseIdx === null) ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    } ${
                       activeLayer === 'heatmap'
                         ? 'btn-tactile-dark !py-1 !px-3'
                         : 'text-[#475569] hover:text-[#0F172A]'
@@ -335,22 +464,30 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 </div>
               </div>
 
-              {/* Viewport Frame — Master Spec #24: Canvas is #0F172A specifically for X-ray visibility */}
+              {/* Viewport Frame */}
               <div className="relative rounded-2xl bg-[#0F172A] aspect-[16/10] overflow-hidden flex items-center justify-center border border-slate-200 shadow-inner">
-                <img
-                  src={
-                    activeLayer === 'heatmap'
-                      ? getFramePath(currentCase.heatmapImageIndex)
-                      : getFramePath(currentCase.rawImageIndex)
-                  }
-                  alt={`${activeLayer === 'heatmap' ? 'Grad-CAM Attention Map' : 'Raw Radiograph'} — ${currentCase.title}`}
-                  className="w-full h-full object-contain filter contrast-[1.05]"
-                />
+                {selectedCaseIdx !== null ? (
+                  // Showing Sample Code Images
+                  <img
+                    src={activeLayer === 'heatmap' ? getFramePath(displayCase.heatmapImageIndex) : getFramePath(displayCase.rawImageIndex)}
+                    alt="Clinical Reference"
+                    className="w-full h-full object-contain filter contrast-[1.05]"
+                  />
+                ) : (
+                  // Showing Uploaded Images
+                  previewUrl && (
+                    <img
+                      src={activeLayer === 'heatmap' && backendResult ? `data:image/jpeg;base64,${backendResult.heatmap_base64}` : previewUrl}
+                      alt="Uploaded Radiograph"
+                      className="w-full h-full object-contain filter contrast-[1.05]"
+                    />
+                  )
+                )}
 
                 {/* Clinical Coordinate Axes */}
                 <div className="absolute inset-0 medical-grid-bg opacity-20 pointer-events-none" />
 
-                {/* Anatomical Orientation Tags — Master Spec #25 */}
+                {/* Anatomical Orientation Tags */}
                 <div className="absolute top-3 left-3 z-20 text-[10px] font-mono text-[#0F172A] bg-white/95 border border-slate-200 px-2.5 py-1 rounded-full shadow-xs">
                   ANTERIOR-POSTERIOR (AP)
                 </div>
@@ -360,16 +497,13 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
 
                 {/* Scan Line when analyzing */}
                 {isAnalyzing && (
-                  <div className="absolute inset-0 bg-[#0F172A]/80 backdrop-blur-xs flex flex-col items-center justify-center gap-3 z-30">
-                    <div className="w-6 h-6 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                    <div className="text-center">
-                      <p className="text-sm font-bold text-white">Extracting Trabecular Features</p>
-                      <p className="text-xs text-blue-200 mt-0.5 font-mono">Running Layer-4 Grad-CAM Projection...</p>
-                    </div>
+                  <div className="absolute inset-0 bg-[#0F172A]/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4 z-30">
+                    <div className="w-8 h-8 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    <p className="text-base font-bold text-white tracking-wide">Processing...</p>
                   </div>
                 )}
 
-                {/* Heatmap Spectral Legend — Master Spec #26 */}
+                {/* Heatmap Spectral Legend */}
                 {activeLayer === 'heatmap' && !isAnalyzing && (
                   <div className="absolute bottom-3 right-3 z-20 flex items-center gap-2 text-[10px] font-mono text-[#475569] bg-white/95 border border-slate-200 px-3 py-1 rounded-full shadow-xs">
                     <span>Preserved</span>
@@ -380,25 +514,25 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* Results Diagnostic Card (Tactile 3D Card) */}
+            {/* Results Diagnostic Card */}
             <div className="card-tactile p-7">
               {/* Telemetry Header */}
               <div className="flex items-start justify-between gap-4 pb-6 border-b border-slate-200 mb-6">
                 <div>
-                  <span className={`inline-block text-[11px] font-bold tracking-wider px-3 py-1 rounded-full mb-2 ${currentCase.riskBadgeClass}`}>
-                    {currentCase.riskCategory}
+                  <span className={`inline-block text-[11px] font-bold tracking-wider px-3 py-1 rounded-full mb-2 ${displayCase.riskBadgeClass}`}>
+                    {displayCase.riskCategory}
                   </span>
-                  <h3 className="text-xl font-bold text-[#0F172A] tracking-tight">{currentCase.diagnosis}</h3>
+                  <h3 className="text-xl font-bold text-[#0F172A] tracking-tight">{displayCase.diagnosis}</h3>
                   <p className="text-xs text-[#475569] mt-1">
                     Neural Model Confidence:{' '}
-                    <span className="text-[#0F172A] font-bold font-mono">{currentCase.confidence}</span>
+                    <span className="text-[#0F172A] font-bold font-mono">{displayCase.confidence}</span>
                   </p>
                 </div>
 
                 <div className="text-right flex-shrink-0 bg-white px-4 py-3 rounded-2xl border border-slate-200 shadow-xs">
                   <p className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider mb-0.5">Fragility Score</p>
-                  <p className={`text-4xl font-black font-mono leading-none ${currentCase.riskColor}`}>
-                    {currentCase.score}
+                  <p className={`text-4xl font-black font-mono leading-none ${displayCase.riskColor}`}>
+                    {displayCase.score}
                   </p>
                   <p className="text-[10px] text-[#94A3B8] mt-1">out of 100</p>
                 </div>
@@ -408,28 +542,14 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               <div className="mb-6">
                 <div className="flex justify-between items-center mb-1.5">
                   <span className="text-xs text-[#475569] font-medium">Osteoporosis Fracture Risk Probability</span>
-                  <span className="text-xs font-bold text-[#2563EB] font-mono">{currentCase.confidence}</span>
+                  <span className="text-xs font-bold text-[#2563EB] font-mono">{displayCase.confidence}</span>
                 </div>
                 <div className="h-2.5 rounded-full bg-slate-100 border border-slate-200 overflow-hidden">
                   <div
-                    className={`h-full rounded-full bg-gradient-to-r ${currentCase.riskBarColor} transition-all duration-500`}
-                    style={{ width: `${currentCase.score}%` }}
+                    className={`h-full rounded-full bg-gradient-to-r ${displayCase.riskBarColor} transition-all duration-500`}
+                    style={{ width: `${displayCase.score}%` }}
                   />
                 </div>
-              </div>
-
-              {/* 3-Class Stratification Breakdown */}
-              <div className="grid grid-cols-3 gap-3 mb-6">
-                {[
-                  { label: 'Normal',       val: `${Math.max(2, 100 - currentCase.score - 5)}%`, badgeClass: 'bg-[#F0FDF4] border-[#BBF7D0] text-[#15803D]' },
-                  { label: 'Osteopenia',   val: `${Math.min(10, Math.max(2, 100 - currentCase.score))}%`, badgeClass: 'bg-[#FFFBEB] border-[#FDE68A] text-[#B45309]' },
-                  { label: 'Osteoporosis', val: `${currentCase.score}%`, badgeClass: 'bg-[#FEF2F2] border-[#FECACA] text-[#B91C1C] font-bold' },
-                ].map((c) => (
-                  <div key={c.label} className={`text-center p-3 rounded-xl border ${c.badgeClass}`}>
-                    <p className="text-sm font-bold font-mono">{c.val}</p>
-                    <p className="text-[10px] uppercase tracking-wider opacity-85 mt-0.5">{c.label}</p>
-                  </div>
-                ))}
               </div>
 
               {/* Findings & Recommendations */}
@@ -439,7 +559,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                     <Compass size={14} />
                     Radiological Anatomical Findings
                   </h4>
-                  <p className="text-sm text-[#475569] leading-relaxed">{currentCase.findings}</p>
+                  <p className="text-sm text-[#475569] leading-relaxed">{displayCase.findings}</p>
                 </div>
 
                 <div className="p-4 rounded-xl bg-[#F8FAFC] border border-slate-200">
@@ -447,7 +567,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                     <ShieldCheck size={14} className="text-[#16A34A]" />
                     Clinical Recommendation
                   </h4>
-                  <p className="text-sm text-[#475569] leading-relaxed">{currentCase.recommendations}</p>
+                  <p className="text-sm text-[#475569] leading-relaxed">{displayCase.recommendations}</p>
                 </div>
               </div>
 
