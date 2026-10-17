@@ -136,12 +136,26 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setBackendResult(null);
-      setSelectedCaseIdx(null); // Switch off clinical samples
-      setApiError(null);
-      setActiveLayer('raw');
+      // 1. Check file extension / type
+      if (!file.type.includes('jpeg') && !file.type.includes('png') && !file.type.includes('jpg')) {
+        alert("Please upload a standard image file (JPEG/PNG).");
+        return;
+      }
+
+      // 2. Optional: Preview check or dimension warning
+      const img = new window.Image();
+      img.src = URL.createObjectURL(file);
+      img.onload = () => {
+        // You can check aspect ratio if knee X-rays have a specific ratio, e.g.:
+        // if (img.width < 200 || img.height < 200) { alert("Image resolution too low."); return; }
+        
+        setSelectedFile(file);
+        setPreviewUrl(img.src);
+        setBackendResult(null);
+        setSelectedCaseIdx(null);
+        setApiError(null);
+        setActiveLayer('raw');
+      };
     }
   };
 
@@ -181,14 +195,19 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           body: formData,
         });
 
-        if (!response.ok) throw new Error("API request failed");
+        // Parse error response if the backend rejected the upload
+        if (!response.ok) {
+          const errData = await response.json();
+          throw new Error(errData.detail || "API request failed");
+        }
         
         const data = await response.json();
         setBackendResult(data);
         setActiveLayer('heatmap');
-      } catch (err) {
+      } catch (err: any) {
         console.error(err);
-        setApiError("Failed to reach OsteoVision AI. Ensure your backend server is running.");
+        // This will now correctly display the exact backend validation error on your UI
+        setApiError(err.message || "Failed to reach OsteoVision AI. Ensure your backend server is running.");
       } finally {
         setIsAnalyzing(false);
       }

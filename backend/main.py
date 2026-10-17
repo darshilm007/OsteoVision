@@ -1,5 +1,7 @@
+import io
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from PIL import Image
 from contextlib import asynccontextmanager
 from ml_model import OsteoVisionModel
 import uvicorn
@@ -39,30 +41,34 @@ app.add_middleware(
 
 @app.post("/predict")
 async def predict_image(file: UploadFile = File(...)):
-    """Endpoint to process an uploaded image and return prediction + heatmap."""
+    """Endpoint to process an uploaded image, validate it, and return prediction + heatmap."""
     
-    # 1. Validate that the uploaded file is actually an image
+    # 1. Validate file type
     if not file.content_type.startswith("image/"):
         raise HTTPException(
             status_code=400, 
-            detail=f"Invalid file type '{file.content_type}'. Please upload an image."
+            detail="Invalid file type. Please upload a valid image file (PNG/JPEG)."
         )
     
     try:
-        # 2. Read file bytes
         image_bytes = await file.read()
         
-        # 3. Pass bytes to the globally initialized model
+        # (Optional Security/Anatomical Check)
+        # If you train a binary classifier later for knee vs non-knee, you can check it here.
+        # For now, we ensure the image opens cleanly via PIL.
+        image = Image.open(io.BytesIO(image_bytes))
+        image.verify() 
+        
+        # 2. Pass bytes to the ML model
         response = ml_model.predict(image_bytes)
         return response
         
     except Exception as e:
-        # 4. Handle arbitrary processing errors gracefully
         raise HTTPException(
-            status_code=500, 
-            detail=f"An error occurred while processing the image: {str(e)}"
-        )
-
+            status_code=400, 
+            detail=f"The uploaded file could not be processed as a valid radiograph: {str(e)}"
+        )  
+        
 if __name__ == "__main__":
     # Run the server locally using Uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
