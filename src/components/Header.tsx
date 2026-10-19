@@ -20,7 +20,6 @@ import { motion, AnimatePresence } from 'motion/react';
 interface HeaderProps {
   currentRoute: string;
   onNavigate: (route: string, sectionId?: string) => void;
-  scrollProgress?: number;
 }
 
 type NavItemType = {

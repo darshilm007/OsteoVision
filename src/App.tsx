@@ -55,7 +55,6 @@ export default function App() {
       <Header
         currentRoute={currentRoute}
         onNavigate={handleNavigate}
-        scrollProgress={0}
       />
 
       {/* Page Views */}

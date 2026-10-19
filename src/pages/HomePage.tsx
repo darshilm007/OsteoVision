@@ -1,27 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   ArrowRight,
-  UploadCloud,
-  Eye,
-  ShieldCheck,
-  Target,
   Bone,
-  Activity,
   Layers,
-  Sparkles,
   Play,
   Image as ImageIcon,
-  ChevronLeft,
-  ChevronRight,
-  Star,
   Quote,
   Youtube,
   Facebook,
   Twitter,
   Instagram,
-  FileCheck2,
   ScanLine,
-  CheckCircle2,
+  Target,
 } from 'lucide-react';
 import { InteractiveFooterWordmark } from '../components/InteractiveFooterWordmark';
 
@@ -390,19 +380,6 @@ export const HomePage: React.FC<HomePageProps> = ({
   targetSection,
   navKey,
 }) => {
-  // Hero slide counter
-  const [heroSlide, setHeroSlide] = useState(1);
-  const totalHeroSlides = 5;
-
-  // Active pill tag in hero
-  const [activeHeroPill, setActiveHeroPill] = useState(0);
-
-  // Bento slider index
-  const [bentoIdx, setBentoIdx] = useState(0);
-
-  // Testimonial slider index
-  const [testimonialIdx, setTestimonialIdx] = useState(0);
-
   // Interactive sample selector for Diagnostic Output demo
   const [selectedDemoClass, setSelectedDemoClass] = useState<'normal' | 'osteopenia' | 'osteoporosis'>('osteopenia');
 
@@ -1161,23 +1138,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                 Why Knee Radiographs for Osteoporosis?
               </h2>
             </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setBentoIdx((p) => Math.max(0, p - 1))}
-                className="w-9 h-9 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-[#0F172A] cursor-pointer"
-                aria-label="Previous bento card"
-              >
-                <ChevronLeft size={16} />
-              </button>
-              <button
-                onClick={() => setBentoIdx((p) => Math.min(2, p + 1))}
-                className="w-9 h-9 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-[#0F172A] cursor-pointer"
-                aria-label="Next bento card"
-              >
-                <ChevronRight size={16} />
-              </button>
-            </div>
           </div>
 
           {/* 4-Item Bento Grid */}
@@ -1321,24 +1281,6 @@ export const HomePage: React.FC<HomePageProps> = ({
                   <div>
                     <p className="text-sm font-bold text-[#0F172A]">Dr. Marcus Vance, MD</p>
                     <p className="text-xs text-[#64748B]">Consultant Musculoskeletal Radiologist</p>
-                  </div>
-
-                  {/* Slider Arrows */}
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setTestimonialIdx((p) => Math.max(0, p - 1))}
-                      className="w-8 h-8 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-[#0F172A] cursor-pointer"
-                      aria-label="Previous testimonial"
-                    >
-                      <ChevronLeft size={14} />
-                    </button>
-                    <button
-                      onClick={() => setTestimonialIdx((p) => p + 1)}
-                      className="w-8 h-8 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-[#0F172A] cursor-pointer"
-                      aria-label="Next testimonial"
-                    >
-                      <ChevronRight size={14} />
-                    </button>
                   </div>
                 </div>
               </div>

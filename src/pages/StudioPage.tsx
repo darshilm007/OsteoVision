@@ -1,18 +1,13 @@
 import React, { useState } from 'react';
 import {
   UploadCloud,
-  Activity,
   Sparkles,
-  CheckCircle2,
   Lock,
   ArrowRight,
   Download,
   AlertTriangle,
-  Eye,
   ArrowLeft,
   FileImage,
-  Layers,
-  Maximize2,
   ShieldCheck,
   Compass,
 } from 'lucide-react';

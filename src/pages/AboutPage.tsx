@@ -1,18 +1,9 @@
 import React from 'react';
 import {
-  Bone,
   Activity,
-  Cpu,
-  Eye,
-  Lock,
   ArrowRight,
   CheckCircle2,
-  ShieldCheck,
-  Zap,
-  Target,
   Sparkles,
-  Layers,
-  FileCheck,
 } from 'lucide-react';
 
 interface AboutPageProps {
