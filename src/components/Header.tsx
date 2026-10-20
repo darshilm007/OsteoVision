@@ -42,105 +42,10 @@ const NAV_ITEMS: NavItemType[] = [
   { id: 'contact',     label: 'Contact',           type: 'section', target: 'contact',     icon: Cpu      },
 ];
 
-/* Clinical terminal ticker strings */
-const TICKER_STRINGS = [
-  'KNEE RADIOGRAPH ANALYSIS',
-  'MODEL STATUS: ACTIVE â– ',
-  'ROC-AUC: 94.2%',
-  'TRABECULAR SCAN READY',
-  '3-CLASS OUTPUT ENGINE',
-  'OSTEOPOROSIS DETECTION',
-];
-
 /* Lerp helper */
 function lerp(a: number, b: number, t: number): number {
   return a + (b - a) * Math.min(1, Math.max(0, t));
 }
-
-/* â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
-   Clinical Terminal Ticker Hook
-   Cycles through strings with typewriter effect
-â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
-function useTicker(strings: string[], speed = 45, pauseMs = 1800) {
-  const [display, setDisplay] = useState('');
-  const [cursor, setCursor]   = useState(true);
-  const idxRef    = useRef(0);
-  const charRef   = useRef(0);
-  const phaseRef  = useRef<'typing' | 'pausing' | 'erasing'>('typing');
-  const timerRef  = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const tick = () => {
-      const str = strings[idxRef.current];
-
-      if (phaseRef.current === 'typing') {
-        charRef.current++;
-        setDisplay(str.slice(0, charRef.current));
-        if (charRef.current >= str.length) {
-          phaseRef.current = 'pausing';
-          timerRef.current = setTimeout(tick, pauseMs);
-          return;
-        }
-      } else if (phaseRef.current === 'pausing') {
-        phaseRef.current = 'erasing';
-      } else {
-        charRef.current--;
-        setDisplay(str.slice(0, charRef.current));
-        if (charRef.current <= 0) {
-          idxRef.current = (idxRef.current + 1) % strings.length;
-          phaseRef.current = 'typing';
-          timerRef.current = setTimeout(tick, speed * 2);
-          return;
-        }
-      }
-      timerRef.current = setTimeout(tick, phaseRef.current === 'erasing' ? speed * 0.6 : speed);
-    };
-
-    timerRef.current = setTimeout(tick, speed);
-
-    // Cursor blink
-    const blinkInterval = setInterval(() => setCursor(c => !c), 530);
-
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      clearInterval(blinkInterval);
-    };
-  }, [strings, speed, pauseMs]);
-
-  return { display, cursor };
-}
-
-/* Isolated ticker — its ~24 state updates/sec re-render only this tiny span,
-   never the whole 600-line header tree (major continuous CPU win). */
-const TerminalTicker: React.FC<{ scrolled: boolean }> = ({ scrolled }) => {
-  const { display, cursor } = useTicker(TICKER_STRINGS, 42, 1600);
-  return (
-    <span
-      className="text-[9.5px] font-bold tracking-wider mt-1 uppercase leading-none font-mono"
-      style={{
-        color: scrolled ? '#334155' : 'rgba(255,255,255,0.85)',
-        textShadow: !scrolled ? '0 1px 2px rgba(0,0,0,0.45)' : 'none',
-        minWidth: '164px',
-        display: 'inline-block',
-        whiteSpace: 'nowrap',
-        overflow: 'hidden',
-        transition: 'color 0.2s ease',
-      }}
-    >
-      {display}
-      <span
-        style={{
-          opacity: cursor ? 1 : 0,
-          transition: 'opacity 0.1s',
-          color: scrolled ? '#2563EB' : '#38BDF8',
-          marginLeft: '1px',
-        }}
-      >
-        |
-      </span>
-    </span>
-  );
-};
 
 /* ─── Main Header Component ─── */
 export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
@@ -149,6 +54,8 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
   const [activeSection, setActiveSection] = useState<string>('home');
   const [logoTilt, setLogoTilt]           = useState({ x: 0, y: 0 }); // 3D tilt
   const [hoveredNav, setHoveredNav]       = useState<string | null>(null);
+  const [ctaHover, setCtaHover]           = useState(false);
+  const [ctaPressed, setCtaPressed]       = useState(false);
 
   const drawerRef         = useRef<HTMLDivElement>(null);
   const isNavigatingRef   = useRef<boolean>(false);
@@ -157,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
   const itemRefs          = useRef<Record<string, HTMLButtonElement | null>>({});
   const [indicatorPos, setIndicatorPos] = useState<{ left: number; width: number } | null>(null);
 
-  /* Terminal ticker state is isolated inside <TerminalTicker /> */
+  /* Header is always visible — no hide-on-scroll behavior by design. */
 
   /* ── Route & Scroll State: on subpages (like /studio), always keep consistent solid styling ── */
   const isSubpage    = currentRoute !== '/';
@@ -167,6 +74,16 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
   const rawProgress  = isSubpage ? 1 : scrollRatio;
   const paddingY     = isSubpage ? 10 : lerp(20, 10, scrollRatio);
   const isScrolled   = isSubpage || scrollRatio > 0.5;
+
+  /* ── Capsule material (shared) ──
+     Converges to SOLID frosted white as the page scrolls, so page content
+     passing behind the fixed header (e.g. the hero badge pill) never bleeds
+     through the glass — that see-through artifact looked like a ghost box
+     overlapping the logo. Eased (^0.6) so it solidifies early in the scroll. */
+  const capP          = Math.pow(rawProgress, 0.6);
+  const capsuleFill   = `linear-gradient(180deg, rgba(255,255,255,${lerp(0.20, 0.97, capP).toFixed(3)}) 0%, rgba(241,245,249,${lerp(0.09, 0.92, capP).toFixed(3)}) 100%)`;
+  const capsuleBorder = `1px solid rgba(${Math.round(lerp(255, 148, capP))}, ${Math.round(lerp(255, 163, capP))}, ${Math.round(lerp(255, 184, capP))}, ${lerp(0.28, 0.42, capP).toFixed(3)})`;
+  const capsuleShadow = `inset 0 1px 0 rgba(255,255,255,${lerp(0.32, 0.95, capP).toFixed(3)}), inset 0 -1px 0 rgba(15,23,42,${lerp(0, 0.04, capP).toFixed(3)}), 0 1px 2px rgba(15,23,42,${lerp(0.12, 0.06, capP).toFixed(3)}), 0 6px 16px -6px rgba(15,23,42,${lerp(0.30, 0.14, capP).toFixed(3)}), 0 16px 32px -14px rgba(15,23,42,0.10)`;
 
   /* ── Scroll listener: rAF-throttled + clamped ──
      Header styling only varies within the first 120px, so scrollY state is
@@ -287,7 +204,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
     const cy = rect.top + rect.height / 2;
     const dx = (e.clientX - cx) / (rect.width / 2);
     const dy = (e.clientY - cy) / (rect.height / 2);
-    setLogoTilt({ x: dy * -12, y: dx * 14 });
+    setLogoTilt({ x: dy * -6, y: dx * 7 });
   }, []);
 
   const handleLogoMouseLeave = useCallback(() => {
@@ -328,8 +245,8 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
           >
             <div className="flex items-center justify-between px-6 pt-6 pb-5 border-b border-slate-200 relative z-10">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2563EB] shadow-sm">
-                  <Bone size={17} className="-rotate-12" />
+                <div className="w-9 h-9 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-center p-1.5 shadow-sm overflow-hidden">
+                  <img src="/favicon.png" alt="OsteoVision" className="w-full h-full object-contain" />
                 </div>
                 <div>
                   <span className="text-sm font-bold text-[#0F172A] tracking-tight leading-none">
@@ -389,10 +306,10 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             <div className="p-4 border-t border-slate-200 bg-slate-50 relative z-10">
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  <span className="text-slate-600 text-[11px] font-medium">Model Pipeline Active</span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
+                  <span className="text-slate-600 text-[11px] font-medium">Model Available for Demo</span>
                 </div>
-                <span className="text-[#2563EB] font-mono font-semibold text-[11px]">94.2% ROC-AUC</span>
+                <span className="text-[#2563EB] font-mono font-semibold text-[11px]">ConvNeXt-Tiny · Illustrative</span>
               </div>
             </div>
           </motion.div>
@@ -401,23 +318,14 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
 
       {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
           MAIN HEADER â€” Smart Headroom + Floating Capsules
-          â€¢ Hides on scroll-down, springs back on scroll-up
+          â€¢ Always visible - no hide-on-scroll by design
           â€¢ Logo has 3D perspective tilt on hover
-          â€¢ Subtitle is a typewriter clinical terminal ticker
+          â€¢ Subtitle is a static clinical caption
           â€¢ Nav items blur-to-sharp on hover
-          â€¢ Animated gradient border on nav capsule (scrolled)
+          â€¢ Hairline glass capsule, muted navy active pill
       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <motion.header
         aria-label="Primary Navigation"
-        animate={{
-          y: '0%',
-        }}
-        transition={{
-          type: 'spring',
-          stiffness: 400,
-          damping: 36,
-          mass: 0.7,
-        }}
         style={{
           position: 'fixed',
           top: 0,
@@ -434,9 +342,10 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
           pointerEvents: 'none',
         }}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 xl:px-10 flex items-center justify-between gap-4">
+        {/* Balanced 3-column row: logo left · nav perfectly centered · CTA right */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 xl:px-10 grid grid-cols-[auto_1fr_auto] items-center gap-4">
 
-          {/* â”€â”€ LEFT: Logo with 3D Tilt + Terminal Ticker â”€â”€ */}
+          {/* â”€â”€ LEFT: Logo with subtle 3D tilt + static caption â”€â”€ */}
           <motion.button
             ref={logoRef}
             onClick={() => handleItemClick(NAV_ITEMS[0])}
@@ -454,59 +363,38 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               borderRadius: '9999px',
               transformStyle: 'preserve-3d',
               perspective: '600px',
-              /* Ultra-transparent iOS liquid glass */
-              background: isSubpage
-                ? 'rgba(255, 255, 255, 0.65)'
-                : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
-              backdropFilter: 'blur(30px) saturate(190%)',
-              WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-              border: isSubpage
-                ? '1px solid rgba(226, 232, 240, 0.90)'
-                : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
-              boxShadow: isSubpage
-                ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-                : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
+              /* Sculpted glass capsule — solidifies on scroll, no bleed-through */
+              background: capsuleFill,
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+              border: capsuleBorder,
+              boxShadow: capsuleShadow,
               transition: 'box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease',
             }}
           >
             <div className="relative" style={{ transformStyle: 'preserve-3d' }}>
-              {/* Icon container with X-ray glow */}
-              <motion.div
-                animate={{
-                  boxShadow: isScrolled
-                    ? [
-                        '0 0 0px 0px rgba(37,99,235,0)',
-                        '0 0 14px 3px rgba(37,99,235,0.35)',
-                        '0 0 0px 0px rgba(37,99,235,0)',
-                      ]
-                    : [
-                        '0 0 0px 0px rgba(147,197,253,0)',
-                        '0 0 18px 4px rgba(147,197,253,0.4)',
-                        '0 0 0px 0px rgba(147,197,253,0)',
-                      ],
-                }}
-                transition={{ repeat: Infinity, duration: 2.4, ease: 'easeInOut' }}
+              {/* Static refined icon tile — no looping glow pulse */}
+              <div
                 style={{
-                  width: 34, height: 34,
+                  width: 36, height: 36,
                   borderRadius: 11,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: isScrolled
-                    ? 'rgba(37, 99, 235, 0.12)'
-                    : 'rgba(255, 255, 255, 0.18)',
+                    ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.90) 100%)'
+                    : 'linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.14) 100%)',
                   border: isScrolled
-                    ? '1px solid rgba(37, 99, 235, 0.28)'
-                    : '1px solid rgba(255, 255, 255, 0.38)',
-                  color: isScrolled ? '#2563EB' : '#FFFFFF',
-                  transition: 'color 0.2s ease, background 0.2s ease, border-color 0.2s ease',
+                    ? '1px solid rgba(203, 213, 225, 0.8)'
+                    : '1px solid rgba(255, 255, 255, 0.35)',
+                  boxShadow: isScrolled
+                    ? 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 6px rgba(15,23,42,0.08)'
+                    : 'inset 0 1px 0 rgba(255,255,255,0.40), 0 2px 6px rgba(0,0,0,0.18)',
+                  padding: 5,
+                  overflow: 'hidden',
+                  transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
                 }}
               >
-                <Bone size={17} className="-rotate-12" />
-              </motion.div>
-              {/* Live pulse dot */}
-              <span
-                className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-[#2563EB] animate-pulse"
-                style={{ boxShadow: '0 0 8px #2563eb' }}
-              />
+                <img src="/favicon.png" alt="OsteoVision" className="w-full h-full object-contain" />
+              </div>
             </div>
 
             <div className="flex flex-col text-left">
@@ -522,38 +410,45 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                 Osteo<span style={{ color: isScrolled ? '#2563EB' : '#38BDF8' }}>Vision</span>
               </span>
 
-              {/* ── CLINICAL TERMINAL TICKER — isolated component, see TerminalTicker ── */}
-              <TerminalTicker scrolled={isScrolled} />
+              {/* ── Static clinical caption — restrained, professional (no typewriter) ── */}
+              <span
+                className="text-[9.5px] font-semibold tracking-[0.14em] mt-1 uppercase leading-none"
+                style={{
+                  color: isScrolled ? '#64748B' : 'rgba(255,255,255,0.78)',
+                  transition: 'color 0.2s ease',
+                }}
+              >
+                Knee Radiograph · Explainable AI
+              </span>
             </div>
           </motion.button>
 
           {/* ── CENTER: Nav Capsule — Ultra-Transparent iOS Glass ── */}
-          <div className="relative pointer-events-auto hidden lg:block">
+          <div className="relative pointer-events-auto hidden lg:block justify-self-center">
             <nav
-              className="flex items-center rounded-full relative overflow-hidden"
+              className="hdr-capsule flex items-center rounded-full relative"
               style={{
                 padding: '6px',
-                background: isSubpage
-                  ? 'rgba(255, 255, 255, 0.65)'
-                  : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
-                backdropFilter: 'blur(30px) saturate(190%)',
-                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-                border: isSubpage
-                  ? '1px solid rgba(226, 232, 240, 0.90)'
-                  : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
-                boxShadow: isSubpage
-                  ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-                  : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
+                /* Realistic material: light from above; solidifies on scroll so
+                   content passing behind the glass never bleeds through */
+                background: capsuleFill,
+                backdropFilter: 'blur(24px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                border: capsuleBorder,
+                boxShadow: capsuleShadow,
               }}
               aria-label="Desktop Primary Navigation"
             >
               {/* Sliding Active Pill */}
               {indicatorPos && (
                 <motion.div
-                  className="absolute top-1.5 bottom-1.5 rounded-full bg-[#2563EB] z-0 pointer-events-none"
+                  className="absolute top-1.5 bottom-1.5 rounded-full z-0 pointer-events-none"
                   style={{
                     left: 0,
-                    boxShadow: '0 4px 14px rgba(37,99,235,0.38), inset 0 1px 0 rgba(255,255,255,0.35)',
+                    /* Raised machined navy slider: lit top face, grounded shadow */
+                    background: 'linear-gradient(180deg, #24344E 0%, #0F172A 100%)',
+                    boxShadow:
+                      'inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(0,0,0,0.25), 0 2px 5px rgba(15,23,42,0.35), 0 6px 14px -6px rgba(15,23,42,0.30)',
                   }}
                   initial={false}
                   animate={{ x: indicatorPos.left, width: indicatorPos.width }}
@@ -572,16 +467,18 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                     onClick={() => handleItemClick(item)}
                     onMouseEnter={() => setHoveredNav(item.id)}
                     onMouseLeave={() => setHoveredNav(null)}
-                    className="relative z-10 px-4 py-1.5 rounded-full text-xs font-bold tracking-normal cursor-pointer flex items-center gap-1.5 focus-visible:outline-none"
+                    className="relative z-10 px-4 py-1.5 rounded-full text-xs font-semibold tracking-normal cursor-pointer flex items-center gap-1.5 focus-visible:outline-none"
                     style={{
                       color: active
                         ? '#FFFFFF'
                         : isScrolled
-                          ? '#0F172A'
+                          ? '#334155'
                           : '#FFFFFF',
-                      textShadow: !active && !isScrolled ? '0 1px 3px rgba(0,0,0,0.55)' : 'none',
-                      transform: hovered && !active ? 'scale(1.05)' : 'scale(1)',
-                      transition: 'color 0.2s ease, transform 0.18s cubic-bezier(0.34,1.56,0.64,1)',
+                      textShadow: !active && !isScrolled ? '0 1px 2px rgba(0,0,0,0.40)' : 'none',
+                      background: hovered && !active
+                        ? (isScrolled ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.12)')
+                        : 'transparent',
+                      transition: 'color 0.2s ease, background 0.2s ease',
                     }}
                     aria-current={active ? 'page' : undefined}
                   >
@@ -592,96 +489,84 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             </nav>
           </div>
 
-          {/* ── RIGHT: Status + CTA + Mobile trigger ── */}
-          <div className="pointer-events-auto flex items-center gap-2.5 flex-shrink-0">
+          {/* ── RIGHT: CTA + Mobile trigger ── */}
+          <div className="pointer-events-auto flex items-center gap-2.5 flex-shrink-0 justify-self-end">
 
-            {/* Status capsule — Ultra-Transparent iOS glass */}
-            <div
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[11px] font-bold"
-              style={{
-                background: isSubpage
-                  ? 'rgba(255, 255, 255, 0.65)'
-                  : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
-                backdropFilter: 'blur(30px) saturate(190%)',
-                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-                border: isSubpage
-                  ? '1px solid rgba(226, 232, 240, 0.90)'
-                  : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
-                boxShadow: isSubpage
-                  ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-                  : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
-                color: isScrolled ? '#0F172A' : '#FFFFFF',
-                textShadow: !isScrolled ? '0 1px 3px rgba(0,0,0,0.45)' : 'none',
-              }}
-            >
-              {/* Pulsing green dot */}
-              <span className="relative flex h-2 w-2 flex-shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400" style={{ boxShadow: '0 0 6px #10b981' }} />
-              </span>
-              <span className="font-mono tracking-wide">Knee System Active</span>
-            </div>
-
-            {/* Upload CTA */}
-            <motion.button
+            {/* Upload CTA — sculpted physical button: raised at rest, presses in on click */}
+            <button
               id="header-upload-cta"
               onClick={handleUploadClick}
-              whileHover={{ scale: 1.04, y: -1 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-              className="relative inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-bold text-xs text-white cursor-pointer overflow-hidden"
+              onMouseEnter={() => setCtaHover(true)}
+              onMouseLeave={() => { setCtaHover(false); setCtaPressed(false); }}
+              onMouseDown={() => setCtaPressed(true)}
+              onMouseUp={() => setCtaPressed(false)}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-xs text-white cursor-pointer"
               style={{
                 background: isScrolled
-                  ? 'linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%)'
-                  : 'rgba(255,255,255,0.18)',
-                backdropFilter: 'blur(30px) saturate(190%)',
-                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
+                  ? `linear-gradient(180deg, ${ctaHover ? '#2154D0' : '#2A5FE0'} 0%, ${ctaHover ? '#1E40AF' : '#1D4ED8'} 100%)`
+                  : `linear-gradient(180deg, rgba(255,255,255,${ctaHover ? 0.28 : 0.22}) 0%, rgba(255,255,255,${ctaHover ? 0.16 : 0.11}) 100%)`,
+                backdropFilter: 'blur(24px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(150%)',
                 border: isScrolled
-                  ? '1px solid rgba(255,255,255,0.35)'
-                  : '1px solid rgba(255,255,255,0.40)',
-                boxShadow: isScrolled
-                  ? '0 8px 24px rgba(37,99,235,0.32), inset 0 1px 0 rgba(255,255,255,0.35)'
-                  : '0 8px 24px rgba(0,0,0,0.10), inset 0 1px 0 rgba(255,255,255,0.45)',
+                  ? '1px solid rgba(255,255,255,0.16)'
+                  : `1px solid rgba(255,255,255,${lerp(0.24, 0.36, rawProgress)})`,
+                boxShadow: ctaPressed
+                  ? 'inset 0 2px 5px rgba(10,20,45,0.45), inset 0 -1px 0 rgba(255,255,255,0.10), 0 1px 1px rgba(15,23,42,0.10)'
+                  : isScrolled
+                    ? 'inset 0 1px 0 rgba(255,255,255,0.24), 0 1px 2px rgba(15,23,42,0.25), 0 6px 14px -6px rgba(29,78,216,0.50)'
+                    : 'inset 0 1px 0 rgba(255,255,255,0.38), 0 2px 5px rgba(15,23,42,0.18), 0 8px 18px -8px rgba(15,23,42,0.32)',
+                transform: ctaPressed ? 'translateY(1px)' : 'none',
+                transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.15s ease, transform 0.1s ease',
               }}
               aria-label="Upload Knee X-Ray to AI Studio"
             >
-              {/* Shimmer sweep */}
-              <span
-                aria-hidden="true"
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%)',
-                  transform: 'skewX(-20deg) translateX(-120%)',
-                  animation: 'ctaShimmer 2.8s ease-in-out infinite',
-                }}
-              />
               <UploadCloud size={14} />
-              <span className="whitespace-nowrap font-semibold">Upload Knee X-Ray</span>
+              <span className="whitespace-nowrap">Upload Knee X-Ray</span>
               <ArrowRight size={13} />
-            </motion.button>
+            </button>
 
             {/* Mobile Trigger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
               className="lg:hidden w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 active:scale-95 cursor-pointer"
               style={{
-                background: isSubpage
-                  ? 'rgba(255, 255, 255, 0.65)'
-                  : `rgba(255,255,255,${lerp(0.12, 0.22, rawProgress)})`,
-                backdropFilter: 'blur(30px) saturate(190%)',
-                WebkitBackdropFilter: 'blur(30px) saturate(190%)',
-                border: isSubpage
-                  ? '1px solid rgba(226, 232, 240, 0.90)'
-                  : `1px solid rgba(255,255,255,${lerp(0.28, 0.40, rawProgress)})`,
-                boxShadow: isSubpage
-                  ? '0 8px 30px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8)'
-                  : `0 8px 32px rgba(15,23,42,${lerp(0.03, 0.06, rawProgress)}), inset 0 1px 0 rgba(255,255,255,0.45)`,
+                background: capsuleFill,
+                backdropFilter: 'blur(24px) saturate(150%)',
+                WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+                border: capsuleBorder,
+                boxShadow: capsuleShadow,
                 color: isScrolled ? '#0F172A' : '#FFFFFF',
               }}
               aria-label={mobileOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
               aria-expanded={mobileOpen}
             >
-              {mobileOpen ? <X size={17} /> : <Menu size={17} />}
+              {mobileOpen ? (
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key="x"
+                    initial={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="inline-flex"
+                  >
+                    <X size={17} />
+                  </motion.span>
+                </AnimatePresence>
+              ) : (
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key="m"
+                    initial={{ rotate: 90, opacity: 0, scale: 0.6 }}
+                    animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                    exit={{ rotate: -90, opacity: 0, scale: 0.6 }}
+                    transition={{ duration: 0.18, ease: 'easeOut' }}
+                    className="inline-flex"
+                  >
+                    <Menu size={17} />
+                  </motion.span>
+                </AnimatePresence>
+              )}
             </button>
           </div>
 

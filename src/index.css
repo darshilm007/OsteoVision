@@ -95,7 +95,9 @@
   body {
     background-color: var(--bg);
     color: var(--text-primary);
-    overflow-x: hidden;
+    /* clip (not hidden): hidden would turn body into a scroll container and
+       silently break every position:sticky pinned stage on the site */
+    overflow-x: clip;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     background-image: 
@@ -202,21 +204,37 @@
 
 /* ─────────────────────────────────────────────
    Liquid Glass & 3D Water Effect System (visionOS / Liquid Droplet)
+   Liquid Glass 2.0 — animated iridescent border ring + specular sheen
 ───────────────────────────────────────────── */
+@property --ov-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes ovBorderSpin { to { --ov-angle: 360deg; } }
+
 .card-glass-water,
 .card-tactile {
   position: relative;
-  background: rgba(255, 255, 255, 0.72);
+  --ov-angle: 0deg;
+  /* translucent glass fill (padding-box) + iridescent ring (border-box) */
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)) padding-box,
+    conic-gradient(from var(--ov-angle),
+      rgba(37, 99, 235, 0.34),
+      rgba(34, 211, 238, 0.30),
+      rgba(96, 165, 250, 0.26),
+      rgba(147, 197, 253, 0.34),
+      rgba(37, 99, 235, 0.34)) border-box;
   backdrop-filter: blur(24px) saturate(190%);
   -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  border: 1px solid transparent;
   border-radius: 28px;
-  box-shadow: 
+  box-shadow:
     0 20px 40px -15px rgba(15, 23, 42, 0.07),
-    0 0 0 1px rgba(226, 232, 240, 0.4),
     inset 0 2px 2px 0 rgba(255, 255, 255, 0.95),
     inset 0 -1.5px 2px 0 rgba(15, 23, 42, 0.02);
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   overflow: hidden;
 }
 
@@ -238,13 +256,52 @@
 .card-glass-water:hover,
 .card-tactile:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(255, 255, 255, 0.95);
-  box-shadow: 
-    0 26px 50px -12px rgba(37, 99, 235, 0.12),
-    0 0 0 1px rgba(147, 197, 253, 0.5),
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)) padding-box,
+    conic-gradient(from var(--ov-angle),
+      rgba(37, 99, 235, 0.52),
+      rgba(34, 211, 238, 0.48),
+      rgba(96, 165, 250, 0.42),
+      rgba(147, 197, 253, 0.52),
+      rgba(37, 99, 235, 0.52)) border-box;
+  animation: ovBorderSpin 6s linear infinite;
+  box-shadow:
+    0 26px 50px -12px rgba(37, 99, 235, 0.14),
+    0 0 18px -6px rgba(34, 211, 238, 0.18),
     inset 0 2px 3px 0 rgba(255, 255, 255, 1),
     inset 0 -1px 2px 0 rgba(37, 99, 235, 0.04);
+}
+
+/* ─────────────────────────────────────────────
+   Cursor sheen overlay for 3D tilt cards
+   (driven by src/components/InteractiveEffects.tsx)
+───────────────────────────────────────────── */
+.card-tactile,
+.card-glass-water {
+  --glow-x: 50%;
+  --glow-y: 50%;
+  --glow-opacity: 0;
+}
+
+.card-tactile::after,
+.card-glass-water::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: var(--glow-opacity);
+  background:
+    radial-gradient(180px circle at var(--glow-x) var(--glow-y),
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0) 60%),
+    radial-gradient(340px circle at var(--glow-x) var(--glow-y),
+      rgba(96, 165, 250, 0.15),
+      rgba(34, 211, 238, 0.09) 45%,
+      transparent 66%);
+  mix-blend-mode: soft-light;
+  transition: opacity 0.35s ease;
 }
 
 .glass-water {
@@ -329,6 +386,7 @@
 .btn-glass-water-dark:active,
 .btn-tactile-dark:active {
   transform: translateY(0.5px) scale(0.99);
+  filter: brightness(0.9);
   box-shadow: 
     0 4px 14px rgba(15, 23, 42, 0.3),
     inset 0 1px 2px rgba(0, 0, 0, 0.5);
@@ -364,8 +422,59 @@
 .btn-glass-water-light:active,
 .btn-tactile-light:active {
   transform: translateY(0.5px) scale(0.99);
+  filter: brightness(0.97);
   background: rgba(241, 245, 249, 0.9);
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
+}
+
+/* ─────────────────────────────────────────────
+   Button micro-interactions
+   - Click ripple (spawned in JS at the pointer point by InteractiveEffects)
+   - Icon micro-motion on hover
+   The press-depth is handled by the :active filter above (works even while
+   the magnetic JS owns the transform).
+───────────────────────────────────────────── */
+@keyframes ovBtnRipple {
+  from { transform: scale(0); opacity: 0.5; }
+  to   { transform: scale(1); opacity: 0;   }
+}
+
+.ov-ripple {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  transform: scale(0);
+  mix-blend-mode: overlay;
+  background: radial-gradient(circle,
+    rgba(255, 255, 255, 0.85) 0%,
+    rgba(255, 255, 255, 0.35) 45%,
+    rgba(255, 255, 255, 0) 70%);
+  animation: ovBtnRipple 600ms ease-out forwards;
+}
+
+/* Blue-cyan bloom for light buttons (a white ripple would be invisible there) */
+.ov-ripple--tint {
+  mix-blend-mode: soft-light;
+  background: radial-gradient(circle,
+    rgba(37, 99, 235, 0.55) 0%,
+    rgba(34, 211, 238, 0.28) 45%,
+    rgba(37, 99, 235, 0) 70%);
+}
+
+.btn-tactile-dark svg,
+.btn-tactile-light svg,
+.btn-glass-water-dark svg,
+.btn-glass-water-light svg,
+.btn-primary-clinical svg {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-tactile-dark:hover svg,
+.btn-tactile-light:hover svg,
+.btn-glass-water-dark:hover svg,
+.btn-glass-water-light:hover svg,
+.btn-primary-clinical:hover svg {
+  transform: scale(1.14);
 }
 
 .btn-primary-clinical {
@@ -405,21 +514,19 @@
 /* ─────────────────────────────────────────────
    Animations & Transitions
 ───────────────────────────────────────────── */
-@keyframes pageEnter {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0);   }
-}
-
-@keyframes navBorderSpin {
-  0%   { background-position: 0% 50%;   }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%;   }
-}
-
-@keyframes ctaShimmer {
-  0%   { transform: skewX(-20deg) translateX(-120%); }
-  60%  { transform: skewX(-20deg) translateX(220%);  }
-  100% { transform: skewX(-20deg) translateX(220%);  }
+/* Realistic contact shadow under header glass capsules — the object grounds
+   onto the page instead of floating flat (light-above shading model). */
+.hdr-capsule::after {
+  content: '';
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  bottom: -6px;
+  height: 6px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 0%, rgba(15, 23, 42, 0.16), transparent 78%);
+  pointer-events: none;
+  z-index: -1;
 }
 
 @keyframes scrollDot {
@@ -434,8 +541,85 @@
   100% { top: 0%; opacity: 0.85; }
 }
 
-.animate-pageEnter { animation: pageEnter 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+/* Direction-aware page transitions (driven by <PageTransition/>) */
+@keyframes ovPageEnter {
+  from { opacity: 0; transform: translateY(var(--ov-enter-y, 18px)) scale(0.992); filter: blur(4px); }
+  to   { opacity: 1; transform: translateY(0) scale(1);              filter: blur(0); }
+}
+@keyframes ovPageExit {
+  from { opacity: 1; transform: translateY(0) scale(1);              filter: blur(0); }
+  to   { opacity: 0; transform: translateY(var(--ov-exit-y, -10px)) scale(0.995); filter: blur(4px); }
+}
+
 .animate-scanBeam  { animation: holographicScan 2.4s ease-in-out infinite; }
+
+/* ─────────────────────────────────────────────
+   Hero Ambient — aurora mesh + floating particles
+   (driven by src/components/HeroAmbient.tsx)
+───────────────────────────────────────────── */
+@keyframes ovAuroraDrift {
+  0%, 100% { transform: translate3d(0, 0, 0)     scale(1);    }
+  33%      { transform: translate3d(7%, -5%, 0)  scale(1.15); }
+  66%      { transform: translate3d(-6%, 6%, 0)  scale(0.92); }
+}
+@keyframes ovParticleRise {
+  0%   { transform: translateY(0)        scale(1);   opacity: 0;   }
+  12%  { opacity: 0.9; }
+  85%  { opacity: 0.45; }
+  100% { transform: translateY(-140px)   scale(0.35); opacity: 0;  }
+}
+.animate-aurora   { animation: ovAuroraDrift var(--dur, 18s) ease-in-out var(--delay, 0s) infinite; }
+.animate-particle { animation: ovParticleRise var(--dur, 12s) linear var(--delay, 0s) infinite; }
+
+/* Footer finale — CTA beacon pulse ring */
+@keyframes ovBeacon {
+  0%   { transform: scale(1);   opacity: 0.4;  }
+  100% { transform: scale(1.3); opacity: 0;    }
+}
+.cta-beacon { animation: ovBeacon 2.6s cubic-bezier(0.16, 1, 0.3, 1) infinite; }
+
+/* Scroll stepper — active step cross-fade */
+@keyframes stepEnter {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-stepEnter { animation: stepEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+/* How-It-Works light box — film drop, processing shimmer, chip slide, report rise */
+@keyframes filmDrop {
+  0%   { transform: translateY(-112%) rotate(-5deg); opacity: 0; }
+  60%  { opacity: 1; }
+  80%  { transform: translateY(2%) rotate(0.6deg); }
+  100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+@keyframes shimmerFade {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes chipSlide {
+  from { transform: translateX(16px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes reportRise {
+  from { transform: translateY(105%); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+/* Studio — heatmap scan reveal + one-shot sweep beam */
+@keyframes heatReveal {
+  0%   { clip-path: inset(0 0 100% 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+.animate-heatReveal { animation: heatReveal 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+@keyframes heatSweep {
+  0%   { top: -4%;  opacity: 0; }
+  12%  { opacity: 1; }
+  100% { top: 104%; opacity: 0; }
+}
+.animate-heatSweep { animation: heatSweep 0.9s ease-out both; }
 
 /* Diagnostic floating card idle animations — subtle 2px max float (6-8s) */
 @keyframes diagFloat1 {
@@ -465,6 +649,12 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+
+  /* Tilt + magnetic are also skipped in JS; keep the sheen hidden as a safeguard */
+  .card-tactile::after,
+  .card-glass-water::after {
+    display: none;
   }
 }
 
@@ -514,9 +704,11 @@
   z-index: 6;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  background-color: rgba(134, 168, 255, 1);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+  /* Site-consistent brand blue: blue-100 tint (#DBEAFE) from the palette,
+     not the old off-palette periwinkle */
+  background-color: rgba(219, 234, 254, 1);
+  border: 1px solid rgba(191, 219, 254, 0.9);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 25px rgba(37, 99, 235, 0.10);
   transform-origin: 50% 50%;
   transform: translate3d(0, 0, 0) rotate(0deg);
   transition: transform 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
@@ -533,9 +725,9 @@
 .impact-card-wrapper:hover .impact-card-glass,
 .impact-card-wrapper.is-active .impact-card-glass {
   transform: translate3d(-18px, 105px, 0) rotate(6.5deg);
-  background-color: rgba(255, 255, 255, 0.3);
-  border-color: rgba(255, 255, 255, 0.65);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.08);
+  background-color: rgba(219, 234, 254, 0.4);
+  border-color: rgba(191, 219, 254, 0.75);
+  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.16);
 }
 
 .impact-card-title-text {
@@ -587,14 +779,6 @@
 
   .hero-left-content {
     max-width: 100% !important;
-  }
-}
-
-/* Very small screens */
-@media (max-width: 480px) {
-  .hero-badge {
-    padding-left: 10px !important;
-    padding-right: 10px !important;
   }
 }
 
@@ -701,11 +885,13 @@
   }
 }
 
-/* Mobile (≤768px): clean vertical stack, no horizontal scroll, inside viewport, no overlap */
+/* Mobile (≤768px): single clean screen — headline + CTAs centered over the video.
+   The floating diagnostic cluster is desktop/tablet only (its data is
+   repeated by the on-page demo sections anyway). */
 @media (max-width: 768px) {
   .hero-viewport {
     height: auto !important;
-    min-height: 100vh !important;
+    min-height: 100svh !important;
     overflow-y: visible !important;
     overflow-x: hidden !important;
   }
@@ -714,45 +900,16 @@
     position: relative !important;
     inset: auto !important;
     min-height: auto !important;
-    padding-top: 96px !important;
-    padding-bottom: 24px !important;
+    padding-top: 148px !important;   /* mobile header (~80px) + generous clearance below capsule */
+    padding-bottom: 40px !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
+    justify-content: center !important;
   }
 
+  /* Hide the decorative card cluster on phones */
   .diag-cluster-root {
-    position: relative !important;
-    inset: auto !important;
-    width: 100% !important;
-    overflow: visible !important;
-    padding: 0 16px 48px !important;
-    pointer-events: auto !important;
-  }
-
-  .diag-cluster-container {
-    position: static !important;
-    transform: none !important;
-    width: 100% !important;
-    max-width: 310px !important;
-    height: auto !important;
-    margin: 0 auto !important;
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 14px !important; /* 12-16px vertical gap */
-    pointer-events: auto !important;
-  }
-
-  .diag-card-detection,
-  .diag-card-radiograph,
-  .diag-card-score {
-    position: static !important;
-    left: auto !important;
-    top: auto !important;
-    width: 100% !important;
-    min-height: auto !important;
-    transform: none !important;
-    animation: none !important;
+    display: none !important;
   }
 }
 

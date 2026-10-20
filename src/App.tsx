@@ -3,14 +3,20 @@ import { Header } from './components/Header';
 import { HomePage } from './pages/HomePage';
 import { AboutPage } from './pages/AboutPage';
 import { StudioPage } from './pages/StudioPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { useInteractiveEffects } from './components/InteractiveEffects';
+import { ScrollProgressBar } from './components/ScrollProgressBar';
+import { PageTransition } from './components/PageTransition';
 
 /* ─────────────────────────────────────────────
    Main App — Client-Side Routing
 ───────────────────────────────────────────── */
 export default function App() {
+  useInteractiveEffects();
+
   const [currentRoute, setCurrentRoute] = useState<string>(() => {
     const p = window.location.pathname;
-    if (p === '/about' || p === '/studio') return p;
+    if (p === '/about' || p === '/studio' || p === '/privacy') return p;
     return '/';
   });
   const [targetSection, setTargetSection] = useState<string | null>(null);
@@ -20,7 +26,7 @@ export default function App() {
   useEffect(() => {
     const handlePopState = () => {
       const p = window.location.pathname;
-      if (p === '/about' || p === '/studio') {
+      if (p === '/about' || p === '/studio' || p === '/privacy') {
         setCurrentRoute(p);
       } else {
         setCurrentRoute('/');
@@ -41,15 +47,31 @@ export default function App() {
     }
   }, []);
 
-  // Guarantee scroll-to-top whenever route changes without a specific section target
-  useEffect(() => {
-    if (!targetSection) {
-      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
-    }
-  }, [currentRoute, targetSection]);
+  // Render the page for a given route key. PageTransition calls this with the
+  // key it currently has mounted (displayKey), so the outgoing page keeps
+  // rendering while it animates out.
+  const renderPage = useCallback(
+    (key: string) => {
+      if (key === '/about') return <AboutPage onNavigate={handleNavigate} />;
+      if (key === '/studio') return <StudioPage onNavigate={handleNavigate} />;
+      if (key === '/privacy') return <PrivacyPage onNavigate={handleNavigate} />;
+      return (
+        <HomePage
+          onOpenUpload={() => handleNavigate('/studio')}
+          onNavigate={handleNavigate}
+          targetSection={targetSection}
+          navKey={navKey}
+        />
+      );
+    },
+    [handleNavigate, targetSection, navKey],
+  );
 
   return (
     <div className="min-h-screen bg-[#F7F9FC] text-[#0F172A] relative font-sans">
+
+      {/* Global page-scroll progress indicator */}
+      <ScrollProgressBar />
 
       {/* Global Header — fixed, transparent at top, collapses on scroll */}
       <Header
@@ -57,24 +79,9 @@ export default function App() {
         onNavigate={handleNavigate}
       />
 
-      {/* Page Views */}
+      {/* Page Views — cinematic direction-aware transitions */}
       <main className="relative z-10">
-        {currentRoute === '/' && (
-          <HomePage
-            onOpenUpload={() => handleNavigate('/studio')}
-            onNavigate={handleNavigate}
-            targetSection={targetSection}
-            navKey={navKey}
-          />
-        )}
-
-        {currentRoute === '/about' && (
-          <AboutPage onNavigate={handleNavigate} />
-        )}
-
-        {currentRoute === '/studio' && (
-          <StudioPage onNavigate={handleNavigate} />
-        )}
+        <PageTransition routeKey={currentRoute} renderPage={renderPage} />
       </main>
     </div>
   );

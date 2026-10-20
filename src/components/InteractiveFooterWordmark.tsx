@@ -33,6 +33,9 @@ export const InteractiveFooterWordmark: React.FC = () => {
   const particlesRef = useRef<DotParticle[]>([]);
   const animFrameIdRef = useRef<number | null>(null);
   const isRunningRef = useRef<boolean>(false);
+  // When the OS asks for reduced motion, the dispersion loop never starts
+  // (the static dot matrix still renders normally).
+  const reducedMotionRef = useRef<boolean>(false);
 
   // Mouse tracking with lerping
   const mouseRef = useRef({
@@ -45,12 +48,17 @@ export const InteractiveFooterWordmark: React.FC = () => {
     isTouch: false,
   });
 
-  // Check touch devices
+  // Check touch devices + reduced-motion preference
   useEffect(() => {
     mouseRef.current.isTouch =
       window.matchMedia('(pointer: coarse)').matches ||
       'ontouchstart' in window ||
       navigator.maxTouchPoints > 0;
+    const mqReduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const syncReduce = () => { reducedMotionRef.current = mqReduce.matches; };
+    syncReduce();
+    mqReduce.addEventListener('change', syncReduce);
+    return () => mqReduce.removeEventListener('change', syncReduce);
   }, []);
 
   // Dot color matching the reference image and video exactly (uniform clean slate)
@@ -85,8 +93,28 @@ export const InteractiveFooterWordmark: React.FC = () => {
     if (!container || !canvas) return;
 
     const width = container.clientWidth;
-    // Set a proportional height for the large wordmark
-    const height = Math.max(140, Math.min(width * 0.22, 240));
+
+    // Font size is resolved FIRST — the band height then hugs the actual
+    // lettering, so the top/bottom whitespace stays medium (not a fixed
+    // 290px box with dead air around ~195px of text).
+    const off = document.createElement('canvas');
+    const offCtx = off.getContext('2d');
+    if (!offCtx) return;
+
+    let fontSize = Math.max(64, Math.min(width * 0.165, 210));
+    const fontFor = (size: number) =>
+      `900 ${size}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+    offCtx.font = fontFor(fontSize);
+    // Fit-to-width: shrink until the wordmark fits inside the canvas with margin,
+    // so no edge letters get clipped at any viewport size.
+    const maxTextWidth = width * 0.94;
+    const measured = offCtx.measureText('OsteoVision').width;
+    if (measured > maxTextWidth) {
+      fontSize = Math.max(40, fontSize * (maxTextWidth / measured));
+    }
+
+    // Ascender→descender ≈ 0.95em; ×1.22 leaves a medium ~13% margin top & bottom
+    const height = Math.round(Math.max(90, fontSize * 1.22));
     container.style.height = `${height}px`;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -95,47 +123,64 @@ export const InteractiveFooterWordmark: React.FC = () => {
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
 
-    // Offscreen canvas to render text and sample grid points
-    const off = document.createElement('canvas');
+    // Resizing a canvas resets its 2D context state — re-apply everything
     off.width = width;
     off.height = height;
-    const offCtx = off.getContext('2d');
-    if (!offCtx) return;
-
-    // Responsive font size
-    const fontSize = Math.max(54, Math.min(width * 0.135, 175));
-    offCtx.font = `900 ${fontSize}px system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif`;
+    offCtx.font = fontFor(fontSize);
     offCtx.textAlign = 'center';
     offCtx.textBaseline = 'middle';
     offCtx.fillStyle = '#000000';
 
     const centerX = width / 2;
-    const centerY = height / 2;
+    // 'OsteoVision' has no descenders — nudge down so the VISUAL ink block
+    // is centered in the band (plain 'middle' centers the em box, leaving
+    // the wordmark looking top-heavy with extra space below)
+    const centerY = height / 2 + fontSize * 0.09;
     offCtx.fillText('OsteoVision', centerX, centerY);
 
     const imgData = offCtx.getImageData(0, 0, width, height);
     const data = imgData.data;
 
-    // Grid spacing between dots (matching reference dot density)
-    const gridStep = width < 640 ? 4.5 : 5.5;
-    const dotRadius = width < 640 ? 1.3 : 1.6;
+    // Grid spacing scales with the rendered font size so letterforms stay
+    // readable at every viewport: ~5.5px grid at the largest wordmark
+    // (matches the reference density), down to ~2.8px when the font shrinks
+    // on narrow screens. Dot radius keeps a constant ratio to the grid.
+    const gridStep = Math.max(2.8, Math.min(5.5, fontSize * 0.031));
+    const dotRadius = gridStep * 0.30;
 
     const newParticles: DotParticle[] = [];
 
-    // Sample dots strictly on regular grid columns and rows
-    for (let y = Math.floor(gridStep / 2); y < height; y += gridStep) {
-      for (let x = Math.floor(gridStep / 2); x < width; x += gridStep) {
-        const px = Math.round(x);
-        const py = Math.round(y);
-        const idx = (py * width + px) * 4;
+    // Sample dots strictly on regular grid columns and rows.
+    // Instead of reading ONE pixel per grid point (which drops dots along
+    // letter edges when the sample lands in an anti-aliased gap), take the
+    // MAXIMUM alpha inside each grid cell — every cell the glyph touches
+    // produces a dot, so the wordmark reads clearly.
+    const half = Math.floor(gridStep / 2);
+    for (let gy = Math.floor(gridStep / 2); gy < height; gy += gridStep) {
+      for (let gx = Math.floor(gridStep / 2); gx < width; gx += gridStep) {
+        // Grid coords drift fractional via `+=` — round to integer pixels
+        // before indexing ImageData (raw float indices read `undefined`,
+        // which silently dropped most cells)
+        const cx = Math.round(gx);
+        const cy = Math.round(gy);
+        let alpha = 0;
+        for (let sy = cy - half; sy <= cy + half && alpha <= 140; sy++) {
+          if (sy < 0 || sy >= height) continue;
+          for (let sx = cx - half; sx <= cx + half; sx++) {
+            if (sx < 0 || sx >= width) continue;
+            const a = data[(sy * width + sx) * 4 + 3];
+            if (a > alpha) alpha = a;
+          }
+        }
 
-        // If this grid coordinate intersects the letter shape
-        if (data[idx + 3] > 70) {
+        // Solid glyph coverage only — threshold 140 keeps edges crisp
+        // instead of fattening strokes with every AA edge cell
+        if (alpha > 140) {
           newParticles.push({
-            originX: x,
-            originY: y,
-            x: x,
-            y: y,
+            originX: gx,
+            originY: gy,
+            x: gx,
+            y: gy,
             vx: 0,
             vy: 0,
             radius: dotRadius,
@@ -172,7 +217,7 @@ export const InteractiveFooterWordmark: React.FC = () => {
 
   // Main animation / physics loop
   const startLoop = useCallback(() => {
-    if (isRunningRef.current || mouseRef.current.isTouch) return;
+    if (isRunningRef.current || mouseRef.current.isTouch || reducedMotionRef.current) return;
     isRunningRef.current = true;
 
     const canvas = canvasRef.current;
@@ -197,12 +242,12 @@ export const InteractiveFooterWordmark: React.FC = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.save();
       ctx.scale(dpr, dpr);
-      ctx.fillStyle = DOT_COLOR;
 
       for (let i = 0; i < particles.length; i++) {
         const p = particles[i];
 
-        // 1. Mouse Repulsion / Dispersion
+        // 1. Mouse Repulsion / Dispersion (also captures "glow" for the brand ignite)
+        let glow = 0;
         if (mouse.isHovering) {
           const dx = p.x - mouse.currX;
           const dy = p.y - mouse.currY;
@@ -216,6 +261,7 @@ export const InteractiveFooterWordmark: React.FC = () => {
 
             p.vx += Math.cos(angle) * push * 0.45;
             p.vy += Math.sin(angle) * push * 0.45;
+            glow = force;
           }
         }
 
@@ -234,9 +280,16 @@ export const InteractiveFooterWordmark: React.FC = () => {
           moving = true;
         }
 
-        // Draw dot in exact same uniform color
+        // Draw: clinical slate at rest, igniting toward brand cyan under the cursor
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        if (glow > 0.02) {
+          const t = Math.min(1, glow * 1.25);
+          ctx.fillStyle = `rgba(${(148 + (34 - 148) * t) | 0}, ${163 + (211 - 163) * t | 0}, ${184 + (238 - 184) * t | 0}, 0.9)`;
+          ctx.arc(p.x, p.y, p.radius + t * 0.9, 0, Math.PI * 2);
+        } else {
+          ctx.fillStyle = DOT_COLOR;
+          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+        }
         ctx.fill();
       }
 

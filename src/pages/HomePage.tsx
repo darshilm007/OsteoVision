@@ -6,14 +6,15 @@ import {
   Play,
   Image as ImageIcon,
   Quote,
-  Youtube,
-  Facebook,
-  Twitter,
-  Instagram,
   ScanLine,
   Target,
 } from 'lucide-react';
 import { InteractiveFooterWordmark } from '../components/InteractiveFooterWordmark';
+import { HowItWorksStepper } from '../components/HowItWorksStepper';
+import { HeroAmbient } from '../components/HeroAmbient';
+import { CountUp } from '../components/CountUp';
+import { AIJourney } from '../components/AIJourney';
+import { HeroStatsBand } from '../components/HeroStatsBand';
 
 /* ─────────────────────────────────────────────
    Floating Diagnostic Glass Cards — Hero overlay
@@ -80,9 +81,9 @@ const DiagnosticFloatingCards: React.FC = () => {
         >
           {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
-            <Layers size={12} color="#18304D" />
+            <Layers size={13} color="#18304D" />
             <span style={{
-              fontSize: '9.5px', fontWeight: 700, letterSpacing: '1.2px',
+              fontSize: '11px', fontWeight: 700, letterSpacing: '1.1px',
               color: '#18304D', textTransform: 'uppercase',
             }}>
               Detection
@@ -90,7 +91,7 @@ const DiagnosticFloatingCards: React.FC = () => {
           </div>
 
           {/* Three translucent internal rows */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
             {([
               { label: 'Normal',       dot: '#22c55e' },
               { label: 'Osteopenia',   dot: '#f59e0b' },
@@ -99,16 +100,16 @@ const DiagnosticFloatingCards: React.FC = () => {
               <div
                 key={label}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '8px',
+                  display: 'flex', alignItems: 'center', gap: '9px',
                   background: 'rgba(255, 255, 255, 0.18)',
                   border: '1px solid rgba(255, 255, 255, 0.22)',
-                  borderRadius: '9px',
-                  height: '31px',
-                  padding: '0 10px',
+                  borderRadius: '10px',
+                  height: '34px',
+                  padding: '0 11px',
                 }}
               >
-                <div style={{ width: '5.5px', height: '5.5px', borderRadius: '50%', background: dot, flexShrink: 0 }} />
-                <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#10233F', letterSpacing: '0.01em' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: dot, flexShrink: 0 }} />
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#10233F', letterSpacing: '0.01em' }}>
                   {label}
                 </span>
               </div>
@@ -131,9 +132,9 @@ const DiagnosticFloatingCards: React.FC = () => {
         >
           {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '10px' }}>
-            <ScanLine size={12} color="#18304D" />
+            <ScanLine size={13} color="#18304D" />
             <span style={{
-              fontSize: '9.5px', fontWeight: 700, letterSpacing: '1.2px',
+              fontSize: '11px', fontWeight: 700, letterSpacing: '1.1px',
               color: '#18304D', textTransform: 'uppercase',
             }}>
               Radiograph
@@ -143,32 +144,32 @@ const DiagnosticFloatingCards: React.FC = () => {
           {/* Content */}
           <div style={{ marginBottom: '12px' }}>
             <div style={{
-              fontSize: '15px', fontWeight: 700, color: '#10233F',
-              marginBottom: '2px', letterSpacing: '-0.01em', lineHeight: 1.25,
+              fontSize: '17px', fontWeight: 700, color: '#10233F',
+              marginBottom: '3px', letterSpacing: '-0.01em', lineHeight: 1.25,
             }}>
               Trabecular Pattern
             </div>
-            <div style={{ fontSize: '11px', color: '#49627E', fontWeight: 500 }}>
+            <div style={{ fontSize: '12.5px', color: '#49627E', fontWeight: 500 }}>
               Analysis layer active
             </div>
           </div>
 
           {/* Analysis Ready status pill */}
           <div style={{
-            display: 'inline-flex', alignItems: 'center', gap: '6px',
+            display: 'inline-flex', alignItems: 'center', gap: '7px',
             background: 'rgba(255, 255, 255, 0.18)',
             border: '1px solid rgba(255, 255, 255, 0.22)',
-            borderRadius: '8px',
-            padding: '4.5px 9px',
+            borderRadius: '9px',
+            padding: '5.5px 11px',
           }}>
             <span style={{
-              width: '5.5px', height: '5.5px', borderRadius: '50%',
+              width: '6.5px', height: '6.5px', borderRadius: '50%',
               background: '#25BFD6',
               boxShadow: '0 0 6px rgba(37, 191, 214, 0.70)',
               flexShrink: 0,
               display: 'inline-block',
             }} />
-            <span style={{ fontSize: '11px', fontWeight: 600, color: '#10233F', letterSpacing: '0.01em' }}>
+            <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#10233F', letterSpacing: '0.01em' }}>
               Analysis Ready
             </span>
           </div>
@@ -189,9 +190,9 @@ const DiagnosticFloatingCards: React.FC = () => {
         >
           {/* Header row */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '8px' }}>
-            <Bone size={12} color="#18304D" />
+            <Bone size={13} color="#18304D" />
             <span style={{
-              fontSize: '9.5px', fontWeight: 700, letterSpacing: '1.2px',
+              fontSize: '11px', fontWeight: 700, letterSpacing: '1.1px',
               color: '#18304D', textTransform: 'uppercase',
             }}>
               Bone Health Score
@@ -201,28 +202,28 @@ const DiagnosticFloatingCards: React.FC = () => {
           {/* Score value */}
           <div style={{ display: 'flex', alignItems: 'baseline', gap: '3px', marginBottom: '9px' }}>
             <span style={{
-              fontSize: '46px', fontWeight: 800, lineHeight: 1,
+              fontSize: '50px', fontWeight: 800, lineHeight: 1,
               color: '#10233F',
               letterSpacing: '-0.04em',
             }}>
               92
             </span>
-            <span style={{ fontSize: '18px', fontWeight: 600, color: '#49627E', paddingBottom: '3px' }}>
+            <span style={{ fontSize: '20px', fontWeight: 600, color: '#49627E', paddingBottom: '3px' }}>
               /100
             </span>
           </div>
 
           {/* Sub-label row */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: '11px', color: '#49627E', fontWeight: 500 }}>
+            <span style={{ fontSize: '12.5px', color: '#49627E', fontWeight: 500 }}>
               Calibrated assessment
             </span>
             <span style={{
-              fontSize: '9px', fontWeight: 700, letterSpacing: '0.08em',
+              fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.08em',
               color: '#5D7590',
               background: 'rgba(255, 255, 255, 0.20)',
               border: '1px solid rgba(255, 255, 255, 0.25)',
-              borderRadius: '5px', padding: '2px 5px',
+              borderRadius: '6px', padding: '2.5px 7px',
               textTransform: 'uppercase',
             }}>
               SAMPLE
@@ -291,12 +292,22 @@ const MediaSlot: React.FC<MediaSlotProps> = ({
 
   if (src && type === 'image') {
     return (
-      <div className={`relative w-full ${aspectRatio} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg ${className}`}>
+      <div className={`relative w-full ${aspectRatio} rounded-2xl md:rounded-3xl overflow-hidden shadow-lg border border-slate-200/80 group bg-slate-950 ${className}`}>
         <img
           src={src}
           alt={label}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
+        {label && (
+          <div className="absolute inset-x-0 bottom-0 p-3.5 bg-gradient-to-t from-slate-950/90 via-slate-950/50 to-transparent pointer-events-none flex items-center justify-between text-white">
+            <span className="text-xs font-semibold tracking-tight truncate pr-2 text-slate-100">
+              {label}
+            </span>
+            <span className="text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-500/20 text-cyan-300 border border-cyan-400/30 flex-shrink-0">
+              Medical Asset
+            </span>
+          </div>
+        )}
       </div>
     );
   }
@@ -352,24 +363,96 @@ function useScrollReveal(threshold = 0.15) {
   return { ref, isVisible };
 }
 
-const RevealSection: React.FC<{ children: React.ReactNode; className?: string; delay?: number }> = ({
-  children, className = '', delay = 0,
-}) => {
+/* Tracks the OS reduced-motion preference reactively. */
+function usePrefersReduced() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const m = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(m.matches);
+    const onChange = () => setReduced(m.matches);
+    m.addEventListener('change', onChange);
+    return () => m.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
+}
+
+type RevealFrom = 'up' | 'left' | 'right' | 'scale';
+
+const RevealSection: React.FC<{
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  stagger?: number;
+  from?: RevealFrom;
+}> = ({ children, className = '', delay = 0, stagger = 0, from = 'up' }) => {
   const { ref, isVisible } = useScrollReveal(0.1);
+  const reduced = usePrefersReduced();
+
+  // Reduced motion: no transform/blur/transition — just show content.
+  if (reduced) {
+    return <div className={className} ref={ref}>{children}</div>;
+  }
+
+  const hiddenTransform: Record<RevealFrom, string> = {
+    up: 'translateY(24px) scale(0.995)',
+    left: 'translateX(-24px) scale(0.997)',
+    right: 'translateX(24px) scale(0.997)',
+    scale: 'scale(0.96)',
+  };
+
+  const styleFor = (idx: number): React.CSSProperties => {
+    const d = delay + (stagger ? idx * stagger : 0);
+    if (isVisible) {
+      return {
+        opacity: 1,
+        transform: 'none',
+        filter: 'blur(0px)',
+        transition:
+          `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${d}s, ` +
+          `transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${d}s, ` +
+          `filter 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${d}s`,
+      };
+    }
+    return {
+      opacity: 0,
+      transform: hiddenTransform[from],
+      filter: 'blur(6px)',
+      transition: 'none',
+    };
+  };
+
+  const childArr = React.Children.toArray(children);
+
+  // Single child (the common case): style the wrapper directly — no extra DOM.
+  if (childArr.length <= 1) {
+    return (
+      <div className={className} ref={ref} style={styleFor(0)}>
+        {children}
+      </div>
+    );
+  }
+
+  // Multiple children: cascade each with the stagger delay.
   return (
-    <div
-      ref={ref}
-      className={className}
-      style={{
-        opacity: isVisible ? 1 : 0,
-        transform: isVisible ? 'translateY(0)' : 'translateY(36px)',
-        transition: `opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`,
-      }}
-    >
-      {children}
+    <div className={className} ref={ref}>
+      {childArr.map((child, i) => (
+        <div key={i} style={styleFor(i)}>{child}</div>
+      ))}
     </div>
   );
 };
+
+/* ─────────────────────────────────────────────
+   How It Works step data (shared by the scroll stepper)
+───────────────────────────────────────────── */
+const HOW_IT_WORKS_STEPS = [
+  { num: '01', title: 'Upload a Knee X-ray', body: 'Select a knee radiograph image (PNG or JPEG) directly in your browser.' },
+  { num: '02', title: 'Validate the Uploaded Image', body: 'The image type is checked, and — when the optional knee-detection model is configured — the image is screened to help confirm it is a knee radiograph.' },
+  { num: '03', title: 'Process the Image with the AI Model', body: 'The image is preprocessed and passed to the classification model for inference.' },
+  { num: '04', title: 'Generate a Classification Prediction', body: 'The model returns a predicted category — Normal, Osteopenia, or Osteoporosis — along with a confidence score.' },
+  { num: '05', title: 'Generate a Visual Explanation', body: 'Where supported, a Grad-CAM++ heatmap highlights image regions associated with the model’s prediction.' },
+  { num: '06', title: 'Review the Results', body: 'You review the prediction, confidence score, and visual explanation. Results are for education and research, not diagnosis.' },
+];
 
 /* ─────────────────────────────────────────────
    Main HomePage Component — Knee X-Ray Osteoporosis Detection
@@ -435,6 +518,15 @@ export const HomePage: React.FC<HomePageProps> = ({
     }
   };
 
+  // Scroll to an on-page section by id (used by footer nav links)
+  const goToSection = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      const y = el.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+  };
+
   const heroPills = [
     'Knee X-Ray Only',
     '3-Class Output',
@@ -480,39 +572,39 @@ export const HomePage: React.FC<HomePageProps> = ({
     {
       id: 'patient',
       title: 'Patients',
-      desc: 'Opportunistic knee X-ray screening detects silent bone loss years before fractures — with zero extra radiation or visits.',
-      image: '/card-1.png',
+      desc: 'Uses routine knee X-rays already captured for joint care, with no additional radiation or visits, to surface an AI-based bone-density indication for opportunistic screening.',
+      image: '/portraits/card-1.png',
       fallbackImage: '/portraits/card-1.png',
       defaultImage: '/portraits/patient.png',
     },
     {
       id: 'clinician',
       title: 'Orthopedic Clinicians',
-      desc: 'Quantitative 0–100 bone scores and 3-class diagnosis for safer knee arthroplasty, implant sizing, and surgical confidence.',
-      image: '/card-2.png',
+      desc: 'Presents a 3-class AI prediction and a 0–100 score to support review, alongside a visual explanation of the regions behind the model’s decision.',
+      image: '/portraits/card-2.png',
       fallbackImage: '/portraits/card-2.png',
       defaultImage: '/portraits/clinician.png',
     },
     {
       id: 'imaging',
       title: 'Radiology & Imaging',
-      desc: 'Automated trabecular analysis integrated into PACS/DICOM pipelines, creating clinical value with zero new hardware.',
-      image: '/card-3.png',
+      desc: 'A browser-based workflow for reviewing knee radiographs with automated trabecular analysis and an explainable output.',
+      image: '/portraits/card-3.png',
       fallbackImage: '/portraits/card-3.png',
       defaultImage: '/portraits/imaging.png',
     },
     {
       id: 'hospital',
       title: 'Hospitals & Networks',
-      desc: 'Reduces secondary fragility fracture readmissions, lowers complication costs, and standardizes bone triage at scale.',
-      image: '/card-4.png',
+      desc: 'Explores how existing imaging workflows could support earlier bone-health awareness at scale, as a research and educational concept.',
+      image: '/portraits/card-4.png',
       fallbackImage: '/portraits/card-4.png',
       defaultImage: '/portraits/hospital.png',
     },
   ];
 
   return (
-    <div className="animate-pageEnter relative overflow-hidden">
+    <div className="relative overflow-x-clip">
 
       {/* ══════════════════════════════════════════════════
           1. HERO SECTION — Full-Viewport Video Background
@@ -534,6 +626,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         <video
           ref={heroVideoRef}
           src="/videos/watermark-removed (2).mp4"
+          poster="/images/hero_video_poster.jpg"
           autoPlay
           loop
           muted
@@ -560,7 +653,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             inset: 0,
             zIndex: 1,
             background:
-              'linear-gradient(to right, rgba(8,14,36,0.62) 0%, rgba(8,14,36,0.38) 28%, rgba(8,14,36,0.12) 52%, rgba(8,14,36,0.0) 68%)',
+              'linear-gradient(to right, rgba(8,14,36,0.78) 0%, rgba(8,14,36,0.58) 35%, rgba(8,14,36,0.28) 60%, rgba(8,14,36,0.12) 100%)',
             pointerEvents: 'none',
           }}
         />
@@ -578,6 +671,9 @@ export const HomePage: React.FC<HomePageProps> = ({
           }}
         />
 
+        {/* ── LAYER 2C: Ambient aurora mesh + particles + depth parallax ── */}
+        <HeroAmbient />
+
         {/* ── LAYER 3: Hero Content ── */}
         <div
           className="hero-main-content-wrap"
@@ -587,7 +683,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             zIndex: 10,
             display: 'flex',
             alignItems: 'center',
-            paddingTop: '88px',   /* clear the fixed header */
+            paddingTop: '184px',   /* fixed header (~89px) + generous clearance so the huge hero title never touches the capsule border */
             paddingBottom: '80px',
           }}
         >
@@ -595,28 +691,6 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div className="hero-content-grid">
             {/* ── LEFT CONTENT ZONE (40-45%) ── */}
             <div className="hero-left-content" style={{ maxWidth: '520px' }}>
-
-              {/* Small specialty badge */}
-              <div
-                className="hero-badge inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full mb-6"
-                style={{
-                  background: 'rgba(255,255,255,0.09)',
-                  backdropFilter: 'blur(12px)',
-                  WebkitBackdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(255,255,255,0.22)',
-                }}
-              >
-                <span
-                  className="w-1.5 h-1.5 rounded-full animate-pulse"
-                  style={{ background: '#22D3EE', boxShadow: '0 0 6px #22D3EE' }}
-                />
-                <span
-                  className="text-[10px] font-bold tracking-[0.12em] uppercase"
-                  style={{ color: 'rgba(255,255,255,0.88)' }}
-                >
-                  Dedicated to Knee Radiographs Only
-                </span>
-              </div>
 
               {/* Main headline — stacked lines with color rules */}
               <h1
@@ -634,7 +708,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     textShadow: '0 2px 18px rgba(0,0,0,0.45)',
                   }}
                 >
-                  Knee X-Ray
+                  Understand Bone Health
                 </span>
                 {/* Line 2: OsteoVision clinical blue */}
                 <span
@@ -644,7 +718,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     textShadow: '0 2px 20px rgba(37,99,235,0.38)',
                   }}
                 >
-                  Osteoporosis
+                  Through AI-Powered
                 </span>
                 {/* Line 3: deep navy / near-black */}
                 <span
@@ -654,7 +728,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     textShadow: '0 2px 18px rgba(0,0,0,0.45)',
                   }}
                 >
-                  Detection Platform
+                  Knee X-Ray Analysis
                 </span>
               </h1>
 
@@ -668,12 +742,28 @@ export const HomePage: React.FC<HomePageProps> = ({
                   textShadow: '0 1px 6px rgba(0,0,0,0.28)',
                 }}
               >
-                Upload your knee X-ray to receive an objective bone health
-                assessment. The system analyzes trabecular density and outputs{' '}
+                OsteoVision is an explainable AI-based web platform designed to
+                classify knee X-ray images into{' '}
                 <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Normal</strong>,{' '}
-                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteopenia</strong>, or{' '}
-                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteoporosis</strong> with a calibrated{' '}
-                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>score out of 100</strong> and clinical action suggestions.
+                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteopenia</strong>, and{' '}
+                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteoporosis</strong>{' '}
+                categories. It presents the model's prediction and, where available, a
+                confidence score and visual explanation.
+              </p>
+
+              {/* Educational / research note */}
+              <p
+                className="leading-relaxed mb-8 font-normal"
+                style={{
+                  color: 'rgba(200,212,230,0.72)',
+                  fontSize: '0.78rem',
+                  maxWidth: '440px',
+                  marginTop: '-1.25rem',
+                  textShadow: '0 1px 6px rgba(0,0,0,0.28)',
+                }}
+              >
+                For educational and research purposes. Not a substitute for professional
+                medical diagnosis.
               </p>
 
               {/* Primary CTA — premium rounded pill */}
@@ -709,7 +799,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     whiteSpace: 'nowrap',
                   }}
                 >
-                  Upload Knee X-Ray
+                  Analyze an X-ray
                 </span>
                 {/* Arrow circle */}
                 <div
@@ -790,14 +880,17 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       </div>{/* end hero viewport block */}
 
+      {/* ── Animated implementation-overview stats band ── */}
+      <HeroStatsBand />
+
       {/* ══════════════════════════════════════════════════
           2. DIAGNOSTIC SERVICES & 3-CLASS OUTPUT BREAKDOWN (id="services")
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section id="services" className="relative py-20 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section id="services" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
           {/* Section Header */}
-          <div className="max-w-3xl mb-12">
+          <div className="max-w-3xl mb-8">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
               Diagnostic Output &amp; Architecture
             </span>
@@ -805,24 +898,26 @@ export const HomePage: React.FC<HomePageProps> = ({
               3-Class Classification, 100-Point Score &amp; Action Suggestions
             </h2>
             <p className="text-[#475569] text-base leading-relaxed">
-              When a knee X-ray is processed by the backend, OsteoVision delivers a structured tri-fold diagnosis: 
-              exact classification category, an objective score out of 100, and recommended clinical actions.
+              For each processed knee X-ray, OsteoVision presents a structured output:
+              the predicted classification, a confidence score, and — where supported — a
+              visual explanation. The preview below is an illustrative example of the output
+              format, not a real patient result.
             </p>
           </div>
 
           {/* Dual Feature Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
             
             {/* Card 1: Interactive 3-Class Output Simulator (6 cols) */}
-            <RevealSection className="lg:col-span-6" delay={0.05}>
-              <div className="card-glass-water p-6 sm:p-8 rounded-3xl flex flex-col justify-between shadow-md h-full border border-slate-200/80">
+            <RevealSection className="lg:col-span-6" delay={0.05} from="left">
+              <div className="card-glass-water p-6 sm:p-8 flex flex-col justify-between h-full">
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       The 3 Output Classes
                     </span>
                     <span className="text-[11px] font-mono font-semibold text-[#2563EB]">
-                      Click class to test
+                      Illustrative example
                     </span>
                   </div>
 
@@ -858,7 +953,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <div className="mb-4">
                       <div className="flex justify-between items-center text-xs mb-1.5">
                         <span className="text-slate-500 font-medium">OsteoVision Score (out of 100):</span>
-                        <span className="font-mono font-black text-base text-[#0F172A]">{currentDemo.score} / 100</span>
+                        <span className="font-mono font-black text-base text-[#0F172A]"><CountUp value={currentDemo.score} duration={600} /> / 100</span>
                       </div>
                       <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden p-0.5 border border-slate-200">
                         <div
@@ -875,12 +970,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                     </div>
 
                     <div className="text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-slate-100 mb-3">
-                      <strong className="text-slate-900 block mb-1">Radiological Findings:</strong>
+                      <strong className="text-slate-900 block mb-1">Illustrative Findings Example:</strong>
                       {currentDemo.findings}
                     </div>
 
                     <div className="text-xs text-blue-900 bg-blue-50/70 p-3.5 rounded-xl border border-blue-100">
-                      <strong className="text-[#1D4ED8] block mb-1">Suggested Next Actions:</strong>
+                      <strong className="text-[#1D4ED8] block mb-1">Illustrative Action Suggestion:</strong>
                       {currentDemo.suggestion}
                     </div>
                   </div>
@@ -888,12 +983,12 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                 {/* Bottom Action */}
                 <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Ready to test your knee X-ray?</span>
+                  <span className="text-xs text-slate-500">Ready to analyze your knee X-ray?</span>
                   <button
                     onClick={onOpenUpload}
                     className="btn-glass-water-dark inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-semibold cursor-pointer"
                   >
-                    <span>Launch Studio</span>
+                    <span>Analyze an X-ray</span>
                     <ArrowRight size={13} />
                   </button>
                 </div>
@@ -901,15 +996,15 @@ export const HomePage: React.FC<HomePageProps> = ({
             </RevealSection>
 
             {/* Card 2: Knee Radiograph Media & Score Visualization (6 cols) */}
-            <RevealSection className="lg:col-span-6" delay={0.15}>
-              <div className="card-glass-water p-6 sm:p-8 rounded-3xl flex flex-col justify-between shadow-md h-full border border-slate-200/80">
+            <RevealSection className="lg:col-span-6" delay={0.15} from="right">
+              <div className="card-glass-water p-6 sm:p-8 flex flex-col justify-between h-full">
                 
                 {/* Knee Detection Media Slot */}
                 <div className="mb-6">
                   <MediaSlot
+                    src="/images/knee_detection_roi.jpg"
                     aspectRatio="aspect-[16/9]"
-                    label="Knee Detection Region &amp; Bounding ROI Slot"
-                    dimensions="1200 × 700 px"
+                    label="Knee Detection ROI — Distal Femur & Proximal Tibia Isolation"
                     type="image"
                     accent="cyan"
                   />
@@ -924,15 +1019,15 @@ export const HomePage: React.FC<HomePageProps> = ({
                     </div>
                     <div>
                       <p className="text-[11px] text-[#64748B]">Output Format</p>
-                      <p className="text-sm font-bold text-[#0F172A]">3 Classes + Score /100</p>
+                      <p className="text-sm font-bold text-[#0F172A]">3 Classes + Confidence Score</p>
                     </div>
                   </div>
 
                   {/* Segmented Risk Gauge */}
                   <div>
                     <div className="flex justify-between items-center text-xs mb-2">
-                      <span className="font-medium text-[#475569]">Severity Range Breakdown</span>
-                      <span className="font-mono text-slate-400 text-[11px]">Normal (0-30) · Osteopenia (31-70) · Osteoporosis (71-100)</span>
+                      <span className="font-medium text-[#475569]">Illustrative Score Bands</span>
+                      <span className="font-mono text-slate-400 text-[11px]">Example only · Normal · Osteopenia · Osteoporosis</span>
                     </div>
 
                     {/* Multi-tier segmented bar */}
@@ -970,23 +1065,23 @@ export const HomePage: React.FC<HomePageProps> = ({
           2.5 STAKEHOLDER VALUE CARDS (Matching Reference Video Hover Interaction)
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-12 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
           {/* Header */}
           <div className="max-w-3xl mb-6">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
-              Knee Osteoporosis Diagnostic Impact
+              Knee Osteoporosis Screening Potential
             </span>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
               Value Across the Entire Knee Care Continuum
             </h2>
             <p className="text-[#475569] text-base leading-relaxed">
-              Hover over each card to explore how OsteoVision transforms routine knee radiographs into definitive 3-class osteoporosis detection, 0–100 bone density scores, and proactive care guidance.
+              Hover over each card to explore how OsteoVision aims to use routine knee radiographs to present a 3-class AI prediction, a 0–100 confidence-based score, and a visual explanation.
             </p>
           </div>
 
           {/* 4 Interactive Stakeholder Cards (Exact 1:1 Match to Reference Video) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-28 pb-20">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
             {stakeholderCards.map((card) => {
               const isHovered = hoveredStakeholder === card.id;
 
@@ -1017,7 +1112,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     />
                   </div>
 
-                  {/* Front Layer: Frosted Periwinkle Glass Card */}
+                  {/* Front Layer: Brand-Blue Glass Card — blue-100 from site palette */}
                   <div className="impact-card-glass">
                     <h3 className="impact-card-title-text">
                       {card.title}
@@ -1038,9 +1133,9 @@ export const HomePage: React.FC<HomePageProps> = ({
           3. ABOUT OSTEOVISION & KNEE ANALYSIS (id="about-us")
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section id="about-us" className="relative py-20 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section id="about-us" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-14">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start mb-8">
             
             {/* Left: Eyebrow + Domain tags */}
             <div className="lg:col-span-4 flex items-center gap-4">
@@ -1065,7 +1160,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Right: Impact Statement */}
             <div className="lg:col-span-8">
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] leading-snug tracking-tight">
-                Engineered specifically for knee radiographs to spot early trabecular bone loss, grade osteoporosis risk, and provide clear clinical guidance.
+                Engineered specifically for knee radiographs to assess early trabecular bone patterns, indicate osteoporosis risk, and present clear, interpretable output.
               </h2>
             </div>
 
@@ -1073,7 +1168,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Stats & Proof Grid with Media Slot */}
           <RevealSection delay={0.15}>
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
               
               {/* Stats Column (7 cols) */}
               <div className="lg:col-span-7">
@@ -1093,7 +1188,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     <p className="text-4xl sm:text-5xl font-black text-[#2563EB] tracking-tight font-mono mb-1">
                       100
                     </p>
-                    <p className="text-xs text-[#64748B] font-medium">Calibrated Severity Score Range (0 - 100)</p>
+                    <p className="text-xs text-[#64748B] font-medium">Confidence Score Range (0 - 100)</p>
                   </div>
 
                   <div className="pl-4">
@@ -1108,9 +1203,9 @@ export const HomePage: React.FC<HomePageProps> = ({
               {/* Right Media Slot Card (5 cols) */}
               <div className="lg:col-span-5">
                 <MediaSlot
+                  src="/images/bone_trabecular.jpg"
                   aspectRatio="aspect-[16/11]"
-                  label="Knee Bone Architecture &amp; Density Map Slot"
-                  dimensions="1200 × 800 px"
+                  label="Trabecular Bone Architecture — Normal Dense vs Porotic Matrix"
                   type="image"
                   accent="blue"
                 />
@@ -1123,13 +1218,41 @@ export const HomePage: React.FC<HomePageProps> = ({
       </RevealSection>
 
       {/* ══════════════════════════════════════════════════
+          AI JOURNEY — scroll-driven cinematic pipeline chapter
+      ══════════════════════════════════════════════════ */}
+      <AIJourney />
+
+      {/* ══════════════════════════════════════════════════
+          HOW IT WORKS (id="how-it-works")
+      ══════════════════════════════════════════════════ */}
+      <section id="how-it-works" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <RevealSection>
+          {/* Header */}
+          <div className="max-w-3xl mb-8">
+            <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
+              How It Works
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
+              From Knee X-Ray to AI-Assisted Result
+            </h2>
+            <p className="text-[#475569] text-base leading-relaxed">
+              OsteoVision follows a step-by-step workflow. Some steps depend on the current
+              implementation of the model backend and are shown only when available.
+            </p>
+          </div>
+        </RevealSection>
+
+        <HowItWorksStepper steps={HOW_IT_WORKS_STEPS} />
+      </section>
+
+      {/* ══════════════════════════════════════════════════
           4. "WHY KNEE X-RAYS?" BENTO GRID
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-20 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
           {/* Header with Slider Arrows */}
-          <div className="flex items-center justify-between mb-10">
+          <div className="flex items-center justify-between mb-8">
             <div>
               <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-1">
                 Knee Specialization
@@ -1145,7 +1268,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             
             {/* Bento 1: Anatomical Knee Focus (3 cols) */}
             <RevealSection className="md:col-span-3" delay={0}>
-              <div className="card-glass-water p-6 rounded-3xl flex flex-col justify-between h-full border border-slate-200/80">
+              <div className="card-glass-water p-6 flex flex-col justify-between h-full">
                 <div>
                   <h3 className="text-base font-bold text-[#0F172A] mb-1">
                     Anatomical Knee Focus
@@ -1154,9 +1277,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                     Subchondral cancellous bone around the knee shows early porous changes.
                   </p>
                   <MediaSlot
+                    src="/frames/frame_000100.jpg"
                     aspectRatio="aspect-square"
-                    label="Knee Joint Trabecular Anatomy Slot"
-                    dimensions="500 × 500"
+                    label="Anatomical Knee Radiograph (AP View)"
                     type="image"
                   />
                 </div>
@@ -1173,29 +1296,29 @@ export const HomePage: React.FC<HomePageProps> = ({
                       3 Classes
                     </span>
                     <span className="text-[10px] font-mono text-blue-100">
-                      Zero Ambiguity
+                      Fixed Output
                     </span>
                   </div>
                   <h3 className="text-base font-bold leading-snug mb-3">
-                    Every uploaded knee scan resolves into Normal, Osteopenia, or Osteoporosis.
+                    Each analyzed knee X-ray is reported as Normal, Osteopenia, or Osteoporosis.
                   </h3>
                   <p className="text-xs text-blue-100 leading-relaxed">
-                    Accompanied by an objective score out of 100 for reliable tracking and clear suggestions.
+                    The prediction is accompanied by a confidence score and, where supported, a visual explanation.
                   </p>
                 </div>
                 <div className="pt-4 border-t border-white/20 text-[11px] font-mono text-blue-100 uppercase">
-                  CALIBRATED DIAGNOSTIC METRIC
+                  AI PREDICTION OUTPUT
                 </div>
               </div>
             </RevealSection>
 
             {/* Bento 3: Attention Detection Slot (3 cols) */}
             <RevealSection className="md:col-span-3" delay={0.16}>
-              <div className="card-glass-water p-3 rounded-3xl overflow-hidden h-full border border-slate-200/80">
+              <div className="card-glass-water p-3 overflow-hidden h-full">
                 <MediaSlot
+                  src="/frames/frame_000299.jpg"
                   aspectRatio="aspect-square"
-                  label="Detection Heatmap &amp; ROI Slot"
-                  dimensions="800 × 800"
+                  label="Grad-CAM++ Attention Heatmap"
                   type="image"
                   className="h-full"
                 />
@@ -1204,32 +1327,36 @@ export const HomePage: React.FC<HomePageProps> = ({
 
             {/* Bento 4: 0-100 Score Benchmark (3 cols) */}
             <RevealSection className="md:col-span-3" delay={0.24}>
-              <div className="card-glass-water p-6 rounded-3xl flex flex-col justify-between h-full border border-slate-200/80">
+              <div className="card-glass-water p-6 flex flex-col h-full">
                 <div>
                   <p className="text-3xl font-black text-[#0F172A] font-mono mb-1">
                     0 — 100
                   </p>
                   <p className="text-xs text-[#64748B] font-medium mb-4">
-                    Continuous Bone Fragility Index
+                    Confidence Score (0–100)
                   </p>
                 </div>
 
-                {/* Mini Class Bars representing the 3 tiers */}
-                <div className="flex items-end justify-between gap-3 h-24 pt-4 border-t border-slate-100">
-                  {[
-                    { label: 'Normal', score: '24', h: '24%', color: 'bg-emerald-500' },
-                    { label: 'Osteopenia', score: '58', h: '58%', color: 'bg-amber-500' },
-                    { label: 'Osteo', score: '92', h: '92%', color: 'bg-red-500' },
-                  ].map((b) => (
-                    <div key={b.label} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
-                      <span className="text-[10px] font-mono font-bold text-slate-700">{b.score}</span>
-                      <div
-                        className={`w-full rounded-t-lg ${b.color} transition-all duration-500`}
-                        style={{ height: b.h }}
-                      />
-                      <span className="text-[10px] font-mono text-slate-500 truncate w-full text-center">{b.label}</span>
-                    </div>
-                  ))}
+                {/* Mini Class Bars representing the 3 tiers — vertically
+                    centered in the leftover space so the card never shows
+                    a dead gap pinned between header and chart */}
+                <div className="flex-1 flex flex-col justify-center min-h-0">
+                  <div className="flex items-end justify-between gap-3 h-24 pt-4 border-t border-slate-100">
+                    {[
+                      { label: 'Normal', score: '24', h: '24%', color: 'bg-emerald-500' },
+                      { label: 'Osteopenia', score: '58', h: '58%', color: 'bg-amber-500' },
+                      { label: 'Osteo', score: '92', h: '92%', color: 'bg-red-500' },
+                    ].map((b) => (
+                      <div key={b.label} className="flex-1 flex flex-col items-center gap-1.5 h-full justify-end">
+                        <span className="text-[10px] font-mono font-bold text-slate-700">{b.score}</span>
+                        <div
+                          className={`w-full rounded-t-lg ${b.color} transition-all duration-500`}
+                          style={{ height: b.h }}
+                        />
+                        <span className="text-[10px] font-mono text-slate-500 truncate w-full text-center">{b.label}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </RevealSection>
@@ -1243,44 +1370,42 @@ export const HomePage: React.FC<HomePageProps> = ({
           5. CLINICAL VALIDATION / TESTIMONIAL (id="testimonial")
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section id="testimonial" className="relative py-20 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section id="testimonial" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             
             {/* Left: Avatar Thumbnail (3 cols) */}
             <RevealSection className="lg:col-span-3" delay={0}>
-              <div className="card-glass-water p-5 rounded-3xl flex flex-col items-center text-center border border-slate-200/80">
+              <div className="card-glass-water p-5 flex flex-col items-center text-center">
                 <span className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-4">
-                  Clinical Validation
+                  Project Rationale
                 </span>
-                <div className="w-28 h-28 rounded-2xl overflow-hidden mb-3">
-                  <MediaSlot
-                    aspectRatio="aspect-square"
-                    label="Radiologist Slot"
-                    dimensions="300 × 300"
-                    type="image"
-                    className="!p-2 text-[9px]"
+                <div className="w-28 h-28 rounded-2xl overflow-hidden mb-3 shadow-md border border-slate-200">
+                  <img
+                    src="/portraits/clinician.png"
+                    alt="Radiology & Clinical Research"
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <p className="text-xs font-bold text-[#0F172A]">Orthopedic Research</p>
-                <p className="text-[10px] font-mono text-slate-400">DXA Correlation Benchmark</p>
+                <p className="text-xs font-bold text-[#0F172A]">Clinical Research Lead</p>
+                <p className="text-[10px] font-mono text-slate-400">Radiology &amp; Orthopedics</p>
               </div>
             </RevealSection>
 
             {/* Center: Large Quote Text (6 cols) */}
             <RevealSection className="lg:col-span-6" delay={0.1}>
-              <div className="card-glass-water p-8 sm:p-10 rounded-3xl flex flex-col justify-between border border-slate-200/80">
+              <div className="card-glass-water p-8 sm:p-10 flex flex-col justify-between">
                 <div className="mb-6">
                   <Quote size={28} className="text-[#2563EB] mb-3 opacity-60" />
                   <p className="text-lg sm:text-xl font-medium text-[#0F172A] leading-relaxed italic">
-                    " Millions of patients get routine knee X-rays every year for joint pain. OsteoVision turns those existing radiographs into an opportunistic early-detection screening tool for osteoporosis before a fragility fracture happens. "
+                    " Millions of patients get routine knee X-rays every year for joint pain. OsteoVision explores whether those existing radiographs can support opportunistic early screening for osteoporosis — as an educational and research concept, not a diagnostic tool. "
                   </p>
                 </div>
 
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                   <div>
-                    <p className="text-sm font-bold text-[#0F172A]">Dr. Marcus Vance, MD</p>
-                    <p className="text-xs text-[#64748B]">Consultant Musculoskeletal Radiologist</p>
+                    <p className="text-sm font-bold text-[#0F172A]">OsteoVision — Academic Project</p>
+                    <p className="text-xs text-[#64748B]">Explainable AI for Knee X-Ray Classification</p>
                   </div>
                 </div>
               </div>
@@ -1289,9 +1414,9 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Right: Large Portrait Slot (3 cols) */}
             <RevealSection className="lg:col-span-3" delay={0.2}>
               <MediaSlot
+                src="/images/radiology_workstation.jpg"
                 aspectRatio="aspect-[4/5]"
-                label="Clinical Workstation Media Slot"
-                dimensions="800 × 1000"
+                label="Clinical DICOM Diagnostic Suite"
                 type="image"
                 accent="blue"
               />
@@ -1306,10 +1431,10 @@ export const HomePage: React.FC<HomePageProps> = ({
           6. RESEARCH INSIGHTS & PROTOCOLS
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-20 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
           
           {/* Header */}
-          <div className="max-w-3xl mb-12">
+          <div className="max-w-3xl mb-8">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
               Scientific Insights
             </span>
@@ -1319,41 +1444,44 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* 3 Research Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6 mb-8">
             {[
               {
-                author: 'Medical Imaging Team',
+                author: 'Project Notes',
                 time: '6 Min read',
-                date: 'Radiology Update',
-                title: 'How Knee X-Rays Reveal Early Micro-Trabecular Loss',
+                date: 'Knee Anatomy',
+                title: 'How Knee X-Rays Can Reveal Early Micro-Trabecular Loss',
                 tag: 'Knee Anatomy',
+                image: '/images/research_trabecular.jpg',
               },
               {
-                author: 'OsteoVision Research',
+                author: 'OsteoVision Project',
                 time: '8 Min read',
-                date: 'Diagnostic Guide',
-                title: 'Interpreting the 3 Classes: Normal, Osteopenia, & Osteoporosis',
+                date: 'Reference Guide',
+                title: 'Understanding the 3 Classes: Normal, Osteopenia, & Osteoporosis',
                 tag: 'Class Breakdown',
+                image: '/images/research_ai_model.jpg',
               },
               {
-                author: 'Bone Health Institute',
+                author: 'Study Notes',
                 time: '5 Min read',
-                date: 'Care Pathway',
-                title: 'Actionable Suggestions: Calcium, Vitamin D, & DXA Follow-up',
-                tag: 'Recommendations',
+                date: 'Background',
+                title: 'General Context: Calcium, Vitamin D, & DXA Follow-up',
+                tag: 'General Information',
+                image: '/images/research_bone_health.jpg',
               },
             ].map((blog, idx) => (
               <RevealSection key={idx} delay={idx * 0.1}>
                 <div
-                  className="card-glass-water p-5 rounded-3xl flex flex-col justify-between group hover:shadow-lg transition-all h-full border border-slate-200/80"
+                  className="card-glass-water p-5 flex flex-col justify-between group h-full"
                 >
                   <div>
                     {/* Media Slot with Tag Badge */}
                     <div className="relative mb-4 rounded-2xl overflow-hidden">
                       <MediaSlot
+                        src={blog.image}
                         aspectRatio="aspect-[16/11]"
-                        label={`Research Graphic Slot ${idx + 1}`}
-                        dimensions="900 × 600"
+                        label={blog.title}
                         type="image"
                         className="!min-h-[170px]"
                       />
@@ -1382,7 +1510,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     onClick={() => onNavigate('/about')}
                     className="pt-3 border-t border-slate-100 flex items-center gap-1.5 text-xs font-bold text-[#0F172A] group-hover:text-blue-600 transition-colors cursor-pointer"
                   >
-                    <span>Read Full Methodology</span>
+                    <span>Read More</span>
                     <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
                   </div>
                 </div>
@@ -1405,10 +1533,92 @@ export const HomePage: React.FC<HomePageProps> = ({
       </RevealSection>
 
       {/* ══════════════════════════════════════════════════
+          6.5 FAQ (id="faq")
+      ══════════════════════════════════════════════════ */}
+      <RevealSection>
+        <section id="faq" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+
+          {/* Header */}
+          <div className="max-w-3xl mb-8">
+            <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
+              Frequently Asked Questions
+            </span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight">
+              Understanding OsteoVision
+            </h2>
+          </div>
+
+          {/* Q&A Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                q: 'What is OsteoVision?',
+                a: 'OsteoVision is an academic, explainable AI-based web project that classifies knee X-ray images into Normal, Osteopenia, or Osteoporosis. It is intended for educational and preliminary research use, not for medical diagnosis.',
+              },
+              {
+                q: 'How does image analysis work?',
+                a: 'After upload and image-type validation, the image is preprocessed and passed to a ConvNeXt-Tiny classifier, which returns a predicted class and a confidence score. Where supported, a Grad-CAM++ heatmap is generated as a visual explanation.',
+              },
+              {
+                q: 'Which image formats are supported?',
+                a: 'PNG and JPEG images are supported. Files that cannot be decoded as a valid image are rejected.',
+              },
+              {
+                q: 'What does the classification mean?',
+                a: 'It is the model\u2019s predicted category among the three classes. It is an AI prediction, not a confirmed medical diagnosis.',
+              },
+              {
+                q: 'What does the confidence score mean?',
+                a: 'It reflects the model\u2019s relative certainty for its top predicted class. It is not a guarantee of correctness and is not a confirmed probability of disease.',
+              },
+              {
+                q: 'What is Grad-CAM?',
+                a: 'Grad-CAM is an explainability method that produces a heatmap highlighting image regions associated with the model\u2019s prediction. A heatmap does not independently establish osteoporosis or prove the model is focusing on clinically meaningful features.',
+              },
+              {
+                q: 'Why might an image fail to process?',
+                a: 'A file may not be a valid image, may not be decodable as a radiograph, may not appear to be a knee X-ray (when the optional knee-detection model is configured), or the analysis backend may be unavailable.',
+              },
+              {
+                q: 'How are uploaded images handled?',
+                a: 'Uploaded images are sent to the analysis backend for processing. The current backend processes images in memory and does not implement persistent image storage. No data-retention or deletion guarantee beyond this should be assumed.',
+              },
+            ].map((item) => (
+              <div key={item.q} className="card-tactile p-6 flex flex-col justify-start">
+                <h3 className="text-sm font-bold text-[#0F172A] tracking-tight mb-2">{item.q}</h3>
+                <p className="text-xs text-[#475569] leading-relaxed font-normal">{item.a}</p>
+              </div>
+            ))}
+          </div>
+
+        </section>
+      </RevealSection>
+
+      {/* ══════════════════════════════════════════════════
           7. FOOTER & UPLOAD CALL TO ACTION (id="contact")
       ══════════════════════════════════════════════════ */}
-      <footer id="contact" className="relative pt-20 pb-12 bg-white/70 backdrop-blur-2xl border-t border-slate-200/80 z-10 overflow-hidden">
+      <footer id="contact" className="relative pt-12 pb-8 bg-white/70 backdrop-blur-2xl border-t border-slate-200/80 z-10 overflow-hidden">
         
+        {/* Ambient aurora depth — soft brand glows drifting behind the finale */}
+        <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
+          <div
+            className="animate-aurora absolute rounded-full"
+            style={{
+              width: '42vw', height: '42vw', right: '-6%', top: '-12%',
+              ['--dur' as string]: '24s', ['--delay' as string]: '0s',
+              background: 'radial-gradient(closest-side, rgba(37,99,235,0.07), rgba(37,99,235,0) 70%)',
+            } as React.CSSProperties}
+          />
+          <div
+            className="animate-aurora absolute rounded-full"
+            style={{
+              width: '38vw', height: '38vw', left: '-8%', bottom: '-16%',
+              ['--dur' as string]: '28s', ['--delay' as string]: '-8s',
+              background: 'radial-gradient(closest-side, rgba(34,211,238,0.07), rgba(34,211,238,0) 70%)',
+            } as React.CSSProperties}
+          />
+        </div>
+
         <div className="max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 relative z-10">
           
           {/* Top CTA & Newsletter Row */}
@@ -1416,10 +1626,25 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-16 border-b border-slate-200/80 items-center">
               
               <div className="lg:col-span-6">
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight leading-tight">
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight leading-tight mb-5">
                   Protect Bone Strength <br />
                   Analyze Your Knee X-Ray Today
                 </h2>
+                <div className="relative inline-flex">
+                  <span
+                    aria-hidden="true"
+                    className="cta-beacon pointer-events-none absolute inset-0 rounded-full"
+                    style={{ border: '2px solid rgba(37,99,235,0.5)' }}
+                  />
+                  <button
+                    onClick={() => onNavigate('/studio')}
+                    className="btn-tactile-dark relative inline-flex items-center gap-2.5 px-6 py-3 rounded-full text-sm font-bold cursor-pointer"
+                  >
+                    <ScanLine size={16} />
+                    <span>Analyze a Knee X-ray</span>
+                    <ArrowRight size={15} />
+                  </button>
+                </div>
               </div>
 
               <div className="lg:col-span-6">
@@ -1460,21 +1685,23 @@ export const HomePage: React.FC<HomePageProps> = ({
               <ul className="space-y-2.5 text-xs text-[#475569] font-medium">
                 <li><button onClick={() => onNavigate('/')} className="hover:text-blue-600 transition-colors cursor-pointer">Home</button></li>
                 <li><button onClick={() => onNavigate('/', 'services')} className="hover:text-blue-600 transition-colors cursor-pointer">Diagnostic Output</button></li>
+                <li><button onClick={() => goToSection('how-it-works')} className="hover:text-blue-600 transition-colors cursor-pointer">How It Works</button></li>
                 <li><button onClick={() => onNavigate('/', 'about-us')} className="hover:text-blue-600 transition-colors cursor-pointer">About OsteoVision</button></li>
-                <li><button onClick={() => onNavigate('/studio')} className="hover:text-blue-600 transition-colors cursor-pointer">Upload Studio</button></li>
+                <li><button onClick={() => onNavigate('/studio')} className="hover:text-blue-600 transition-colors cursor-pointer">Analyze a Knee X-ray</button></li>
+                <li><button onClick={() => goToSection('faq')} className="hover:text-blue-600 transition-colors cursor-pointer">FAQ</button></li>
               </ul>
             </div>
 
             {/* Nav Column 2: Scope & Output */}
             <div className="md:col-span-3">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
-                Diagnostic Scope
+                Output Classes
               </p>
               <ul className="space-y-2.5 text-xs text-[#475569] font-medium">
                 <li><span className="text-slate-700 font-semibold">Knee Radiographs Only</span></li>
-                <li><span className="text-slate-600">Normal Class (0-30 Score)</span></li>
-                <li><span className="text-slate-600">Osteopenia Class (31-70 Score)</span></li>
-                <li><span className="text-slate-600">Osteoporosis Class (71-100 Score)</span></li>
+                <li><span className="text-slate-600">Normal</span></li>
+                <li><span className="text-slate-600">Osteopenia</span></li>
+                <li><span className="text-slate-600">Osteoporosis</span></li>
               </ul>
             </div>
 
@@ -1484,39 +1711,20 @@ export const HomePage: React.FC<HomePageProps> = ({
                 Safety &amp; Ethics
               </p>
               <ul className="space-y-2.5 text-xs text-[#475569] font-medium">
-                <li><a href="#privacy" className="hover:text-blue-600 transition-colors">Privacy Policy</a></li>
-                <li><a href="#terms" className="hover:text-blue-600 transition-colors">Terms of Use</a></li>
-                <li><a href="#disclaimer" className="hover:text-blue-600 transition-colors">Clinical Disclaimer</a></li>
+                <li><button onClick={() => onNavigate('/privacy')} className="hover:text-blue-600 transition-colors cursor-pointer">Privacy Policy</button></li>
+                <li><button onClick={() => goToSection('medical-disclaimer')} className="hover:text-blue-600 transition-colors cursor-pointer">Medical Disclaimer</button></li>
               </ul>
             </div>
 
-            {/* Contact Box (4 cols) */}
+            {/* Academic Project Note (4 cols) */}
             <div className="col-span-2 md:col-span-4 flex flex-col items-start md:items-end text-left md:text-right">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-                Questions or Dataset Collaboration?
+                About This Project
               </p>
-              <a
-                href="mailto:contact@osteovision.ai"
-                className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight hover:text-blue-600 transition-colors font-mono mb-4"
-              >
-                contact@osteovision.ai
-              </a>
-
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-slate-400 mr-1">Follow Us:</span>
-                <a href="#fb" className="w-8 h-8 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-blue-600">
-                  <Facebook size={14} />
-                </a>
-                <a href="#ig" className="w-8 h-8 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-pink-600">
-                  <Instagram size={14} />
-                </a>
-                <a href="#x" className="w-8 h-8 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-black">
-                  <Twitter size={14} />
-                </a>
-                <a href="#yt" className="w-8 h-8 rounded-full badge-glass-water flex items-center justify-center text-slate-600 hover:text-red-600">
-                  <Youtube size={14} />
-                </a>
-              </div>
+              <p className="text-sm text-[#475569] leading-relaxed max-w-sm font-medium">
+                OsteoVision is an academic, educational and research-oriented AI project.
+                It is not a medical device and does not provide clinical diagnosis.
+              </p>
             </div>
 
           </div>
@@ -1525,12 +1733,15 @@ export const HomePage: React.FC<HomePageProps> = ({
           <InteractiveFooterWordmark />
 
           {/* Bottom Disclaimer & Copyright */}
-          <div className="pt-6 border-t border-slate-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+          <div id="medical-disclaimer" className="pt-6 border-t border-slate-200/80 flex flex-col gap-3 text-xs text-slate-500 font-medium">
+            <span className="text-[11px] text-slate-500 leading-relaxed">
+              OsteoVision is an educational and research-oriented AI project. Its outputs are
+              generated by a machine-learning model and may contain errors. Results must not be
+              used as a substitute for professional medical evaluation, diagnosis, or treatment
+              decisions. Consult a qualified healthcare professional for clinical assessment.
+            </span>
             <div>
-              © 2026 OsteoVision. Strictly dedicated to knee radiograph osteoporosis screening.
-            </div>
-            <div className="flex items-center gap-6">
-              <span className="text-[11px] text-slate-400">Not a replacement for clinical DXA scans. Always consult an orthopedic specialist.</span>
+              © 2026 OsteoVision. Academic project for knee radiograph osteoporosis classification.
             </div>
           </div>
 
