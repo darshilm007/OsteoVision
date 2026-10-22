@@ -53,7 +53,7 @@ class OsteoVisionModel:
         ])
 
         # 4. Pre-load Grad-CAM++ targeting stage 3 normalization
-        self.target_layers = [self.model.stages[3].blocks[-1].norm]
+        self.target_layers = [self.model.stages[-1].blocks[-1]]
         self.cam = GradCAMPlusPlus(model=self.model, target_layers=self.target_layers)
 
     def predict(self, image_bytes: bytes) -> dict:
@@ -74,7 +74,7 @@ class OsteoVisionModel:
             # Assuming alphabetical sorting: index 0 = knee (or non_knee depending on folder setup). 
             # If index 1 represents 'non_knee' with high confidence, reject it:
             if predicted_detector_idx == 1 and detector_confidence > 70.0:
-                 raise ValueError("The uploaded image does not appear to be a valid knee radiograph. Please upload a knee X-ray.")
+                raise ValueError("The uploaded image does not appear to be a valid knee radiograph...")
 
         # STEP 2: Run Main OsteoVision Classification & Grad-CAM++
         with torch.no_grad():
@@ -100,8 +100,16 @@ class OsteoVisionModel:
         heatmap_pil.save(buffered, format="JPEG")
         heatmap_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
         
+        # Convert the tensor probabilities to a list
+        probs_list = probabilities.tolist()
+
         return {
             "prediction": predicted_class,
             "confidence": confidence_pct,
+            "class_probabilities": {
+                "normal": float(round(probs_list[0] * 100, 2)),
+                "osteopenia": float(round(probs_list[1] * 100, 2)),
+                "osteoporosis": float(round(probs_list[2] * 100, 2))
+            },
             "heatmap_base64": heatmap_base64
         }

@@ -66,7 +66,7 @@ async def predict_image(file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(
             status_code=400, 
-            detail=f"The uploaded file could not be processed as a valid radiograph: {str(e)}"
+            detail=f"Error: {str(e)}"
         )  
         
 if __name__ == "__main__":
