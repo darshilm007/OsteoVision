@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 import torch
 import timm
+import gc
 from PIL import Image
 from torchvision import transforms
 from pytorch_grad_cam import GradCAMPlusPlus
@@ -129,6 +130,8 @@ class OsteoVisionModel:
         
         # Convert the tensor probabilities to a list
         probs_list = probabilities.tolist()
+        # Force garbage collection to free RAM on Render
+        gc.collect()
 
         return {
             "prediction": predicted_class,
