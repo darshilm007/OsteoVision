@@ -278,15 +278,7 @@ const ingestFile = useCallback((file: File) => {
         riskColor: 'text-[#64748B]',
         riskBadgeClass: 'bg-slate-100 border-slate-200 text-slate-600',
         findings: 'Radiograph uploaded. Click "Analyze Scan" to calculate bone mineral density and generate Grad-CAM++ heatmap.',
-<<<<<<< HEAD
         recommendations: 'Pending automated AI classification.',
-=======
-        recommendations: 'Pending automated ConvNeXt-Tiny classification.',
-        
-        // 1. ADDED FALLBACK SUGGESTIONS HERE
-        suggestions: ['Upload and analyze a scan to receive actionable lifestyle suggestions.'], 
-        
->>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
         rawImageIndex: 0,
         heatmapImageIndex: 0,
         probabilities: { normal: 0, osteopenia: 0, osteoporosis: 0 },
@@ -373,13 +365,8 @@ const ingestFile = useCallback((file: File) => {
   const strokeDashoffset = circumference - (Math.min(100, Math.max(0, displayCase.score)) / 100) * circumference;
 
   return (
-<<<<<<< HEAD
-    <div className="pt-28 sm:pt-32 pb-16 min-h-screen bg-[#F8FAFC] text-[#0F172A] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
-      
-=======
     <div className={`pt-24 pb-16 min-h-screen bg-[#F8FAFC] text-[#0F172A] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden print:overflow-visible print:bg-white print:p-0 ${showReportModal || alertConfig.isOpen ? 'z-[100]' : 'z-10'}`}>
 
->>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
       {/* Subtle Aurora Ambient Light */}
       <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden print:hidden" style={{ zIndex: 0 }}>
         <div
@@ -398,11 +385,7 @@ const ingestFile = useCallback((file: File) => {
         />
       </div>
 
-<<<<<<< HEAD
-      <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-10 relative z-10">
-=======
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 print:hidden">
->>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
 
         {/* ══════════════════════════════════════════════════
             HEADER — Clean, Modern & Elegant
@@ -674,11 +657,7 @@ const ingestFile = useCallback((file: File) => {
                       Analyzing Knee Joint Architecture
                     </p>
                     <p className="text-xs font-mono text-cyan-300">
-<<<<<<< HEAD
-                      Deep Learning &amp; Grad-CAM++ Inference Active...
-=======
                       Processing
->>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
                     </p>
                   </div>
                 )}
@@ -886,12 +865,8 @@ const ingestFile = useCallback((file: File) => {
           role="dialog"
           aria-modal="true"
           onClick={() => setShowReportModal(false)}
-<<<<<<< HEAD
-          className="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
-=======
           // z-[9999] forces it over the header on the website, while print:static allows multi-page printing
           className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto print:static print:block print:p-0 print:bg-white print:overflow-visible"
->>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
         >
           <div
             onClick={e => e.stopPropagation()}
@@ -951,11 +926,7 @@ const ingestFile = useCallback((file: File) => {
                 <div className="text-left sm:text-right font-mono text-[11px] text-slate-500 space-y-0.5">
                   <p><strong className="text-slate-900">REPORT ID:</strong> OST-XRAY-{Math.abs(displayCase.title.split('').reduce((a,b)=>a+b.charCodeAt(0),0))}</p>
                   <p><strong className="text-slate-900">DATE:</strong> {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-<<<<<<< HEAD
-                  <p><strong className="text-slate-900">PROTOCOL:</strong> Knee AP / AI Screening</p>
-=======
                   <p><strong className="text-slate-900">PROTOCOL:</strong> Knee AP</p>
->>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
                 </div>
               </div>
 
@@ -1016,20 +987,23 @@ const ingestFile = useCallback((file: File) => {
 
               {/* Dual Visual Radiograph Thumbnails */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 aspect-[4/3] flex flex-col justify-between">
+                {/* Original Radiograph */}
+                <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 flex flex-col justify-between">
                   <div className="flex-1 flex items-center justify-center p-2">
-                    {rawSrc && <img src={rawSrc} alt="Original Radiograph" className="max-h-full max-w-full object-contain" />}
+                    {rawSrc && <img src={rawSrc} alt="Original Radiograph" className="w-full h-auto object-contain" />}
                   </div>
                   <div className="p-2 bg-slate-900 text-[10px] font-mono text-slate-300 text-center">
                     Original Radiograph (AP)
                   </div>
                 </div>
-                <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 aspect-[4/3] flex flex-col justify-between">
+
+                {/* Grad-CAM Explanation */}
+                <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-950 flex flex-col justify-between">
                   <div className="flex-1 flex items-center justify-center p-2">
-                    {overlaySrc && <img src={overlaySrc} alt="Grad-CAM Explanation" className="max-h-full max-w-full object-contain" />}
+                    {overlaySrc && <img src={overlaySrc} alt="Grad-CAM Explanation" className="w-full h-auto object-contain" />}
                   </div>
                   <div className="p-2 bg-slate-900 text-[10px] font-mono text-cyan-300 text-center">
-                    Grad-CAM++ Attention Heatmap
+                    AI Focus Area
                   </div>
                 </div>
               </div>

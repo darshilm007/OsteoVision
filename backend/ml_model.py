@@ -1,5 +1,7 @@
 import io
 import base64
+import os
+import requests
 import cv2
 import numpy as np
 import torch
@@ -10,9 +12,36 @@ from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
+def download_weights_if_missing():
+    """Automatically downloads model weights from Hugging Face if they don't exist locally."""
+    os.makedirs("./model_weights", exist_ok=True)
+    
+    weights_files = {
+        "./model_weights/ConvNeXt_best.pth": "https://huggingface.co/darshilm007/OsteoVision-Weights/resolve/main/ConvNeXt_best.pth",
+        "./model_weights/knee_detector.pth": "https://huggingface.co/darshilm007/OsteoVision-Weights/resolve/main/knee_detector.pth"
+    }
+    
+    for path, url in weights_files.items():
+        if not os.path.exists(path):
+            print(f"Model weight missing at {path}. Downloading from Hugging Face...")
+            try:
+                response = requests.get(url, stream=True)
+                response.raise_for_status()
+                with open(path, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        if chunk:
+                            f.write(chunk)
+                print(f"Successfully downloaded: {path}")
+            except Exception as e:
+                print(f"ERROR: Failed to download {path}: {e}")
+
 class OsteoVisionModel:
     def __init__(self):
         """Initializes both models, transforms, and Grad-CAM on startup."""
+        
+        # Ensure weights are downloaded before loading into PyTorch
+        download_weights_if_missing()
+
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.classes = ["normal", "osteopenia", "osteoporosis"]
         
@@ -71,8 +100,6 @@ class OsteoVisionModel:
                 predicted_detector_idx = detector_outputs.argmax(dim=1).item()
                 detector_confidence = float(detector_probs[predicted_detector_idx].item() * 100)
             
-            # Assuming alphabetical sorting: index 0 = knee (or non_knee depending on folder setup). 
-            # If index 1 represents 'non_knee' with high confidence, reject it:
             if predicted_detector_idx == 1 and detector_confidence > 70.0:
                 raise ValueError("The uploaded image does not appear to be a valid knee radiograph...")
 

@@ -1,9 +1,17 @@
+# Python / FastAPI
+venv/
+__pycache__/
+*.pyc
+.env
+backend/model_weights/*.pth    # Ignore large model weights locally
+backend/model_weights/
+
+# Node / React
 node_modules/
-build/
 dist/
-coverage/
+build/
+.vite/
+
+# OS Files
 .DS_Store
-*.log
-.env*
-!.env.example
-*pth
+Thumbs.db
