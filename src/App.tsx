@@ -80,7 +80,7 @@ export default function App() {
       />
 
       {/* Page Views — cinematic direction-aware transitions */}
-      <main className="relative z-10">
+      <main className="relative">
         <PageTransition routeKey={currentRoute} renderPage={renderPage} />
       </main>
     </div>

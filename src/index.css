@@ -79,6 +79,54 @@
     0.9588, 0.9815, 0.9997, 0.9928, 0.9880, 0.9852, 0.9845, 0.9858, 0.9892, 0.9946, 
     1.0000
   );
+
+  /* ─────────────────────────────────────────────
+     MATHEMATICAL FLUID SCALING SYSTEM (RESPONSIVE TOKENS)
+     Base Formula:
+       V_min = 360px (22.5rem), V_max = 1440px (90rem)
+       Delta_V = 1440 - 360 = 1080px
+       m = (Y_max - Y_min) / 1080
+       b = Y_min - (m * 360)
+       clamp(Y_min, calc(b + (m * 100)vw), Y_max)
+  ───────────────────────────────────────────── */
+  /* Display Hero H1: 28px at 360px -> 56px at 1440px */
+  /* m = 28/1080 = 0.02593 => 2.593vw; b = 28 - (0.025926 * 360) = 18.67px => 1.167rem */
+  --fluid-h1: clamp(1.75rem, 1.167rem + 2.593vw, 3.5rem);
+
+  /* Section H2: 22px at 360px -> 36px at 1440px */
+  /* m = 14/1080 = 0.01296 => 1.296vw; b = 22 - (0.012963 * 360) = 17.33px => 1.083rem */
+  --fluid-h2: clamp(1.375rem, 1.083rem + 1.296vw, 2.25rem);
+
+  /* Card H3: 17px at 360px -> 24px at 1440px */
+  /* m = 7/1080 = 0.00648 => 0.648vw; b = 17 - (0.006481 * 360) = 14.67px => 0.917rem */
+  --fluid-h3: clamp(1.0625rem, 0.917rem + 0.648vw, 1.5rem);
+
+  /* Body Text: 14px at 360px -> 16px at 1440px */
+  /* m = 2/1080 = 0.00185 => 0.185vw; b = 14 - (0.00185 * 360) = 13.33px => 0.833rem */
+  --fluid-body: clamp(0.875rem, 0.833rem + 0.185vw, 1rem);
+
+  /* Lead / Hero Subhead: 14px at 360px -> 17px at 1440px */
+  /* m = 3/1080 = 0.00278 => 0.278vw; b = 14 - (0.00278 * 360) = 13px => 0.813rem */
+  --fluid-lead: clamp(0.875rem, 0.813rem + 0.278vw, 1.0625rem);
+
+  /* Stat Number: 24px at 360px -> 38px at 1440px */
+  /* m = 14/1080 = 0.01296 => 1.296vw; b = 24 - 4.67 = 19.33px => 1.208rem */
+  --fluid-stat-num: clamp(1.5rem, 1.208rem + 1.296vw, 2.375rem);
+
+  /* Section Padding Block (Y): 36px at 360px -> 80px at 1440px */
+  /* m = 44/1080 = 0.04074 => 4.074vw; b = 36 - 14.67 = 21.33px => 1.333rem */
+  --fluid-pad-section-y: clamp(2.25rem, 1.333rem + 4.074vw, 5rem);
+
+  /* Container Padding Inline (X): 16px at 360px -> 48px at 1440px */
+  /* m = 32/1080 = 0.02963 => 2.963vw; b = 16 - 10.67 = 5.33px => 0.333rem */
+  --fluid-pad-container-x: clamp(1rem, 0.333rem + 2.963vw, 3rem);
+
+  /* Card Padding: 16px at 360px -> 32px at 1440px */
+  /* m = 16/1080 = 0.01481 => 1.481vw; b = 16 - 5.33 = 10.67px => 0.667rem */
+  --fluid-pad-card: clamp(1rem, 0.667rem + 1.481vw, 2rem);
+
+  /* Fluid Card Radius: 14px at 360px -> 24px at 1440px */
+  --fluid-radius-card: clamp(0.875rem, 0.667rem + 0.926vw, 1.5rem);
 }
 
 
@@ -659,15 +707,18 @@
 }
 
 /* ─────────────────────────────────────────────
-   Stakeholder Value Cards — 1:1 Match to Reference
+   Stakeholder Value Cards — Adaptive Representation
+   Desktop: 1:1 Reference Hover Peek
+   Mobile & Tablet: High-legibility Touch Clinical Cards
 ───────────────────────────────────────────── */
 .impact-card-wrapper {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  border-radius: 16px;
+  border-radius: var(--fluid-radius-card);
   cursor: pointer;
   user-select: none;
+  isolation: isolate;
 }
 
 .impact-card-photo {
@@ -675,7 +726,7 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 16px;
+  border-radius: var(--fluid-radius-card);
   background-color: #eeeeee;
   overflow: hidden;
   z-index: 5;
@@ -685,13 +736,9 @@
   align-items: center;
   transform-origin: 50% 50%;
   transform: translate3d(0, 0, 0) rotate(0deg);
-  transition: transform 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
+  transition: transform 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              opacity 300ms ease;
   will-change: transform;
-}
-
-.impact-card-wrapper:hover .impact-card-photo,
-.impact-card-wrapper.is-active .impact-card-photo {
-  transform: translate3d(0, -135px, 0) rotate(-6.5deg);
 }
 
 .impact-card-glass {
@@ -699,20 +746,18 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 16px;
-  padding: 18px 16px;
+  border-radius: var(--fluid-radius-card);
+  padding: clamp(14px, 2.5vw, 20px) clamp(12px, 2vw, 18px);
   z-index: 6;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  /* Site-consistent brand blue: blue-100 tint (#DBEAFE) from the palette,
-     not the old off-palette periwinkle */
-  background-color: rgba(219, 234, 254, 1);
+  background-color: rgba(219, 234, 254, 0.95);
   border: 1px solid rgba(191, 219, 254, 0.9);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 2px rgba(15, 23, 42, 0.05), 0 10px 25px rgba(37, 99, 235, 0.10);
   transform-origin: 50% 50%;
   transform: translate3d(0, 0, 0) rotate(0deg);
   transition: transform 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
-              background-color 400ms var(--ease-out-bounce, cubic-bezier(0.34, 1.56, 0.64, 1)),
+              background-color 400ms ease,
               border-color 400ms ease,
               box-shadow 400ms ease;
   will-change: transform, background-color;
@@ -722,19 +767,58 @@
   align-items: flex-start;
 }
 
-.impact-card-wrapper:hover .impact-card-glass,
-.impact-card-wrapper.is-active .impact-card-glass {
-  transform: translate3d(-18px, 105px, 0) rotate(6.5deg);
-  background-color: rgba(219, 234, 254, 0.4);
-  border-color: rgba(191, 219, 254, 0.75);
-  box-shadow: 0 16px 36px rgba(37, 99, 235, 0.16);
+/* Desktop with Mouse Hover: 1:1 Reference Hover Peek */
+@media (hover: hover) and (min-width: 1025px) {
+  .impact-card-wrapper:hover .impact-card-photo,
+  .impact-card-wrapper.is-active .impact-card-photo {
+    transform: translate3d(0, -110px, 0) rotate(-6.5deg);
+  }
+
+  .impact-card-wrapper:hover .impact-card-glass,
+  .impact-card-wrapper.is-active .impact-card-glass {
+    transform: translate3d(-14px, 85px, 0) rotate(6.5deg);
+    background-color: rgba(219, 234, 254, 0.45);
+    border-color: rgba(191, 219, 254, 0.85);
+    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.16);
+  }
+}
+
+/* Touch & Mobile Representation: Non-Clipping Dual-View & Tap Inspect */
+@media (max-width: 1024px), (hover: none) {
+  .impact-card-wrapper {
+    aspect-ratio: 16 / 11;
+    min-height: 190px;
+    overflow: hidden;
+  }
+
+  .impact-card-photo {
+    opacity: 0.35;
+    transform: scale(1.02);
+  }
+
+  .impact-card-glass {
+    background-color: rgba(239, 246, 255, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .impact-card-wrapper:active .impact-card-photo,
+  .impact-card-wrapper.is-active .impact-card-photo {
+    opacity: 0.9;
+    transform: scale(1.05);
+  }
+
+  .impact-card-wrapper:active .impact-card-glass,
+  .impact-card-wrapper.is-active .impact-card-glass {
+    background-color: rgba(219, 234, 254, 0.35);
+  }
 }
 
 .impact-card-title-text {
   font-family: 'Inter Tight', Inter, sans-serif;
   color: #0f172a;
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: clamp(1.05rem, 0.95rem + 0.4vw, 1.25rem);
+  font-weight: 700;
   line-height: 1.2;
   margin: 0;
   letter-spacing: -0.01em;
@@ -743,25 +827,26 @@
 .impact-card-body-text {
   font-family: 'Inter Tight', Inter, sans-serif;
   color: #1e293b;
-  font-size: 0.84rem;
+  font-size: clamp(0.78rem, 0.74rem + 0.18vw, 0.86rem);
   font-weight: 450;
-  line-height: 1.38;
+  line-height: 1.4;
   margin: 0;
 }
 
 /* ─────────────────────────────────────────────
-   Hero Two-Zone Grid — Responsive Behavior
+   Hero Two-Zone Grid — Fluid Scaling & Safe Clearance
 ───────────────────────────────────────────── */
 
 /* Desktop default: content left ~45%, X-ray right ~55% */
 .hero-content-grid {
   display: grid;
-  grid-template-columns: minmax(0, 45%) 1fr;
+  grid-template-columns: minmax(0, clamp(440px, 45vw, 560px)) 1fr;
   align-items: center;
+  gap: clamp(1rem, 2vw, 3rem);
 }
 
-/* Tablet (≤1024px): widen content zone slightly */
-@media (max-width: 1024px) {
+/* Tablet (769px-1024px): adjust ratio, keep clear view of knee */
+@media (max-width: 1024px) and (min-width: 769px) {
   .hero-content-grid {
     grid-template-columns: minmax(0, 56%) 1fr;
   }
@@ -771,10 +856,11 @@
   }
 }
 
-/* Mobile (≤768px): full-width single column, video stays as backdrop */
+/* Mobile (≤768px): clean stacked single column */
 @media (max-width: 768px) {
   .hero-content-grid {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
 
   .hero-left-content {
@@ -783,8 +869,8 @@
 }
 
 /* ─────────────────────────────────────────────
-   Diagnostic Floating Cards — Triangular Cluster
-   Cohesive 3-card information group
+   Diagnostic Floating Cards — Fluid Scalable Cluster
+   Desktop & Tablet: Proportional dynamic placement
 ───────────────────────────────────────────── */
 
 .diag-cluster-root {
@@ -795,17 +881,18 @@
   overflow: hidden;
 }
 
-/* Cluster container: width 480px, height 386px (x ≈ 68%, y ≈ 58%) */
+/* Cluster container: width 480px, height 386px at base scale */
 .diag-cluster-container {
   position: absolute;
-  left: 54%;
-  top: 46%;
+  left: clamp(48%, 53vw, 58%);
+  top: clamp(38%, 46vh, 52%);
   width: 480px;
   height: 386px;
   pointer-events: none;
+  transform-origin: top left;
 }
 
-/* Card 1: Detection (upper-left of cluster — 230px x 175px) */
+/* Card 1: Detection (upper-left of cluster) */
 .diag-card-detection {
   position: absolute;
   left: 0;
@@ -817,81 +904,67 @@
   pointer-events: auto;
 }
 
-/* Card 2: Radiograph (upper-right of cluster — 225px x 170px, 24px gap) */
+/* Card 2: Radiograph (upper-right of cluster) */
 .diag-card-radiograph {
   position: absolute;
-  left: 254px; /* 230px + 24px gap */
-  top: 6px;    /* approximately aligned with Detection */
+  left: 254px;
+  top: 6px;
   width: 225px;
   min-height: 170px;
   box-sizing: border-box;
-  z-index: 2;  /* subtle depth behind */
+  z-index: 2;
   pointer-events: auto;
 }
 
-/* Card 3: Bone Health Score (centered below upper cards — 255px x 180px, 31px gap) */
+/* Card 3: Bone Health Score (centered below upper cards) */
 .diag-card-score {
   position: absolute;
-  left: 112px; /* (479px - 255px) / 2 = 112px */
-  top: 206px;  /* 175px + 31px gap */
+  left: 112px;
+  top: 206px;
   width: 255px;
   min-height: 180px;
   box-sizing: border-box;
-  z-index: 4;  /* primary anchor card */
+  z-index: 4;
   pointer-events: auto;
 }
 
-/* Large / Ultra-wide screens (≥1500px): keep cluster visually attached to knee, max-width bounded */
+/* Large / Ultra-wide screens (≥1500px): keep cluster visually attached to knee */
 @media (min-width: 1500px) {
   .diag-cluster-container {
-    left: clamp(52%, 54vw, calc(50% + 200px));
+    left: clamp(52%, 54vw, calc(50% + 220px));
+    transform: scale(1.05);
   }
 }
 
-/* Short desktop viewports (≤740px height like laptop screens): scale slightly so all cards fit with generous margins */
-@media (max-height: 740px) and (min-width: 1025px) {
+/* Standard desktop / laptop (1025px - 1440px) with shorter viewport */
+@media (max-height: 760px) and (min-width: 1025px) {
   .diag-cluster-container {
     top: 36%;
-    transform: scale(0.85);
-    transform-origin: top left;
+    transform: scale(0.82);
   }
 }
 
-/* Very short laptop viewports (≤620px height) */
-@media (max-height: 620px) and (min-width: 1025px) {
+@media (max-height: 640px) and (min-width: 1025px) {
   .diag-cluster-container {
     top: 30%;
-    transform: scale(0.76);
-    transform-origin: top left;
+    transform: scale(0.72);
   }
 }
 
-/* Tablet screens (769px–1024px): scale down proportionally, preserve exact triangular composition */
+/* Tablet screens (769px–1024px): smooth fluid scale so cluster fits right side */
 @media (max-width: 1024px) and (min-width: 769px) {
   .diag-cluster-container {
-    left: 50%;
-    top: 40%;
-    transform: scale(0.78);
-    transform-origin: top left;
+    left: clamp(48%, 51vw, 55%);
+    top: clamp(34%, 40vh, 46%);
+    transform: scale(clamp(0.68, 0.68 + 0.1 * ((100vw - 769px) / 255), 0.78));
   }
 }
 
-/* Tablet short viewports */
-@media (max-width: 1024px) and (min-width: 769px) and (max-height: 740px) {
-  .diag-cluster-container {
-    top: 32%;
-    transform: scale(0.70);
-    transform-origin: top left;
-  }
-}
-
-/* Mobile (≤768px): single clean screen — headline + CTAs centered over the video.
-   The floating diagnostic cluster is desktop/tablet only (its data is
-   repeated by the on-page demo sections anyway). */
+/* Mobile (≤768px): Hide absolute cluster; replaced with native in-flow Mobile Diagnostic Dock */
 @media (max-width: 768px) {
   .hero-viewport {
     height: auto !important;
-    min-height: 100svh !important;
+    min-height: 100dvh !important;
     overflow-y: visible !important;
     overflow-x: hidden !important;
   }
@@ -900,17 +973,60 @@
     position: relative !important;
     inset: auto !important;
     min-height: auto !important;
-    padding-top: 148px !important;   /* mobile header (~80px) + generous clearance below capsule */
-    padding-bottom: 40px !important;
+    padding-top: clamp(86px, 14vh, 120px) !important;
+    padding-bottom: clamp(32px, 5vh, 48px) !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: center !important;
   }
 
-  /* Hide the decorative card cluster on phones */
   .diag-cluster-root {
     display: none !important;
   }
+}
+
+/* ─────────────────────────────────────────────
+   Responsive Fluid Classes & Utilities
+───────────────────────────────────────────── */
+.text-fluid-h1 {
+  font-size: var(--fluid-h1);
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+}
+
+.text-fluid-h2 {
+  font-size: var(--fluid-h2);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.text-fluid-h3 {
+  font-size: var(--fluid-h3);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+}
+
+.text-fluid-lead {
+  font-size: var(--fluid-lead);
+  line-height: 1.55;
+}
+
+.text-fluid-body {
+  font-size: var(--fluid-body);
+  line-height: 1.6;
+}
+
+.text-fluid-stat {
+  font-size: var(--fluid-stat-num);
+  line-height: 1;
+}
+
+.section-fluid-py {
+  padding-block: var(--fluid-pad-section-y);
+}
+
+.container-fluid-px {
+  padding-inline: var(--fluid-pad-container-x);
 }
 
 

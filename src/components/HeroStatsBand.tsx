@@ -41,9 +41,9 @@ const CELLS: Cell[] = [
   },
   {
     kind: 'text',
-    value: 'ConvNeXt-Tiny',
-    label: 'Model Backbone',
-    sub: 'Classifier used for inference',
+    value: 'Deep Neural AI',
+    label: 'Analysis Engine',
+    sub: 'Automated radiographic screening',
   },
   {
     kind: 'text',
@@ -91,7 +91,7 @@ export const HeroStatsBand: React.FC = () => {
     <section
       ref={ref}
       aria-label="Implementation overview"
-      className="max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 relative z-10 py-10 md:py-12"
+      className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-3.5 sm:px-6 xl:px-10 2xl:px-12 relative z-10 py-8 sm:py-10 md:py-12"
     >
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-slate-200 rounded-2xl overflow-hidden border border-slate-200 shadow-xs">
         {CELLS.map((c, i) => {
@@ -99,10 +99,16 @@ export const HeroStatsBand: React.FC = () => {
             ? ''
             : `${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'} transition-all duration-500`;
           return (
-            <div key={c.label} className={`bg-white px-6 py-7 ${enter}`} style={{ transitionDelay: `${i * 80}ms` }}>
-              <p
-                className={`font-extrabold text-[#2563EB] font-mono tracking-tight mb-1 leading-none ${
-                  c.kind === 'count' ? 'text-3xl sm:text-4xl' : 'text-lg sm:text-xl'
+            <div
+              key={c.label}
+              className={`bg-white px-3.5 sm:px-6 py-4 sm:py-6 flex flex-col justify-center ${enter}`}
+              style={{ transitionDelay: `${i * 80}ms` }}
+            >
+              <div
+                className={`font-extrabold text-[#2563EB] font-mono tracking-tight mb-1 leading-none whitespace-nowrap ${
+                  c.kind === 'count'
+                    ? 'text-2xl sm:text-3xl lg:text-4xl'
+                    : 'text-sm sm:text-base lg:text-xl truncate'
                 }`}
               >
                 {c.kind === 'count' ? (
@@ -115,9 +121,13 @@ export const HeroStatsBand: React.FC = () => {
                 ) : (
                   c.value
                 )}
+              </div>
+              <p className="text-[11px] sm:text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-0.5 truncate">
+                {c.label}
               </p>
-              <p className="text-xs font-bold text-[#0F172A] uppercase tracking-wider mb-1">{c.label}</p>
-              <p className="text-[11px] text-[#64748B] leading-snug">{c.sub}</p>
+              <p className="text-[10px] sm:text-[11px] text-[#64748B] leading-snug line-clamp-2">
+                {c.sub}
+              </p>
             </div>
           );
         })}

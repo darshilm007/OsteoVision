@@ -31,8 +31,8 @@ const BEATS: Beat[] = [
   },
   {
     icon: <Crosshair size={15} />,
-    title: 'First, the pipeline finds the knee',
-    body: 'The image is validated and — when the optional knee-detection model is configured — screened to help confirm it is a knee.',
+    title: 'First, the pipeline checks the radiograph',
+    body: 'The image is validated and screened to help confirm it is a valid knee radiograph before processing.',
   },
   {
     icon: <ScanLine size={15} />,
@@ -308,9 +308,9 @@ export const AIJourney: React.FC = () => {
                 >
                   <div className="flex items-center justify-between mb-2.5">
                     <span className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
-                      Model Output · Illustrative
+                      AI Output · Illustrative
                     </span>
-                    <span className="font-mono text-[10px] text-[#67E8F9]">ConvNeXt-Tiny</span>
+                    <span className="font-mono text-[10px] text-[#67E8F9]">Inference Active</span>
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     {(['Normal', 'Osteopenia', 'Osteoporosis'] as const).map((cls) => (

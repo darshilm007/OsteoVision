@@ -263,7 +263,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
         riskColor: 'text-[#64748B]',
         riskBadgeClass: 'bg-slate-100 border-slate-200 text-slate-600',
         findings: 'Radiograph uploaded. Click "Analyze Scan" to calculate bone mineral density and generate Grad-CAM++ heatmap.',
-        recommendations: 'Pending automated ConvNeXt-Tiny classification.',
+        recommendations: 'Pending automated AI classification.',
         rawImageIndex: 0,
         heatmapImageIndex: 0,
         probabilities: { normal: 0, osteopenia: 0, osteoporosis: 0 },
@@ -276,7 +276,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
     return {
       id: 'custom',
       title: selectedFile?.name || 'Custom Radiograph',
-      view: 'Patient Radiograph · ConvNeXt-Tiny Inference',
+      view: 'Patient Radiograph · AI Inference',
       diagnosis: isOsteo ? 'Osteoporosis Indication' : isNormal ? 'Normal Healthy Bone Density' : 'Osteopenia (Mild Density Loss)',
       score: Math.round(backendResult.confidence),
       confidence: `${backendResult.confidence.toFixed(1)}%`,
@@ -288,7 +288,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
           : 'bg-amber-50 border-amber-200 text-amber-700',
       findings: isOsteo
-        ? 'ConvNeXt feature maps indicate marked trabecular thinning and localized bone mineral rarefaction in the periarticular knee region.'
+        ? 'Deep feature maps indicate marked trabecular thinning and localized bone mineral rarefaction in the periarticular knee region.'
         : isNormal
           ? 'Preserved cortical contour and physiological trabecular micro-mesh throughout femoral condyles and proximal tibia.'
           : 'Mild attenuation of subchondral trabecular network. Early density loss detected.',
@@ -328,7 +328,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   const strokeDashoffset = circumference - (Math.min(100, Math.max(0, displayCase.score)) / 100) * circumference;
 
   return (
-    <div className="pt-24 pb-16 min-h-screen bg-[#F8FAFC] text-[#0F172A] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
+    <div className="pt-28 sm:pt-32 pb-16 min-h-screen bg-[#F8FAFC] text-[#0F172A] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
       
       {/* Subtle Aurora Ambient Light */}
       <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
@@ -348,7 +348,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
         />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-10 relative z-10">
 
         {/* ══════════════════════════════════════════════════
             HEADER — Clean, Modern & Elegant
@@ -374,18 +374,19 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           </div>
 
           {/* Quick Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 sm:gap-2.5">
             <button
               onClick={() => setShowReportModal(true)}
-              className="btn-tactile-light inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold cursor-pointer shadow-xs"
+              className="btn-tactile-light inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs font-bold cursor-pointer shadow-xs whitespace-nowrap"
             >
               <Printer size={14} className="text-[#2563EB]" />
-              <span>Export Report (PDF)</span>
+              <span className="hidden sm:inline">Export Report (PDF)</span>
+              <span className="sm:hidden">Export PDF</span>
             </button>
             <button
               onClick={triggerAnalysis}
               disabled={isAnalyzing}
-              className="btn-tactile-dark inline-flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold cursor-pointer shadow-sm"
+              className="btn-tactile-dark inline-flex items-center gap-1.5 sm:gap-2 px-4 sm:px-5 py-2 rounded-xl text-xs font-bold cursor-pointer shadow-sm whitespace-nowrap"
             >
               <Sparkles size={14} className={isAnalyzing ? 'animate-spin' : ''} />
               <span>{isAnalyzing ? 'Analyzing...' : 'Analyze Scan'}</span>
@@ -408,19 +409,19 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
 
         {/* ══════════════════════════════════════════════════
             SLIM CONTROL STRIP: Quick Examples + Upload Button
-            (Clean, minimal, zero clutter)
+            (Fluid, scrollable on mobile, zero clutter)
         ══════════════════════════════════════════════════ */}
-        <div className="card-tactile p-3 sm:p-3.5 bg-white mb-6 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div className="card-tactile p-3 sm:p-3.5 bg-white mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
           
           {/* Quick Demo Switcher */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-500 mr-1 hidden sm:inline">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none -mx-1 px-1">
+            <span className="text-xs font-bold text-slate-500 mr-1 hidden sm:inline whitespace-nowrap">
               Try an Example:
             </span>
-            <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs gap-1">
+            <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs gap-1 flex-shrink-0">
               <button
                 onClick={() => selectClinicalSample(0)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap ${
                   selectedCaseIdx === 0
                     ? 'bg-white text-red-700 shadow-xs border border-slate-200/70'
                     : 'text-slate-600 hover:text-slate-900'
@@ -430,7 +431,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               </button>
               <button
                 onClick={() => selectClinicalSample(1)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap ${
                   selectedCaseIdx === 1
                     ? 'bg-white text-amber-700 shadow-xs border border-slate-200/70'
                     : 'text-slate-600 hover:text-slate-900'
@@ -440,7 +441,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               </button>
               <button
                 onClick={() => selectClinicalSample(2)}
-                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap ${
                   selectedCaseIdx === 2
                     ? 'bg-white text-emerald-700 shadow-xs border border-slate-200/70'
                     : 'text-slate-600 hover:text-slate-900'
@@ -585,7 +586,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                       Analyzing Knee Joint Architecture
                     </p>
                     <p className="text-xs font-mono text-cyan-300">
-                      ConvNeXt-Tiny &amp; Grad-CAM++ Inference Active...
+                      Deep Learning &amp; Grad-CAM++ Inference Active...
                     </p>
                   </div>
                 )}
@@ -652,7 +653,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
                     <span className="text-xl font-black font-mono tracking-tight text-[#0F172A]">
-                      <CountUp end={displayCase.score} />%
+                      <CountUp value={displayCase.score} />%
                     </span>
                     <span className="text-[8px] font-bold text-slate-400 uppercase tracking-widest -mt-0.5">
                       SCORE
@@ -771,6 +772,12 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
 
         </div>
 
+        {/* ── Studio Academic & Research Protocol Footnote ── */}
+        <div className="mt-8 pt-5 border-t border-slate-200/70 text-center text-[11px] text-slate-400 max-w-2xl mx-auto flex items-center justify-center gap-2">
+          <Info size={13} className="text-slate-400 flex-shrink-0" />
+          <span>OsteoVision is an academic research prototype for preliminary bone-density screening. Not intended as a substitute for certified medical diagnosis or DXA assessment.</span>
+        </div>
+
       </div>
 
       {/* ══════════════════════════════════════════════════
@@ -781,7 +788,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           role="dialog"
           aria-modal="true"
           onClick={() => setShowReportModal(false)}
-          className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+          className="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
         >
           <div
             onClick={e => e.stopPropagation()}
@@ -833,7 +840,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 <div className="text-left sm:text-right font-mono text-[11px] text-slate-500 space-y-0.5">
                   <p><strong className="text-slate-900">REPORT ID:</strong> OST-XRAY-{Math.abs(displayCase.title.split('').reduce((a,b)=>a+b.charCodeAt(0),0))}</p>
                   <p><strong className="text-slate-900">DATE:</strong> {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
-                  <p><strong className="text-slate-900">PROTOCOL:</strong> Knee AP / ConvNeXt-Tiny</p>
+                  <p><strong className="text-slate-900">PROTOCOL:</strong> Knee AP / AI Screening</p>
                 </div>
               </div>
 
@@ -863,7 +870,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                   <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-0.5">AI Classification Decision</p>
                   <h2 className="text-2xl font-black text-[#0F172A] tracking-tight">{displayCase.diagnosis}</h2>
                   <p className="text-xs text-slate-600 mt-1">
-                    Model Confidence: <span className="font-mono font-bold text-blue-600">{displayCase.confidence}</span>
+                    AI Confidence: <span className="font-mono font-bold text-blue-600">{displayCase.confidence}</span>
                   </p>
                 </div>
                 <div className={`px-4 py-2 rounded-xl border text-xs font-bold uppercase tracking-wider ${displayCase.riskBadgeClass}`}>

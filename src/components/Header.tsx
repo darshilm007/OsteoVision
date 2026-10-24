@@ -307,9 +307,9 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               <div className="flex items-center justify-between text-xs">
                 <div className="flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-[#2563EB]" />
-                  <span className="text-slate-600 text-[11px] font-medium">Model Available for Demo</span>
+                  <span className="text-slate-600 text-[11px] font-medium">AI Service Status</span>
                 </div>
-                <span className="text-[#2563EB] font-mono font-semibold text-[11px]">ConvNeXt-Tiny · Illustrative</span>
+                <span className="text-[#2563EB] font-mono font-semibold text-[11px]">Online · Ready for Demo</span>
               </div>
             </div>
           </motion.div>
@@ -342,10 +342,10 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
           pointerEvents: 'none',
         }}
       >
-        {/* Balanced 3-column row: logo left · nav perfectly centered · CTA right */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-8 xl:px-10 grid grid-cols-[auto_1fr_auto] items-center gap-4">
+        {/* Balanced row: logo left · nav perfectly centered · CTA right */}
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-3 sm:px-6 xl:px-10 2xl:px-12 flex items-center justify-between gap-2 sm:gap-4">
 
-          {/* â”€â”€ LEFT: Logo with subtle 3D tilt + static caption â”€â”€ */}
+          {/* Logo with subtle 3D tilt + static caption */}
           <motion.button
             ref={logoRef}
             onClick={() => handleItemClick(NAV_ITEMS[0])}
@@ -359,7 +359,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             }}
             transition={{ type: 'spring', stiffness: 280, damping: 18, mass: 0.5 }}
             style={{
-              padding: '7px 18px 7px 10px',
+              padding: '6px 14px 6px 8px',
               borderRadius: '9999px',
               transformStyle: 'preserve-3d',
               perspective: '600px',
@@ -375,9 +375,9 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             <div className="relative" style={{ transformStyle: 'preserve-3d' }}>
               {/* Static refined icon tile — no looping glow pulse */}
               <div
+                className="w-8 h-8 sm:w-9 sm:h-9"
                 style={{
-                  width: 36, height: 36,
-                  borderRadius: 11,
+                  borderRadius: 10,
                   display: 'flex', alignItems: 'center', justifyContent: 'center',
                   background: isScrolled
                     ? 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(241,245,249,0.90) 100%)'
@@ -388,7 +388,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                   boxShadow: isScrolled
                     ? 'inset 0 1px 0 rgba(255,255,255,0.9), 0 2px 6px rgba(15,23,42,0.08)'
                     : 'inset 0 1px 0 rgba(255,255,255,0.40), 0 2px 6px rgba(0,0,0,0.18)',
-                  padding: 5,
+                  padding: 4,
                   overflow: 'hidden',
                   transition: 'background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
                 }}
@@ -400,7 +400,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
             <div className="flex flex-col text-left">
               {/* Brand name — high contrast bold */}
               <span
-                className="font-extrabold text-base tracking-tight leading-none"
+                className="font-extrabold text-sm sm:text-base tracking-tight leading-none"
                 style={{
                   color: isScrolled ? '#0F172A' : '#FFFFFF',
                   transition: 'color 0.2s ease',
@@ -410,9 +410,9 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
                 Osteo<span style={{ color: isScrolled ? '#2563EB' : '#38BDF8' }}>Vision</span>
               </span>
 
-              {/* ── Static clinical caption — restrained, professional (no typewriter) ── */}
+              {/* ── Static clinical caption — hidden on mobile to conserve space ── */}
               <span
-                className="text-[9.5px] font-semibold tracking-[0.14em] mt-1 uppercase leading-none"
+                className="hidden sm:block text-[9.5px] font-semibold tracking-[0.14em] mt-1 uppercase leading-none"
                 style={{
                   color: isScrolled ? '#64748B' : 'rgba(255,255,255,0.78)',
                   transition: 'color 0.2s ease',
@@ -500,7 +500,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               onMouseLeave={() => { setCtaHover(false); setCtaPressed(false); }}
               onMouseDown={() => setCtaPressed(true)}
               onMouseUp={() => setCtaPressed(false)}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full font-semibold text-xs text-white cursor-pointer"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-xs text-white cursor-pointer"
               style={{
                 background: isScrolled
                   ? `linear-gradient(180deg, ${ctaHover ? '#2154D0' : '#2A5FE0'} 0%, ${ctaHover ? '#1E40AF' : '#1D4ED8'} 100%)`
@@ -521,8 +521,9 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
               aria-label="Upload Knee X-Ray to AI Studio"
             >
               <UploadCloud size={14} />
-              <span className="whitespace-nowrap">Upload Knee X-Ray</span>
-              <ArrowRight size={13} />
+              <span className="whitespace-nowrap hidden sm:inline">Upload Knee X-Ray</span>
+              <span className="whitespace-nowrap sm:hidden font-bold">Studio</span>
+              <ArrowRight size={13} className="hidden sm:inline" />
             </button>
 
             {/* Mobile Trigger */}

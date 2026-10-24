@@ -39,6 +39,7 @@ const CLASS_CHIPS = [
 export const HowItWorksStepper: React.FC<{ steps: HowItWorksStep[] }> = ({ steps }) => {
   const [active, setActive] = useState(0);
   const [mode, setMode] = useState<'desktop' | 'stack'>('stack');
+  const [viewStyle, setViewStyle] = useState<'interactive' | 'grid'>('interactive');
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Choose presentation mode from viewport + reduced-motion preference.
@@ -85,7 +86,7 @@ export const HowItWorksStepper: React.FC<{ steps: HowItWorksStep[] }> = ({ steps
     return (
       <div ref={containerRef} style={{ height: `${steps.length * 62}vh` }} className="relative">
         <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-          <div className="max-w-7xl mx-auto w-full px-5 sm:px-8 xl:px-10">
+          <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto w-full px-5 sm:px-8 xl:px-10 2xl:px-12">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-14 items-center">
 
               {/* ════ LEFT: step text + pipeline status rail ════ */}
@@ -382,29 +383,284 @@ export const HowItWorksStepper: React.FC<{ steps: HowItWorksStep[] }> = ({ steps
     );
   }
 
-  /* ── Fallback: static card grid (mobile / reduced motion) ── */
+  /* ── Mobile / Tablet / Reduced-Motion: Interactive Lightbox Stepper & Grid ── */
+  const s = steps[active];
+  const Icon = STEP_ICONS[active] ?? Cpu;
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-      {steps.map((s, i) => {
-        const Icon = STEP_ICONS[i] ?? Cpu;
-        return (
-          <div key={s.num} className="card-tactile p-5 sm:p-7 group flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <span className="text-3xl font-black font-mono text-slate-300 group-hover:text-[#2563EB] transition-colors">
-                  {s.num}
+    <div className="w-full">
+      {/* View Switcher Controls (Mobile & Tablet) */}
+      <div className="flex items-center justify-between mb-5 px-1">
+        <span className="text-[11px] font-mono font-bold tracking-wider uppercase text-[#2563EB]">
+          Pipeline Walkthrough · Step {s.num} / {String(steps.length).padStart(2, '0')}
+        </span>
+        <div className="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/80 text-xs">
+          <button
+            onClick={() => setViewStyle('interactive')}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              viewStyle === 'interactive'
+                ? 'bg-white text-[#2563EB] shadow-xs border border-slate-200/70'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            Live Visualizer
+          </button>
+          <button
+            onClick={() => setViewStyle('grid')}
+            className={`px-3 py-1 rounded-lg font-bold transition-all cursor-pointer ${
+              viewStyle === 'grid'
+                ? 'bg-white text-[#2563EB] shadow-xs border border-slate-200/70'
+                : 'text-slate-500 hover:text-slate-800'
+            }`}
+          >
+            All Steps
+          </button>
+        </div>
+      </div>
+
+      {viewStyle === 'interactive' ? (
+        <div className="space-y-4">
+          {/* Step Selector Horizontal Ribbon */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none -mx-2 px-2">
+            {steps.map((st, i) => {
+              const isCurrent = i === active;
+              const isPast = i < active;
+              return (
+                <button
+                  key={st.num}
+                  onClick={() => setActive(i)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex-shrink-0 border ${
+                    isCurrent
+                      ? 'bg-[#2563EB] text-white border-[#2563EB] shadow-sm'
+                      : isPast
+                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                  }`}
+                >
+                  <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] ${
+                    isCurrent ? 'bg-white text-[#2563EB]' : isPast ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'
+                  }`}>
+                    {isPast ? '✓' : st.num}
+                  </span>
+                  <span className="truncate max-w-[110px]">{st.title}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Interactive Light Box Visualizer for Mobile/Tablet */}
+          <div className="flex justify-center my-2">
+            <div
+              className="relative w-full max-w-[420px]"
+              style={{
+                padding: '14px',
+                borderRadius: '18px',
+                background: 'linear-gradient(180deg, #1B2A41 0%, #0D1626 100%)',
+                border: '1px solid rgba(148,163,184,0.18)',
+                boxShadow:
+                  'inset 0 1px 0 rgba(255,255,255,0.10), 0 12px 30px -10px rgba(15,23,42,0.45)',
+              }}
+            >
+              {/* Box Top Label */}
+              <div className="flex items-center justify-between mb-2.5 px-1">
+                <span className="font-mono text-[9px] uppercase tracking-[0.2em] text-slate-400">
+                  Light Box · Step {s.num} Visual State
                 </span>
-                <Icon size={20} color="#2563EB" className="opacity-60" />
+                <span className="flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest" style={{ color: active >= 3 ? '#22D3EE' : '#64748b' }}>
+                  <span className="w-1.5 h-1.5 rounded-full" style={{ background: active >= 3 ? '#22D3EE' : '#64748b', boxShadow: active >= 3 ? '0 0 6px rgba(34,211,238,0.8)' : 'none' }} />
+                  {active >= 4 ? 'Heatmap Active' : active >= 3 ? 'Inference Locked' : 'Stage Preview'}
+                </span>
               </div>
-              <h3 className="text-lg font-bold text-[#0F172A] mb-2 tracking-tight">{s.title}</h3>
-              <p className="text-sm text-[#475569] leading-relaxed font-normal">{s.body}</p>
-            </div>
-            <div className="mt-6 pt-4 border-t border-slate-100 text-[11px] font-mono text-slate-500">
-              STEP {s.num}
+
+              {/* Film Well */}
+              <div
+                className="relative overflow-hidden w-full aspect-[4/4.2] rounded-lg"
+                style={{
+                  background: 'radial-gradient(ellipse at 50% 42%, #16243a 0%, #0a1220 78%)',
+                  boxShadow: 'inset 0 0 0 1px rgba(148,163,184,0.12), inset 0 2px 14px rgba(0,0,0,0.6)',
+                }}
+              >
+                {/* Film Base */}
+                <img
+                  src={FILM_SRC}
+                  alt="Knee radiograph on light box"
+                  className="absolute inset-0 w-full h-full object-cover select-none"
+                  style={{ filter: 'brightness(1.06) contrast(1.04)' }}
+                />
+
+                {/* 02+ ROI Brackets */}
+                {active >= 1 && (
+                  <div key="m-roi" className="absolute inset-0 pointer-events-none">
+                    <div className="absolute inset-3 rounded-lg" style={{ border: '1px dashed rgba(34,197,94,0.45)' }} />
+                    <span className="absolute top-2 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-[0.16em] px-2 py-0.5 rounded-md" style={{ color: '#4ade80', background: 'rgba(6,20,12,0.8)', border: '1px solid rgba(74,222,128,0.4)' }}>
+                      Knee ROI ✓
+                    </span>
+                  </div>
+                )}
+
+                {/* 03 Scan Beam */}
+                {active === 2 && (
+                  <div key="m-proc" className="absolute inset-0 pointer-events-none">
+                    <div
+                      className="absolute left-0 right-0 h-[3px]"
+                      style={{
+                        background: 'linear-gradient(90deg, transparent, rgba(34,211,238,0.95), transparent)',
+                        boxShadow: '0 0 14px rgba(34,211,238,0.7)',
+                        animation: 'heatSweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite',
+                      }}
+                    />
+                  </div>
+                )}
+
+                {/* 04+ Heatmap */}
+                {active >= 4 && (
+                  <img
+                    key="m-heat"
+                    src={HEATMAP_SRC}
+                    alt="Grad-CAM attention overlay"
+                    className="absolute inset-0 w-full h-full object-cover select-none pointer-events-none"
+                    style={{
+                      mixBlendMode: 'screen',
+                      opacity: 0.92,
+                    }}
+                  />
+                )}
+                {active >= 4 && (
+                  <span key="m-hl" className="absolute bottom-2 left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-[0.16em] px-2 py-0.5 rounded-md whitespace-nowrap" style={{ color: '#22D3EE', background: 'rgba(4,16,24,0.8)', border: '1px solid rgba(34,211,238,0.4)' }}>
+                    Grad-CAM++ Active
+                  </span>
+                )}
+
+                {/* 03+ Class Chips */}
+                {active >= 3 && (
+                  <div key="m-chips" className="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col gap-1.5">
+                    {CLASS_CHIPS.map((c, i) => {
+                      const locked = i === 2;
+                      return (
+                        <span
+                          key={c.label}
+                          className="font-mono text-[9px] px-2 py-1 rounded"
+                          style={{
+                            color: locked ? '#fecaca' : 'rgba(148,163,184,0.8)',
+                            background: locked ? 'rgba(70,12,18,0.9)' : 'rgba(8,14,26,0.75)',
+                            border: `1px solid ${locked ? 'rgba(239,68,68,0.7)' : 'rgba(148,163,184,0.2)'}`,
+                            fontWeight: locked ? 700 : 500,
+                          }}
+                        >
+                          {c.label}{locked ? ' · 92' : ''}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* 05 Report Card */}
+                {active === 5 && (
+                  <div
+                    key="m-report"
+                    className="absolute left-3 right-3 bottom-0 rounded-xl p-3"
+                    style={{
+                      background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(241,245,249,0.96) 100%)',
+                      border: '1px solid rgba(203,213,225,0.9)',
+                      boxShadow: '0 -6px 20px rgba(4,10,20,0.35)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono text-[8.5px] uppercase tracking-wider text-slate-500">Output Report</span>
+                      <span className="font-mono text-[8.5px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">Demo</span>
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-[10px] text-slate-500 font-medium">Prediction</p>
+                        <p className="text-sm font-extrabold text-[#0F172A]">Osteoporosis</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] text-slate-500 font-medium">Score</p>
+                        <p className="text-base font-black font-mono text-[#2563EB]">92<span className="text-[10px] text-slate-400">/100</span></p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        );
-      })}
+
+          {/* Active Step Information Card & Controls */}
+          <div className="card-tactile p-5 bg-white border border-slate-200/90 shadow-sm">
+            <div className="flex items-center gap-3.5 mb-2.5">
+              <span className="text-2xl font-black font-mono text-[#2563EB] leading-none">
+                {s.num}
+              </span>
+              <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200 flex items-center justify-center text-[#2563EB]">
+                <Icon size={16} />
+              </div>
+              <h3 className="text-base sm:text-lg font-bold text-[#0F172A] tracking-tight">
+                {s.title}
+              </h3>
+            </div>
+            <p className="text-xs sm:text-sm text-[#475569] leading-relaxed mb-4">
+              {s.body}
+            </p>
+
+            {/* Stepper Navigation Buttons */}
+            <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+              <button
+                onClick={() => setActive((prev) => Math.max(0, prev - 1))}
+                disabled={active === 0}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold border border-slate-200 text-slate-600 disabled:opacity-35 disabled:cursor-not-allowed hover:bg-slate-50 transition-all cursor-pointer"
+              >
+                ← Previous
+              </button>
+              <div className="flex gap-1.5">
+                {steps.map((_, i) => (
+                  <span
+                    key={i}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === active ? 'w-6 bg-[#2563EB]' : 'w-1.5 bg-slate-200'
+                    }`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={() => setActive((prev) => Math.min(steps.length - 1, prev + 1))}
+                disabled={active === steps.length - 1}
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-[#2563EB] text-white disabled:opacity-35 disabled:cursor-not-allowed hover:bg-blue-700 transition-all cursor-pointer shadow-xs"
+              >
+                Next Step →
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Static Card Grid View */
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {steps.map((stepItem, i) => {
+            const StepIcon = STEP_ICONS[i] ?? Cpu;
+            return (
+              <div
+                key={stepItem.num}
+                onClick={() => { setActive(i); setViewStyle('interactive'); }}
+                className="card-tactile p-5 group flex flex-col justify-between cursor-pointer hover:border-blue-300 transition-all"
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-2xl font-black font-mono text-slate-300 group-hover:text-[#2563EB] transition-colors">
+                      {stepItem.num}
+                    </span>
+                    <StepIcon size={18} color="#2563EB" className="opacity-70" />
+                  </div>
+                  <h3 className="text-base font-bold text-[#0F172A] mb-1.5 tracking-tight">{stepItem.title}</h3>
+                  <p className="text-xs text-[#475569] leading-relaxed">{stepItem.body}</p>
+                </div>
+                <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] font-mono text-slate-500">
+                  <span>STEP {stepItem.num}</span>
+                  <span className="text-[#2563EB] group-hover:underline">Inspect Stage →</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 };

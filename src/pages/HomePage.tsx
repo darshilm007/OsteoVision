@@ -13,7 +13,6 @@ import { InteractiveFooterWordmark } from '../components/InteractiveFooterWordma
 import { HowItWorksStepper } from '../components/HowItWorksStepper';
 import { HeroAmbient } from '../components/HeroAmbient';
 import { CountUp } from '../components/CountUp';
-import { AIJourney } from '../components/AIJourney';
 import { HeroStatsBand } from '../components/HeroStatsBand';
 
 /* ─────────────────────────────────────────────
@@ -447,8 +446,8 @@ const RevealSection: React.FC<{
 ───────────────────────────────────────────── */
 const HOW_IT_WORKS_STEPS = [
   { num: '01', title: 'Upload a Knee X-ray', body: 'Select a knee radiograph image (PNG or JPEG) directly in your browser.' },
-  { num: '02', title: 'Validate the Uploaded Image', body: 'The image type is checked, and — when the optional knee-detection model is configured — the image is screened to help confirm it is a knee radiograph.' },
-  { num: '03', title: 'Process the Image with the AI Model', body: 'The image is preprocessed and passed to the classification model for inference.' },
+  { num: '02', title: 'Validate the Uploaded Image', body: 'The image type is checked and screened to help confirm it is a valid knee radiograph.' },
+  { num: '03', title: 'Process the Image with AI', body: 'The image is preprocessed and analyzed by the deep learning classifier.' },
   { num: '04', title: 'Generate a Classification Prediction', body: 'The model returns a predicted category — Normal, Osteopenia, or Osteoporosis — along with a confidence score.' },
   { num: '05', title: 'Generate a Visual Explanation', body: 'Where supported, a Grad-CAM++ heatmap highlights image regions associated with the model’s prediction.' },
   { num: '06', title: 'Review the Results', body: 'You review the prediction, confidence score, and visual explanation. Results are for education and research, not diagnosis.' },
@@ -611,16 +610,9 @@ export const HomePage: React.FC<HomePageProps> = ({
           Layer 1: Video · Layer 2: Cinematic gradient · Layer 3: Content
       ══════════════════════════════════════════════════ */}
 
-      {/* ── Hero Viewport Block — exactly 100vh ── */}
+      {/* ── Hero Viewport Block — adaptive viewport & scalable layout ── */}
       <div
-        className="hero-viewport"
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '100vh',
-          minHeight: '600px',
-          overflow: 'hidden',
-        }}
+        className="hero-viewport relative w-full min-h-[100svh] md:h-screen md:min-h-[660px] md:max-h-[1120px] overflow-hidden flex flex-col justify-center"
       >
         {/* ── LAYER 1: Full-bleed Background Video ── */}
         <video
@@ -676,28 +668,18 @@ export const HomePage: React.FC<HomePageProps> = ({
 
         {/* ── LAYER 3: Hero Content ── */}
         <div
-          className="hero-main-content-wrap"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            zIndex: 10,
-            display: 'flex',
-            alignItems: 'center',
-            paddingTop: '184px',   /* fixed header (~89px) + generous clearance so the huge hero title never touches the capsule border */
-            paddingBottom: '80px',
-          }}
+          className="hero-main-content-wrap relative md:absolute md:inset-0 z-10 flex items-center pt-24 sm:pt-28 md:pt-32 lg:pt-36 2xl:pt-40 pb-12 sm:pb-16"
         >
-          <div className="max-w-7xl mx-auto w-full px-5 sm:px-8 xl:px-10">
+          <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto w-full px-5 sm:px-8 xl:px-10 2xl:px-12">
             <div className="hero-content-grid">
             {/* ── LEFT CONTENT ZONE (40-45%) ── */}
-            <div className="hero-left-content" style={{ maxWidth: '520px' }}>
+            <div className="hero-left-content max-w-[520px] 2xl:max-w-[620px]">
 
-              {/* Main headline — stacked lines with color rules */}
+              {/* Main headline — stacked lines with fluid mathematical scaling */}
               <h1
-                className="font-extrabold tracking-tight leading-[1.07] mb-5"
+                className="font-extrabold tracking-tight leading-[1.08] mb-4 sm:mb-5 text-fluid-h1"
                 style={{
-                  fontSize: 'clamp(2.4rem, 4vw, 3.5rem)',
-                  letterSpacing: '-0.02em',
+                  letterSpacing: '-0.025em',
                 }}
               >
                 {/* Line 1: deep navy / near-black */}
@@ -734,11 +716,10 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               {/* Description */}
               <p
-                className="leading-relaxed mb-8 font-normal"
+                className="leading-relaxed mb-6 sm:mb-8 font-normal text-fluid-lead"
                 style={{
-                  color: 'rgba(220,228,240,0.80)',
-                  fontSize: 'clamp(0.9rem, 1.2vw, 1.05rem)',
-                  maxWidth: '440px',
+                  color: 'rgba(220,228,240,0.85)',
+                  maxWidth: '460px',
                   textShadow: '0 1px 6px rgba(0,0,0,0.28)',
                 }}
               >
@@ -747,18 +728,17 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Normal</strong>,{' '}
                 <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteopenia</strong>, and{' '}
                 <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteoporosis</strong>{' '}
-                categories. It presents the model's prediction and, where available, a
+                categories. It presents the AI prediction and, where available, a
                 confidence score and visual explanation.
               </p>
 
               {/* Educational / research note */}
               <p
-                className="leading-relaxed mb-8 font-normal"
+                className="leading-relaxed mb-6 sm:mb-8 font-normal text-xs sm:text-[13px]"
                 style={{
                   color: 'rgba(200,212,230,0.72)',
-                  fontSize: '0.78rem',
-                  maxWidth: '440px',
-                  marginTop: '-1.25rem',
+                  maxWidth: '460px',
+                  marginTop: '-1rem',
                   textShadow: '0 1px 6px rgba(0,0,0,0.28)',
                 }}
               >
@@ -772,7 +752,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                 onClick={onOpenUpload}
                 className="hero-cta-btn inline-flex items-center gap-3 cursor-pointer group"
                 style={{
-                  padding: '10px 12px 10px 26px',
+                  padding: '10px 14px 10px 24px',
                   borderRadius: '9999px',
                   background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
                   border: '1px solid rgba(255,255,255,0.22)',
@@ -821,9 +801,64 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </div>
               </button>
 
+              {/* ── MOBILE DIAGNOSTIC DOCK (Adaptive Representation for ≤ 768px screens) ── */}
+              <div className="mt-7 md:hidden">
+                <div
+                  className="p-3.5 rounded-2xl border"
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.45)',
+                    backdropFilter: 'blur(20px) saturate(120%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(120%)',
+                    borderColor: 'rgba(255, 255, 255, 0.22)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                      <Layers size={12} className="text-cyan-400" />
+                      3-Class Telemetry
+                    </span>
+                    <span className="text-[10px] font-mono font-bold text-cyan-300 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/30">
+                      Score: 92/100
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { name: 'Normal', dot: '#22c55e', score: '14' },
+                      { name: 'Osteopenia', dot: '#f59e0b', score: '58' },
+                      { name: 'Osteoporosis', dot: '#38BDF8', score: '92' },
+                    ].map((item) => (
+                      <div
+                        key={item.name}
+                        className="py-1.5 px-2 rounded-xl border flex flex-col items-center justify-center text-center"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.08)',
+                          borderColor: 'rgba(255, 255, 255, 0.15)',
+                        }}
+                      >
+                        <div className="flex items-center gap-1 mb-0.5">
+                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
+                          <span className="text-[11px] font-bold text-white tracking-tight">{item.name}</span>
+                        </div>
+                        <span className="text-[9.5px] font-mono text-slate-300">{item.score} pt</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-300">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                      Trabecular Layer Active
+                    </span>
+                    <span className="font-mono text-slate-400">Deep Learning Active</span>
+                  </div>
+                </div>
+              </div>
+
             </div>{/* end left content zone */}
 
-            {/* ── RIGHT ZONE: reserved for the X-ray video (no content placed here) ── */}
+            {/* ── RIGHT ZONE: reserved for the X-ray video ── */}
             <div aria-hidden="true" style={{ display: 'block' }} />
 
           </div>{/* end hero-content-grid */}
@@ -834,18 +869,15 @@ export const HomePage: React.FC<HomePageProps> = ({
         {/* ── Floating Diagnostic Glass Cards ── */}
         <DiagnosticFloatingCards />
 
-        {/* ── Scroll indicator at bottom-center ── */}
+        {/* ── Scroll indicator at bottom-center (desktop only to prevent mobile overlap) ── */}
         <div
+          className="hidden md:flex flex-col items-center gap-1.5"
           style={{
             position: 'absolute',
             bottom: '28px',
             left: '50%',
             transform: 'translateX(-50%)',
             zIndex: 10,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '6px',
           }}
         >
           <span
@@ -887,17 +919,17 @@ export const HomePage: React.FC<HomePageProps> = ({
           2. DIAGNOSTIC SERVICES & 3-CLASS OUTPUT BREAKDOWN (id="services")
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section id="services" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section id="services" className="relative py-8 sm:py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-3.5 sm:px-6 xl:px-10 2xl:px-12 z-10">
           
           {/* Section Header */}
-          <div className="max-w-3xl mb-8">
+          <div className="max-w-3xl mb-6 sm:mb-8">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
-              Diagnostic Output &amp; Architecture
+              Diagnostic Output &amp; Scoring
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
               3-Class Classification, 100-Point Score &amp; Action Suggestions
             </h2>
-            <p className="text-[#475569] text-base leading-relaxed">
+            <p className="text-[#475569] text-sm sm:text-base leading-relaxed">
               For each processed knee X-ray, OsteoVision presents a structured output:
               the predicted classification, a confidence score, and — where supported — a
               visual explanation. The preview below is an illustrative example of the output
@@ -906,13 +938,13 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* Dual Feature Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8">
             
             {/* Card 1: Interactive 3-Class Output Simulator (6 cols) */}
             <RevealSection className="lg:col-span-6" delay={0.05} from="left">
-              <div className="card-glass-water p-6 sm:p-8 flex flex-col justify-between h-full">
+              <div className="card-glass-water p-4 sm:p-6 lg:p-8 flex flex-col justify-between h-full">
                 <div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
                     <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                       The 3 Output Classes
                     </span>
@@ -922,12 +954,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                   </div>
 
                   {/* Class Switcher Tabs */}
-                  <div className="grid grid-cols-3 gap-2 p-1.5 rounded-2xl bg-slate-100/80 border border-slate-200 mb-6">
+                  <div className="grid grid-cols-3 gap-1 sm:gap-2 p-1 sm:p-1.5 rounded-2xl bg-slate-100/80 border border-slate-200 mb-4 sm:mb-6">
                     {(['normal', 'osteopenia', 'osteoporosis'] as const).map((cls) => (
                       <button
                         key={cls}
                         onClick={() => setSelectedDemoClass(cls)}
-                        className={`py-2 px-3 rounded-xl text-xs font-bold capitalize transition-all cursor-pointer ${
+                        className={`py-1.5 sm:py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold capitalize transition-all cursor-pointer truncate ${
                           selectedDemoClass === cls
                             ? 'bg-white text-[#0F172A] shadow-sm border border-slate-200/80'
                             : 'text-slate-500 hover:text-slate-800'
@@ -1025,7 +1057,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                   {/* Segmented Risk Gauge */}
                   <div>
-                    <div className="flex justify-between items-center text-xs mb-2">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline gap-1 text-xs mb-2">
                       <span className="font-medium text-[#475569]">Illustrative Score Bands</span>
                       <span className="font-mono text-slate-400 text-[11px]">Example only · Normal · Osteopenia · Osteoporosis</span>
                     </div>
@@ -1065,32 +1097,36 @@ export const HomePage: React.FC<HomePageProps> = ({
           2.5 STAKEHOLDER VALUE CARDS (Matching Reference Video Hover Interaction)
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-8 sm:py-10 md:py-14 max-w-7xl mx-auto px-3.5 sm:px-6 xl:px-10 z-10">
           
           {/* Header */}
           <div className="max-w-3xl mb-6">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
               Knee Osteoporosis Screening Potential
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
               Value Across the Entire Knee Care Continuum
             </h2>
-            <p className="text-[#475569] text-base leading-relaxed">
-              Hover over each card to explore how OsteoVision aims to use routine knee radiographs to present a 3-class AI prediction, a 0–100 confidence-based score, and a visual explanation.
+            <p className="text-[#475569] text-sm sm:text-base leading-relaxed">
+              Hover over (or tap on mobile) each card to explore how OsteoVision aims to use routine knee radiographs to present a 3-class AI prediction, a 0–100 confidence-based score, and a visual explanation.
             </p>
           </div>
 
-          {/* 4 Interactive Stakeholder Cards (Exact 1:1 Match to Reference Video) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+          {/* 4 Interactive Stakeholder Cards (Adaptive for Desktop, Tablet & Mobile) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6">
             {stakeholderCards.map((card) => {
               const isHovered = hoveredStakeholder === card.id;
 
               return (
                 <div
                   key={card.id}
+                  onClick={() => setHoveredStakeholder(hoveredStakeholder === card.id ? null : card.id)}
                   onMouseEnter={() => setHoveredStakeholder(card.id)}
                   onMouseLeave={() => setHoveredStakeholder(null)}
                   className={`impact-card-wrapper ${isHovered ? 'is-active' : ''}`}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${card.title} stakeholder perspective`}
                 >
                   {/* Back Layer: Photo Card on Light Grey Background */}
                   <div className="impact-card-photo">
@@ -1112,7 +1148,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                     />
                   </div>
 
-                  {/* Front Layer: Brand-Blue Glass Card — blue-100 from site palette */}
+                  {/* Front Layer: Brand-Blue Glass Card */}
                   <div className="impact-card-glass">
                     <h3 className="impact-card-title-text">
                       {card.title}
@@ -1217,25 +1253,21 @@ export const HomePage: React.FC<HomePageProps> = ({
         </section>
       </RevealSection>
 
-      {/* ══════════════════════════════════════════════════
-          AI JOURNEY — scroll-driven cinematic pipeline chapter
-      ══════════════════════════════════════════════════ */}
-      <AIJourney />
 
       {/* ══════════════════════════════════════════════════
           HOW IT WORKS (id="how-it-works")
       ══════════════════════════════════════════════════ */}
-      <section id="how-it-works" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+      <section id="how-it-works" className="relative py-8 sm:py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-3.5 sm:px-6 xl:px-10 2xl:px-12 z-10">
         <RevealSection>
           {/* Header */}
-          <div className="max-w-3xl mb-8">
+          <div className="max-w-3xl mb-6 sm:mb-8">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
               How It Works
             </span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight mb-3">
               From Knee X-Ray to AI-Assisted Result
             </h2>
-            <p className="text-[#475569] text-base leading-relaxed">
+            <p className="text-[#475569] text-sm sm:text-base leading-relaxed">
               OsteoVision follows a step-by-step workflow. Some steps depend on the current
               implementation of the model backend and are shown only when available.
             </p>
@@ -1249,15 +1281,15 @@ export const HomePage: React.FC<HomePageProps> = ({
           4. "WHY KNEE X-RAYS?" BENTO GRID
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-8 sm:py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-3.5 sm:px-6 xl:px-10 2xl:px-12 z-10">
           
           {/* Header with Slider Arrows */}
-          <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div>
               <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-1">
                 Knee Specialization
               </span>
-              <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#0F172A] tracking-tight">
                 Why Knee Radiographs for Osteoporosis?
               </h2>
             </div>
@@ -1370,7 +1402,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           5. CLINICAL VALIDATION / TESTIMONIAL (id="testimonial")
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section id="testimonial" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section id="testimonial" className="relative py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 z-10">
           
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
             
@@ -1431,7 +1463,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           6. RESEARCH INSIGHTS & PROTOCOLS
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section className="relative py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 z-10">
           
           {/* Header */}
           <div className="max-w-3xl mb-8">
@@ -1536,7 +1568,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           6.5 FAQ (id="faq")
       ══════════════════════════════════════════════════ */}
       <RevealSection>
-        <section id="faq" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
+        <section id="faq" className="relative py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 z-10">
 
           {/* Header */}
           <div className="max-w-3xl mb-8">
@@ -1557,7 +1589,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               },
               {
                 q: 'How does image analysis work?',
-                a: 'After upload and image-type validation, the image is preprocessed and passed to a ConvNeXt-Tiny classifier, which returns a predicted class and a confidence score. Where supported, a Grad-CAM++ heatmap is generated as a visual explanation.',
+                a: 'After upload and image-type validation, the image is preprocessed and passed to an advanced deep learning classifier, which returns a predicted class and a confidence score. Where supported, a Grad-CAM++ heatmap is generated as a visual explanation.',
               },
               {
                 q: 'Which image formats are supported?',
@@ -1577,7 +1609,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               },
               {
                 q: 'Why might an image fail to process?',
-                a: 'A file may not be a valid image, may not be decodable as a radiograph, may not appear to be a knee X-ray (when the optional knee-detection model is configured), or the analysis backend may be unavailable.',
+                a: 'A file may not be a valid image, may not be decodable as a radiograph, may not appear to be a knee X-ray, or the analysis backend may be unavailable.',
               },
               {
                 q: 'How are uploaded images handled?',
@@ -1619,7 +1651,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           />
         </div>
 
-        <div className="max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 relative z-10">
+        <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 relative z-10">
           
           {/* Top CTA & Newsletter Row */}
           <RevealSection>

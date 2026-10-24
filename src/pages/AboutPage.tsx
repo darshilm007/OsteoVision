@@ -32,15 +32,15 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
       {/* ═══════════════════════════════════════
           HERO
       ═══════════════════════════════════════ */}
-      <div className="max-w-4xl mx-auto px-6 md:px-10 pt-4 pb-10 text-center relative z-10">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 md:px-10 pt-4 pb-10 text-center relative z-10">
         <SectionLabel>About The Project</SectionLabel>
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-[#0F172A] leading-[1.12] tracking-tight mb-6">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-extrabold text-[#0F172A] leading-[1.14] tracking-tight mb-5">
           About OsteoVision{' '}
           <span className="text-[#2563EB] block mt-1">An Explainable AI Knee X-Ray Project</span>
         </h1>
-        <p className="text-[#475569] text-lg sm:text-xl leading-relaxed max-w-2xl mx-auto font-normal">
+        <p className="text-[#475569] text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto font-normal">
           OsteoVision is an academic, web-based AI project that classifies knee X-ray images into
-          Normal, Osteopenia, and Osteoporosis categories, presenting the model's prediction along
+          Normal, Osteopenia, and Osteoporosis categories, presenting the AI prediction along
           with a confidence score and a visual explanation where available.
         </p>
       </div>
@@ -48,7 +48,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
       {/* ═══════════════════════════════════════
           CINEMATIC RESEARCH LAB BANNER
       ═══════════════════════════════════════ */}
-      <div className="max-w-6xl mx-auto px-6 md:px-10 mb-8 md:mb-12 relative z-10">
+      <div className="max-w-6xl 2xl:max-w-7xl mx-auto px-6 md:px-10 mb-8 md:mb-12 relative z-10">
         <div className="relative rounded-2xl md:rounded-3xl overflow-hidden border border-slate-200/80 shadow-xl group aspect-[16/8] sm:aspect-[21/9] max-h-[360px] bg-slate-950">
           <img
             src="/images/about_research_lab.jpg"
@@ -66,7 +66,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
                 </p>
               </div>
               <span className="text-[11px] font-mono px-3.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-slate-200 border border-white/20 self-start sm:self-auto flex-shrink-0">
-                ConvNeXt-Tiny · Grad-CAM++
+                Deep Neural AI · Grad-CAM++
               </span>
             </div>
           </div>
@@ -77,7 +77,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           PROBLEM & SOLUTION — 2 COL CLINICAL CARDS
       ═══════════════════════════════════════ */}
       <section className="relative py-8 md:py-10 z-10">
-        <div className="max-w-6xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="max-w-6xl 2xl:max-w-7xl mx-auto px-6 md:px-10 grid grid-cols-1 md:grid-cols-2 gap-8">
 
           {/* Problem Card */}
           <div className="card-tactile p-8 sm:p-9 flex flex-col justify-between">
@@ -152,7 +152,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
       {/* ═══════════════════════════════════════
           TECHNOLOGY ARCHITECTURE (GRAD-CAM)
       ═══════════════════════════════════════ */}
-      <section className="relative py-20 max-w-6xl mx-auto px-6 md:px-10 z-10">
+      <section className="relative py-10 md:py-14 max-w-6xl 2xl:max-w-7xl mx-auto px-6 md:px-10 z-10">
         <div className="max-w-2xl mb-14">
           <SectionLabel>Explainability</SectionLabel>
           <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] mb-3 tracking-tight">
@@ -171,7 +171,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
             {
               num: '01',
               title: 'Image Feature Extraction',
-              body: 'A ConvNeXt-Tiny model processes the input image and builds internal feature maps that its classifier uses to decide between the three classes.',
+              body: 'A deep neural network processes the input image and builds internal feature maps that its classifier uses to decide between the three classes.',
             },
             {
               num: '02',
@@ -204,14 +204,14 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           PERFORMANCE BENCHMARKS
       ═══════════════════════════════════════ */}
       <section className="relative py-10 md:py-12 z-10">
-        <div className="max-w-6xl mx-auto px-6 md:px-10">
+        <div className="max-w-6xl 2xl:max-w-7xl mx-auto px-6 md:px-10">
           <div className="mb-8 text-center">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">Model &amp; Implementation Overview</h2>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0F172A] tracking-tight">System &amp; Pipeline Overview</h2>
             <p className="text-sm text-[#475569] mt-2 max-w-2xl mx-auto">Verified details from the current project implementation. Independent evaluation metrics and dataset specifics have not been published, so none are claimed here.</p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
             {[
-              { value: 'ConvNeXt-Tiny', label: 'Model Architecture', note: 'Classifier used for inference' },
+              { value: 'Deep Neural AI', label: 'Inference Engine', note: 'Trained classifier pipeline' },
               { value: '3 Classes', label: 'Output Categories', note: 'Normal · Osteopenia · Osteoporosis' },
               { value: 'Grad-CAM++', label: 'Visual Explanation', note: 'Generated where supported' },
               { value: 'PNG / JPG', label: 'Supported Input', note: 'Standard image formats' },
