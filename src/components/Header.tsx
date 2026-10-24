@@ -326,6 +326,7 @@ export const Header: React.FC<HeaderProps> = ({ currentRoute, onNavigate }) => {
       â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
       <motion.header
         aria-label="Primary Navigation"
+        className="print:hidden" 
         style={{
           position: 'fixed',
           top: 0,

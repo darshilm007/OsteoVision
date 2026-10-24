@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { CountUp } from '../components/CountUp';
 import { BeforeAfterCompare } from '../components/BeforeAfterCompare';
+import { ValidationAlert } from '../components/ValidationAlert';
 
 interface StudioPageProps {
   onNavigate: (route: string) => void;
@@ -37,6 +38,7 @@ interface SampleCase {
   recommendations: string;
   rawImageIndex: number;
   heatmapImageIndex: number;
+  suggestions: string[];
   probabilities: {
     normal: number;
     osteopenia: number;
@@ -125,6 +127,8 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   const [activeLayer, setActiveLayer] = useState<'raw' | 'heatmap' | 'compare'>('heatmap');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [alertConfig, setAlertConfig] = useState({ isOpen: false, message: '' });
+  const closeAlert = () => setAlertConfig({ isOpen: false, message: '' });
 
   // Custom Upload State
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -136,8 +140,13 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Ingest Local File
-  const ingestFile = useCallback((file: File) => {
-    if (!file.type.includes('jpeg') && !file.type.includes('png') && !file.type.includes('jpg')) {
+const ingestFile = useCallback((file: File) => {
+    // NEW: 10 MB limit check
+    if (file.size > 10485760) {
+      setAlertConfig({ isOpen: true, message: 'File size exceeds the 10 MB limit. Please upload a smaller X-ray image.' });
+      return;
+    }  
+      if (!file.type.includes('jpeg') && !file.type.includes('png') && !file.type.includes('jpg')) {
       setUploadErrorToast('Unsupported format. Please upload a PNG or JPEG knee radiograph.');
       setTimeout(() => setUploadErrorToast(null), 5000);
       return;
@@ -219,9 +228,14 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
         const data = await response.json();
         setBackendResult(data);
         setActiveLayer('heatmap');
-      } catch (err: any) {
+      }  catch (err: any) {
         console.error(err);
-        setApiError(err.message || 'Failed to reach OsteoVision AI backend. Ensure backend is running.');
+        const errorMsg = err.message || 'Failed to reach OsteoVision AI backend. Ensure backend is running.';
+        
+        // NEW: Trigger the custom popup for backend rejections
+        setAlertConfig({ isOpen: true, message: errorMsg });
+        
+        setApiError(errorMsg);
       } finally {
         setIsAnalyzing(false);
       }
@@ -248,6 +262,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   }, [showReportModal]);
 
   // Derived Display Case
+  // Derived Display Case
   const getDisplayCase = (): SampleCase => {
     if (selectedCaseIdx !== null) return CLINICAL_SAMPLES[selectedCaseIdx];
 
@@ -263,7 +278,15 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
         riskColor: 'text-[#64748B]',
         riskBadgeClass: 'bg-slate-100 border-slate-200 text-slate-600',
         findings: 'Radiograph uploaded. Click "Analyze Scan" to calculate bone mineral density and generate Grad-CAM++ heatmap.',
+<<<<<<< HEAD
         recommendations: 'Pending automated AI classification.',
+=======
+        recommendations: 'Pending automated ConvNeXt-Tiny classification.',
+        
+        // 1. ADDED FALLBACK SUGGESTIONS HERE
+        suggestions: ['Upload and analyze a scan to receive actionable lifestyle suggestions.'], 
+        
+>>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
         rawImageIndex: 0,
         heatmapImageIndex: 0,
         probabilities: { normal: 0, osteopenia: 0, osteoporosis: 0 },
@@ -297,6 +320,28 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
         : isNormal
           ? 'Physiological bone mineral distribution confirmed. Maintain standard active lifestyle and nutritional calcium protocols.'
           : 'Lifestyle modification, Vitamin D3 & dietary calcium optimization. Repeat radiographic surveillance in 12 months.',
+          
+      suggestions: isOsteo
+        ? [
+            "See a bone specialist (endocrinologist or rheumatologist) to discuss treatment options.",
+            "Talk to your doctor about medicines that can help stop further bone loss.",
+            "Make your home safer to prevent falls (like removing loose rugs and adding grab bars).",
+            "Ensure you are getting enough calcium and Vitamin D daily."
+          ]
+        : isNormal
+          ? [
+              "Keep eating a healthy diet rich in calcium (like milk, yogurt, almonds, or leafy greens).",
+              "Keep your bones strong by doing simple daily exercises like brisk walking or yoga.",
+              "Get a little bit of morning sunlight every day so your body can naturally make Vitamin D.",
+              "Go for your regular yearly doctor check-ups."
+            ]
+          : [ // Osteopenia
+              "Eat more calcium-rich foods to help strengthen your bones and prevent further loss.",
+              "Start doing light exercises like walking or lifting small weights 3 to 4 days a week.",
+              "Get another bone scan in 1 to 2 years to check if your bone health is changing.",
+              "Try to cut down on smoking, alcohol, and excess caffeine to protect your bones."
+            ],
+
       rawImageIndex: 0,
       heatmapImageIndex: 0,
       probabilities: backendResult.class_probabilities || (
@@ -308,7 +353,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
       ),
     };
   };
-
+  
   const displayCase = getDisplayCase();
 
   const rawSrc =
@@ -328,10 +373,15 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
   const strokeDashoffset = circumference - (Math.min(100, Math.max(0, displayCase.score)) / 100) * circumference;
 
   return (
+<<<<<<< HEAD
     <div className="pt-28 sm:pt-32 pb-16 min-h-screen bg-[#F8FAFC] text-[#0F172A] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden">
       
+=======
+    <div className={`pt-24 pb-16 min-h-screen bg-[#F8FAFC] text-[#0F172A] relative selection:bg-blue-100 selection:text-blue-900 overflow-x-hidden print:overflow-visible print:bg-white print:p-0 ${showReportModal || alertConfig.isOpen ? 'z-[100]' : 'z-10'}`}>
+
+>>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
       {/* Subtle Aurora Ambient Light */}
-      <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+      <div aria-hidden className="absolute inset-0 pointer-events-none overflow-hidden print:hidden" style={{ zIndex: 0 }}>
         <div
           className="absolute rounded-full"
           style={{
@@ -348,7 +398,11 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
         />
       </div>
 
+<<<<<<< HEAD
       <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 2xl:px-10 relative z-10">
+=======
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 print:hidden">
+>>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
 
         {/* ══════════════════════════════════════════════════
             HEADER — Clean, Modern & Elegant
@@ -474,12 +528,46 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
             </button>
           </div>
 
+        {/* ... End of SLIM CONTROL STRIP ... */}
+        </div>
+
+        {/* ══════════════════════════════════════════════════
+            CLINICAL DISCLAIMER TICKER
+        ══════════════════════════════════════════════════ */}
+        <div className="w-full bg-amber-50 border border-amber-200 rounded-xl overflow-hidden mb-6 relative flex items-center shadow-sm">
+          {/* Static Warning Icon on the Left */}
+          <div className="absolute left-0 bg-amber-50/90 backdrop-blur-sm z-10 px-3 py-2 border-r border-amber-200 flex items-center justify-center">
+            <AlertTriangle size={15} className="text-amber-600" />
+          </div>
+          
+          {/* Scrolling Container */}
+          <div className="flex-1 overflow-hidden relative py-2">
+            <style>
+              {`
+                @keyframes scrollTicker {
+                  0% { transform: translateX(70%); }
+                  100% { transform: translateX(-100%); }
+                }
+                .animate-ticker {
+                  display: inline-block;
+                  white-space: nowrap;
+                  animation: scrollTicker 30s linear infinite;
+                  padding-left: 2rem;
+                }
+                .animate-ticker:hover {
+                  animation-play-state: paused;
+                }
+              `}
+            </style>
+            <div className="animate-ticker text-[11px] sm:text-xs text-amber-800">
+              <strong className="tracking-wider uppercase mr-2 text-amber-900">Clinical & Research Disclaimer:</strong>
+              OsteoVision AI predictions are for educational and preliminary research demonstration only. Not intended to replace official diagnostic procedures (DXA). Clinical interpretation must be performed by a qualified orthopedic or radiology specialist.
+            </div>
+          </div>
         </div>
 
         {/* ══════════════════════════════════════════════════
             MAIN 2-COLUMN WORKSTATION (FLUID & SCALABLE)
-            Left: Expansive Radiograph Viewport (7 Cols)
-            Right: Clean AI Verdict & Telemetry (5 Cols)
         ══════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
@@ -586,7 +674,11 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                       Analyzing Knee Joint Architecture
                     </p>
                     <p className="text-xs font-mono text-cyan-300">
+<<<<<<< HEAD
                       Deep Learning &amp; Grad-CAM++ Inference Active...
+=======
+                      Processing
+>>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
                     </p>
                   </div>
                 )}
@@ -734,19 +826,9 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               </div>
             </div>
 
-            {/* ── CARD 3: RADIOLOGICAL FINDINGS & RECOMMENDATIONS ── */}
+       {/* ── CARD 3: RADIOLOGICAL FINDINGS & RECOMMENDATIONS ── */}
             <div className="card-tactile p-6 bg-white space-y-3.5">
               
-              <div>
-                <div className="flex items-center gap-2 mb-1.5 text-xs font-bold text-[#0F172A] uppercase tracking-wider">
-                  <Stethoscope size={14} className="text-[#2563EB]" />
-                  <span>Radiological Findings</span>
-                </div>
-                <p className="text-xs text-slate-600 leading-relaxed font-normal bg-slate-50/80 p-3 rounded-xl border border-slate-100">
-                  {displayCase.findings}
-                </p>
-              </div>
-
               <div>
                 <div className="flex items-center gap-2 mb-1.5 text-xs font-bold text-[#0F172A] uppercase tracking-wider">
                   <CheckCircle2 size={14} className="text-emerald-600" />
@@ -757,6 +839,22 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 </p>
               </div>
 
+              {/* NEW: Actionable Suggestions Block */}
+              <div className="pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-2 mb-2 text-xs font-bold text-[#0F172A] uppercase tracking-wider">
+                  <Activity size={14} className="text-blue-500" />
+                  <span>Actionable Lifestyle Suggestions</span>
+                </div>
+                <ul className="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                  {displayCase.suggestions?.map((suggestion, idx) => (
+                    <li key={idx} className="flex items-start gap-2 text-xs text-slate-600 leading-relaxed font-medium">
+                      <span className="text-blue-500 font-bold mt-0.5">•</span>
+                      <span>{suggestion}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
             </div>
 
             {/* ── ACTION BUTTON: PRINT PDF SUMMARY ── */}
@@ -764,7 +862,7 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
               onClick={() => setShowReportModal(true)}
               className="btn-tactile-dark w-full py-3.5 rounded-2xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer hover:shadow-md transition-all"
             >
-              <Printer size={15} />
+              <Printer size={18} />
               <span>Export Medical AI Report (PDF)</span>
             </button>
 
@@ -788,12 +886,19 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           role="dialog"
           aria-modal="true"
           onClick={() => setShowReportModal(false)}
+<<<<<<< HEAD
           className="fixed inset-0 z-[100] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+=======
+          // z-[9999] forces it over the header on the website, while print:static allows multi-page printing
+          className="fixed inset-0 z-[9999] bg-slate-900/70 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto print:static print:block print:p-0 print:bg-white print:overflow-visible"
+>>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
         >
           <div
             onClick={e => e.stopPropagation()}
-            className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn my-auto"
+            // print:block and print:h-auto remove flexbox restrictions so content flows naturally onto page 2
+            className="bg-white rounded-3xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn my-auto print:block print:w-full print:max-w-none print:h-auto print:max-h-none print:m-0 print:p-0 print:shadow-none print:border-none print:rounded-none print:overflow-visible"
           >
+            {/* Modal Actions Header Bar */}
             {/* Modal Actions Header Bar */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-slate-50/80 print:hidden">
               <div className="flex items-center gap-2">
@@ -820,6 +925,12 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
             </div>
 
             {/* Printable Document Body */}
+            {/* ... KEEP THE REST OF YOUR EXISTING MODAL CODE EXACTLY THE SAME FROM HERE DOWN ... */}
+
+            {/* Printable Document Body */}
+            {/* ... KEEP THE REST OF YOUR EXISTING MODAL CODE EXACTLY THE SAME FROM HERE DOWN ... */}
+
+            {/* Printable Document Body */}
             <div className="p-8 sm:p-10 overflow-y-auto space-y-6 text-[#0F172A]">
               
               {/* Institutional Header */}
@@ -840,7 +951,11 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 <div className="text-left sm:text-right font-mono text-[11px] text-slate-500 space-y-0.5">
                   <p><strong className="text-slate-900">REPORT ID:</strong> OST-XRAY-{Math.abs(displayCase.title.split('').reduce((a,b)=>a+b.charCodeAt(0),0))}</p>
                   <p><strong className="text-slate-900">DATE:</strong> {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</p>
+<<<<<<< HEAD
                   <p><strong className="text-slate-900">PROTOCOL:</strong> Knee AP / AI Screening</p>
+=======
+                  <p><strong className="text-slate-900">PROTOCOL:</strong> Knee AP</p>
+>>>>>>> d88cce1894ed36a301b9a9dfc716331ce53d36d5
                 </div>
               </div>
 
@@ -919,20 +1034,39 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
                 </div>
               </div>
 
-              {/* Radiological Findings & Guidance */}
-              <div className="space-y-3 text-xs text-slate-700">
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <strong className="block text-slate-900 mb-1 font-bold uppercase tracking-wider text-[10px]">
-                    Radiological Feature Analysis:
+              {/* AI Interpretation & Actionable Suggestions */}
+              <div className="space-y-4 text-xs text-slate-700 mt-6">
+                
+                {/* Non-Technical AI Reasoning */}
+                <div className="p-5 rounded-2xl bg-slate-50 border border-slate-200 break-inside-avoid">
+                  <strong className="block text-slate-900 mb-2 font-black uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <Sparkles size={14} className="text-blue-600" />
+                    How the AI Made This Decision
                   </strong>
-                  <p className="leading-relaxed">{displayCase.findings}</p>
+                  <p className="leading-relaxed mb-3">
+                    The OsteoVision AI examines the X-ray to check the overall density and structure of the knee joint. It compares the visual texture of the bone against thousands of verified cases to predict bone health. 
+                  </p>
+                  <p className="leading-relaxed">
+                    Based on your scan, the system identified structural patterns matching <strong className="text-slate-900">{displayCase.diagnosis}</strong>. You can see exactly why the AI made this choice by looking at the <strong>Attention Heatmap</strong> above: the "hot" red and yellow spots highlight the specific areas of the bone that led to this result.
+                  </p>
                 </div>
-                <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                  <strong className="block text-slate-900 mb-1 font-bold uppercase tracking-wider text-[10px]">
-                    Clinical Recommendation / Follow-up Guidance:
+                
+                {/* Dynamic Suggestions List */}
+                <div className="p-5 rounded-2xl bg-blue-50/40 border border-blue-100 break-inside-avoid">
+                  <strong className="block text-slate-900 mb-3 font-black uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <Activity size={14} className="text-blue-600" />
+                    Actionable Lifestyle & Clinical Suggestions
                   </strong>
-                  <p className="leading-relaxed">{displayCase.recommendations}</p>
+                  <ul className="space-y-2.5">
+                    {displayCase.suggestions?.map((suggestion, idx) => (
+                      <li key={idx} className="flex items-start gap-2.5 text-slate-700 leading-relaxed font-medium">
+                        <span className="text-blue-500 font-bold mt-0.5">•</span>
+                        <span>{suggestion}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
+                
               </div>
 
               {/* Signature Block & Clinical Disclaimer */}
@@ -954,6 +1088,11 @@ export const StudioPage: React.FC<StudioPageProps> = ({ onNavigate }) => {
           </div>
         </div>
       )}
+      <ValidationAlert 
+        isOpen={alertConfig.isOpen} 
+        message={alertConfig.message} 
+        onClose={closeAlert} 
+      />
 
     </div>
   );
