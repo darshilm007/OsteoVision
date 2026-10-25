@@ -7,6 +7,6 @@ torchvision==0.17.2+cpu
 timm
 grad-cam
 opencv-python-headless
-numpy
+numpy<2.0.0
 Pillow
 requests
