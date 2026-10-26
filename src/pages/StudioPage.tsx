@@ -222,8 +222,16 @@ const ingestFile = useCallback((file: File) => {
         });
 
         if (!response.ok) {
-          const errData = await response.json();
-          throw new Error(errData.detail || 'API request failed');
+          let errorMsg = `Server error (${response.status}: ${response.statusText})`;
+          try {
+            const errData = await response.json();
+            if (errData.detail) errorMsg = errData.detail;
+          } catch {
+            if (response.status === 502) {
+              errorMsg = 'Backend memory limit reached or server restarting (502 Bad Gateway). Please retry in 30 seconds.';
+            }
+          }
+          throw new Error(errorMsg);
         }
 
         const data = await response.json();

@@ -92,9 +92,8 @@ class OsteoVisionModel:
             transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
         ])
 
-        # 4. Pre-load Grad-CAM++ targeting stage 3 normalization
+        # 4. Target layers for Grad-CAM++
         self.target_layers = [self.model.stages[-1].blocks[-1]]
-        self.cam = GradCAMPlusPlus(model=self.model, target_layers=self.target_layers)
 
     def predict(self, image_bytes: bytes) -> dict:
         """Validates the image is a knee X-ray via MobileNetV3, then runs ConvNeXt-Tiny prediction."""
@@ -116,7 +115,7 @@ class OsteoVisionModel:
                 gc.collect()
                 raise ValueError("The uploaded image does not appear to be a valid knee radiograph...")
 
-        # STEP 2: Run Main OsteoVision Classification & Grad-CAM++
+        # STEP 2: Run Main OsteoVision Classification
         with torch.no_grad():
             outputs = self.model(input_tensor)
             probabilities = torch.nn.functional.softmax(outputs[0], dim=0)
@@ -124,27 +123,41 @@ class OsteoVisionModel:
             
         predicted_class = self.classes[predicted_idx.item()]
         confidence_pct = float(round(confidence.item() * 100, 2))
+        probs_list = probabilities.tolist()
+
+        del outputs, probabilities
+        gc.collect()
         
-        # Generate the Grad-CAM++ heatmap (aug_smooth=False prevents memory explosion)
+        # Generate the Grad-CAM++ heatmap using context manager to release hooks immediately
         targets = [ClassifierOutputTarget(predicted_idx.item())]
-        grayscale_cam_224 = self.cam(input_tensor=input_tensor, targets=targets, aug_smooth=False)[0]
+        with GradCAMPlusPlus(model=self.model, target_layers=self.target_layers) as cam:
+            grayscale_cam_224 = cam(input_tensor=input_tensor, targets=targets, aug_smooth=False)[0]
         
-        # Resize heatmap back to the original image dimensions
-        cam_resized = cv2.resize(grayscale_cam_224, (orig_w, orig_h))
-        rgb_original = np.asarray(pil_image).astype(np.float32) / 255.0
+        del input_tensor
+        gc.collect()
+
+        # Downscale overlay canvas to max 512px to prevent massive float32 RAM spikes on high-res X-rays
+        max_dim = 512
+        if max(orig_w, orig_h) > max_dim:
+            scale = max_dim / max(orig_w, orig_h)
+            disp_w, disp_h = int(orig_w * scale), int(orig_h * scale)
+            pil_overlay = pil_image.resize((disp_w, disp_h), Image.Resampling.BILINEAR)
+        else:
+            disp_w, disp_h = orig_w, orig_h
+            pil_overlay = pil_image
+
+        cam_resized = cv2.resize(grayscale_cam_224, (disp_w, disp_h))
+        rgb_original = np.asarray(pil_overlay).astype(np.float32) / 255.0
         
         visualization = show_cam_on_image(rgb_original, cam_resized, use_rgb=True)
         
         heatmap_pil = Image.fromarray(visualization)
         buffered = io.BytesIO()
-        heatmap_pil.save(buffered, format="JPEG")
+        heatmap_pil.save(buffered, format="JPEG", quality=85)
         heatmap_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
-        
-        # Convert the tensor probabilities to a list
-        probs_list = probabilities.tolist()
 
-        # Free temporary prediction memory
-        del input_tensor, grayscale_cam_224, cam_resized, rgb_original, visualization, pil_image, buffered
+        # Free temporary prediction memory immediately
+        del grayscale_cam_224, cam_resized, rgb_original, visualization, pil_image, pil_overlay, buffered
         gc.collect()
 
         return {
