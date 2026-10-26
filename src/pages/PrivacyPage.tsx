@@ -103,7 +103,7 @@ export const PrivacyPage: React.FC<PrivacyPageProps> = ({ onNavigate }) => {
           <AlertTriangle size={16} className="flex-shrink-0 mt-0.5 text-[#D97706]" />
           <span>
             OsteoVision is an educational and research-oriented AI project. Its outputs are generated
-            by a machine-learning model and may contain errors. Results must not be used as a
+            by a Deep-learning model and may contain errors. Results must not be used as a
             substitute for professional medical evaluation, diagnosis, or treatment decisions. Consult
             a qualified healthcare professional for clinical assessment.
           </span>

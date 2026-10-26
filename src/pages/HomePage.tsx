@@ -92,8 +92,8 @@ const DiagnosticFloatingCards: React.FC = () => {
           {/* Three translucent internal rows */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
             {([
-              { label: 'Normal',       dot: '#22c55e' },
-              { label: 'Osteopenia',   dot: '#f59e0b' },
+              { label: 'Normal', dot: '#22c55e' },
+              { label: 'Osteopenia', dot: '#f59e0b' },
               { label: 'Osteoporosis', dot: '#25BFD6' },
             ] as const).map(({ label, dot }) => (
               <div
@@ -238,9 +238,9 @@ const DiagnosticFloatingCards: React.FC = () => {
 
 interface HomePageProps {
   onOpenUpload: () => void;
-  onNavigate:   (route: string, sectionId?: string) => void;
+  onNavigate: (route: string, sectionId?: string) => void;
   targetSection?: string | null;
-  navKey?:        number;
+  navKey?: number;
 }
 
 /* ─────────────────────────────────────────────
@@ -268,8 +268,8 @@ const MediaSlot: React.FC<MediaSlotProps> = ({
   accent = 'blue',
 }) => {
   const accentClasses = {
-    cyan:  'hover:border-cyan-400 group-hover:text-cyan-500',
-    blue:  'hover:border-blue-400 group-hover:text-blue-600',
+    cyan: 'hover:border-cyan-400 group-hover:text-cyan-500',
+    blue: 'hover:border-blue-400 group-hover:text-blue-600',
     slate: 'hover:border-slate-400 group-hover:text-slate-700',
   }[accent];
 
@@ -480,7 +480,7 @@ export const HomePage: React.FC<HomePageProps> = ({
     if (!v) return;
     const io = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) { void v.play().catch(() => {}); }
+        if (entry.isIntersecting) { void v.play().catch(() => { }); }
         else { v.pause(); }
       },
       { threshold: 0 },
@@ -672,196 +672,196 @@ export const HomePage: React.FC<HomePageProps> = ({
         >
           <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto w-full px-5 sm:px-8 xl:px-10 2xl:px-12">
             <div className="hero-content-grid">
-            {/* ── LEFT CONTENT ZONE (40-45%) ── */}
-            <div className="hero-left-content max-w-[520px] 2xl:max-w-[620px]">
+              {/* ── LEFT CONTENT ZONE (40-45%) ── */}
+              <div className="hero-left-content max-w-[520px] 2xl:max-w-[620px]">
 
-              {/* Main headline — stacked lines with fluid mathematical scaling */}
-              <h1
-                className="font-extrabold tracking-tight leading-[1.08] mb-4 sm:mb-5 text-fluid-h1"
-                style={{
-                  letterSpacing: '-0.025em',
-                }}
-              >
-                {/* Line 1: deep navy / near-black */}
-                <span
-                  className="block"
+                {/* Main headline — stacked lines with fluid mathematical scaling */}
+                <h1
+                  className="font-extrabold tracking-tight leading-[1.08] mb-4 sm:mb-5 text-fluid-h1"
                   style={{
-                    color: '#E8EDF5',
-                    textShadow: '0 2px 18px rgba(0,0,0,0.45)',
+                    letterSpacing: '-0.025em',
                   }}
                 >
-                  Understand Bone Health
-                </span>
-                {/* Line 2: OsteoVision clinical blue */}
-                <span
-                  className="block"
-                  style={{
-                    color: '#60A5FA',
-                    textShadow: '0 2px 20px rgba(37,99,235,0.38)',
-                  }}
-                >
-                  Through AI-Powered
-                </span>
-                {/* Line 3: deep navy / near-black */}
-                <span
-                  className="block"
-                  style={{
-                    color: '#E8EDF5',
-                    textShadow: '0 2px 18px rgba(0,0,0,0.45)',
-                  }}
-                >
-                  Knee X-Ray Analysis
-                </span>
-              </h1>
+                  {/* Line 1: deep navy / near-black */}
+                  <span
+                    className="block"
+                    style={{
+                      color: '#E8EDF5',
+                      textShadow: '0 2px 18px rgba(0,0,0,0.45)',
+                    }}
+                  >
+                    Understand Bone Health
+                  </span>
+                  {/* Line 2: OsteoVision clinical blue */}
+                  <span
+                    className="block"
+                    style={{
+                      color: '#60A5FA',
+                      textShadow: '0 2px 20px rgba(37,99,235,0.38)',
+                    }}
+                  >
+                    Through AI-Powered
+                  </span>
+                  {/* Line 3: deep navy / near-black */}
+                  <span
+                    className="block"
+                    style={{
+                      color: '#E8EDF5',
+                      textShadow: '0 2px 18px rgba(0,0,0,0.45)',
+                    }}
+                  >
+                    Knee X-Ray Analysis
+                  </span>
+                </h1>
 
-              {/* Description */}
-              <p
-                className="leading-relaxed mb-6 sm:mb-8 font-normal text-fluid-lead"
-                style={{
-                  color: 'rgba(220,228,240,0.85)',
-                  maxWidth: '460px',
-                  textShadow: '0 1px 6px rgba(0,0,0,0.28)',
-                }}
-              >
-                OsteoVision is an explainable AI-based web platform designed to
-                classify knee X-ray images into{' '}
-                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Normal</strong>,{' '}
-                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteopenia</strong>, and{' '}
-                <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteoporosis</strong>{' '}
-                categories. It presents the AI prediction and, where available, a
-                confidence score and visual explanation.
-              </p>
-
-              {/* Educational / research note */}
-              <p
-                className="leading-relaxed mb-6 sm:mb-8 font-normal text-xs sm:text-[13px]"
-                style={{
-                  color: 'rgba(200,212,230,0.72)',
-                  maxWidth: '460px',
-                  marginTop: '-1rem',
-                  textShadow: '0 1px 6px rgba(0,0,0,0.28)',
-                }}
-              >
-                For educational and research purposes. Not a substitute for professional
-                medical diagnosis.
-              </p>
-
-              {/* Primary CTA — premium rounded pill */}
-              <button
-                id="hero-upload-cta"
-                onClick={onOpenUpload}
-                className="hero-cta-btn inline-flex items-center gap-3 cursor-pointer group"
-                style={{
-                  padding: '10px 14px 10px 24px',
-                  borderRadius: '9999px',
-                  background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
-                  border: '1px solid rgba(255,255,255,0.22)',
-                  boxShadow: '0 12px 30px -4px rgba(8,14,36,0.55), 0 4px 12px rgba(8,14,36,0.3), inset 0 1.5px 1.5px rgba(255,255,255,0.35)',
-                  transition: 'transform 0.22s cubic-bezier(0.16,1,0.3,1), box-shadow 0.22s cubic-bezier(0.16,1,0.3,1)',
-                  overflow: 'hidden',
-                  position: 'relative',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px) scale(1.015)';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 18px 40px -4px rgba(8,14,36,0.65), 0 6px 16px rgba(37,99,235,0.22), inset 0 2px 2px rgba(255,255,255,0.5)';
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = '';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 30px -4px rgba(8,14,36,0.55), 0 4px 12px rgba(8,14,36,0.3), inset 0 1.5px 1.5px rgba(255,255,255,0.35)';
-                }}
-              >
-                <span
+                {/* Description */}
+                <p
+                  className="leading-relaxed mb-6 sm:mb-8 font-normal text-fluid-lead"
                   style={{
-                    color: '#FFFFFF',
-                    fontSize: '0.875rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.01em',
-                    whiteSpace: 'nowrap',
+                    color: 'rgba(220,228,240,0.85)',
+                    maxWidth: '460px',
+                    textShadow: '0 1px 6px rgba(0,0,0,0.28)',
                   }}
                 >
-                  Analyze an X-ray
-                </span>
-                {/* Arrow circle */}
-                <div
-                  style={{
-                    width: '34px',
-                    height: '34px',
-                    borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                    boxShadow: '0 4px 12px rgba(37,99,235,0.45)',
-                    transition: 'transform 0.2s ease',
-                  }}
-                  className="group-hover:scale-110"
-                >
-                  <ArrowRight size={15} color="#FFFFFF" />
-                </div>
-              </button>
+                  OsteoVision is an explainable AI-based web platform designed to
+                  classify knee X-ray images into{' '}
+                  <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Normal</strong>,{' '}
+                  <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteopenia</strong>, and{' '}
+                  <strong style={{ color: 'rgba(240,246,255,0.97)', fontWeight: 600 }}>Osteoporosis</strong>{' '}
+                  categories. It presents the AI prediction and, where available, a
+                  confidence score and visual explanation.
+                </p>
 
-              {/* ── MOBILE DIAGNOSTIC DOCK (Adaptive Representation for ≤ 768px screens) ── */}
-              <div className="mt-7 md:hidden">
-                <div
-                  className="p-3.5 rounded-2xl border"
+                {/* Educational / research note */}
+                <p
+                  className="leading-relaxed mb-6 sm:mb-8 font-normal text-xs sm:text-[13px]"
                   style={{
-                    background: 'rgba(15, 23, 42, 0.45)',
-                    backdropFilter: 'blur(20px) saturate(120%)',
-                    WebkitBackdropFilter: 'blur(20px) saturate(120%)',
-                    borderColor: 'rgba(255, 255, 255, 0.22)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                    color: 'rgba(200,212,230,0.72)',
+                    maxWidth: '460px',
+                    marginTop: '-1rem',
+                    textShadow: '0 1px 6px rgba(0,0,0,0.28)',
                   }}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                      <Layers size={12} className="text-cyan-400" />
-                      3-Class Telemetry
-                    </span>
-                    <span className="text-[10px] font-mono font-bold text-cyan-300 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/30">
-                      Score: 92/100
-                    </span>
+                  For educational and research purposes. Not a substitute for professional
+                  medical diagnosis.
+                </p>
+
+                {/* Primary CTA — premium rounded pill */}
+                <button
+                  id="hero-upload-cta"
+                  onClick={onOpenUpload}
+                  className="hero-cta-btn inline-flex items-center gap-3 cursor-pointer group"
+                  style={{
+                    padding: '10px 14px 10px 24px',
+                    borderRadius: '9999px',
+                    background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)',
+                    border: '1px solid rgba(255,255,255,0.22)',
+                    boxShadow: '0 12px 30px -4px rgba(8,14,36,0.55), 0 4px 12px rgba(8,14,36,0.3), inset 0 1.5px 1.5px rgba(255,255,255,0.35)',
+                    transition: 'transform 0.22s cubic-bezier(0.16,1,0.3,1), box-shadow 0.22s cubic-bezier(0.16,1,0.3,1)',
+                    overflow: 'hidden',
+                    position: 'relative',
+                  }}
+                  onMouseEnter={e => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px) scale(1.015)';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 18px 40px -4px rgba(8,14,36,0.65), 0 6px 16px rgba(37,99,235,0.22), inset 0 2px 2px rgba(255,255,255,0.5)';
+                  }}
+                  onMouseLeave={e => {
+                    (e.currentTarget as HTMLButtonElement).style.transform = '';
+                    (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 12px 30px -4px rgba(8,14,36,0.55), 0 4px 12px rgba(8,14,36,0.3), inset 0 1.5px 1.5px rgba(255,255,255,0.35)';
+                  }}
+                >
+                  <span
+                    style={{
+                      color: '#FFFFFF',
+                      fontSize: '0.875rem',
+                      fontWeight: 600,
+                      letterSpacing: '0.01em',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    Analyze an X-ray
+                  </span>
+                  {/* Arrow circle */}
+                  <div
+                    style={{
+                      width: '34px',
+                      height: '34px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      boxShadow: '0 4px 12px rgba(37,99,235,0.45)',
+                      transition: 'transform 0.2s ease',
+                    }}
+                    className="group-hover:scale-110"
+                  >
+                    <ArrowRight size={15} color="#FFFFFF" />
                   </div>
+                </button>
 
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {[
-                      { name: 'Normal', dot: '#22c55e', score: '14' },
-                      { name: 'Osteopenia', dot: '#f59e0b', score: '58' },
-                      { name: 'Osteoporosis', dot: '#38BDF8', score: '92' },
-                    ].map((item) => (
-                      <div
-                        key={item.name}
-                        className="py-1.5 px-2 rounded-xl border flex flex-col items-center justify-center text-center"
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.08)',
-                          borderColor: 'rgba(255, 255, 255, 0.15)',
-                        }}
-                      >
-                        <div className="flex items-center gap-1 mb-0.5">
-                          <span className="w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
-                          <span className="text-[11px] font-bold text-white tracking-tight">{item.name}</span>
+                {/* ── MOBILE DIAGNOSTIC DOCK (Adaptive Representation for ≤ 768px screens) ── */}
+                <div className="mt-7 md:hidden">
+                  <div
+                    className="p-3.5 rounded-2xl border"
+                    style={{
+                      background: 'rgba(15, 23, 42, 0.45)',
+                      backdropFilter: 'blur(20px) saturate(120%)',
+                      WebkitBackdropFilter: 'blur(20px) saturate(120%)',
+                      borderColor: 'rgba(255, 255, 255, 0.22)',
+                      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.25)',
+                    }}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                        <Layers size={12} className="text-cyan-400" />
+                        3-Class Telemetry
+                      </span>
+                      <span className="text-[10px] font-mono font-bold text-cyan-300 px-2 py-0.5 rounded-full bg-cyan-500/15 border border-cyan-400/30">
+                        Score: 92/100
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {[
+                        { name: 'Normal', dot: '#22c55e', score: '14' },
+                        { name: 'Osteopenia', dot: '#f59e0b', score: '58' },
+                        { name: 'Osteoporosis', dot: '#38BDF8', score: '92' },
+                      ].map((item) => (
+                        <div
+                          key={item.name}
+                          className="py-1.5 px-2 rounded-xl border flex flex-col items-center justify-center text-center"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.08)',
+                            borderColor: 'rgba(255, 255, 255, 0.15)',
+                          }}
+                        >
+                          <div className="flex items-center gap-1 mb-0.5">
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background: item.dot }} />
+                            <span className="text-[11px] font-bold text-white tracking-tight">{item.name}</span>
+                          </div>
+                          <span className="text-[9.5px] font-mono text-slate-300">{item.score} pt</span>
                         </div>
-                        <span className="text-[9.5px] font-mono text-slate-300">{item.score} pt</span>
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
 
-                  <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-300">
-                    <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-                      Trabecular Layer Active
-                    </span>
-                    <span className="font-mono text-slate-400">Deep Learning Active</span>
+                    <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-slate-300">
+                      <span className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+                        Trabecular Layer Active
+                      </span>
+                      <span className="font-mono text-slate-400">Deep Learning Active</span>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-            </div>{/* end left content zone */}
+              </div>{/* end left content zone */}
 
-            {/* ── RIGHT ZONE: reserved for the X-ray video ── */}
-            <div aria-hidden="true" style={{ display: 'block' }} />
+              {/* ── RIGHT ZONE: reserved for the X-ray video ── */}
+              <div aria-hidden="true" style={{ display: 'block' }} />
 
-          </div>{/* end hero-content-grid */}
+            </div>{/* end hero-content-grid */}
           </div>{/* end max-w-7xl */}
         </div>{/* end layer 3 content */}
 
@@ -920,7 +920,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       ══════════════════════════════════════════════════ */}
       <RevealSection>
         <section id="services" className="relative py-8 sm:py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-3.5 sm:px-6 xl:px-10 2xl:px-12 z-10">
-          
+
           {/* Section Header */}
           <div className="max-w-3xl mb-6 sm:mb-8">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
@@ -939,7 +939,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Dual Feature Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6 lg:gap-8">
-            
+
             {/* Card 1: Interactive 3-Class Output Simulator (6 cols) */}
             <RevealSection className="lg:col-span-6" delay={0.05} from="left">
               <div className="card-glass-water p-4 sm:p-6 lg:p-8 flex flex-col justify-between h-full">
@@ -959,11 +959,10 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <button
                         key={cls}
                         onClick={() => setSelectedDemoClass(cls)}
-                        className={`py-1.5 sm:py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold capitalize transition-all cursor-pointer truncate ${
-                          selectedDemoClass === cls
-                            ? 'bg-white text-[#0F172A] shadow-sm border border-slate-200/80'
-                            : 'text-slate-500 hover:text-slate-800'
-                        }`}
+                        className={`py-1.5 sm:py-2 px-1.5 sm:px-3 rounded-xl text-[11px] sm:text-xs font-bold capitalize transition-all cursor-pointer truncate ${selectedDemoClass === cls
+                          ? 'bg-white text-[#0F172A] shadow-sm border border-slate-200/80'
+                          : 'text-slate-500 hover:text-slate-800'
+                          }`}
                       >
                         {cls}
                       </button>
@@ -989,13 +988,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                       </div>
                       <div className="w-full h-3 rounded-full bg-slate-100 overflow-hidden p-0.5 border border-slate-200">
                         <div
-                          className={`h-full rounded-full transition-all duration-500 ${
-                            selectedDemoClass === 'normal'
-                              ? 'bg-emerald-500'
-                              : selectedDemoClass === 'osteopenia'
+                          className={`h-full rounded-full transition-all duration-500 ${selectedDemoClass === 'normal'
+                            ? 'bg-emerald-500'
+                            : selectedDemoClass === 'osteopenia'
                               ? 'bg-amber-500'
                               : 'bg-red-500'
-                          }`}
+                            }`}
                           style={{ width: `${currentDemo.score}%` }}
                         />
                       </div>
@@ -1030,7 +1028,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             {/* Card 2: Knee Radiograph Media & Score Visualization (6 cols) */}
             <RevealSection className="lg:col-span-6" delay={0.15} from="right">
               <div className="card-glass-water p-6 sm:p-8 flex flex-col justify-between h-full">
-                
+
                 {/* Knee Detection Media Slot */}
                 <div className="mb-6">
                   <MediaSlot
@@ -1067,13 +1065,12 @@ export const HomePage: React.FC<HomePageProps> = ({
                       {Array.from({ length: 14 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`flex-1 h-full rounded-full transition-all ${
-                            i < 4
-                              ? 'bg-emerald-400'
-                              : i < 9
+                          className={`flex-1 h-full rounded-full transition-all ${i < 4
+                            ? 'bg-emerald-400'
+                            : i < 9
                               ? 'bg-amber-400'
                               : 'bg-red-400'
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>
@@ -1098,7 +1095,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       ══════════════════════════════════════════════════ */}
       <RevealSection>
         <section className="relative py-8 sm:py-10 md:py-14 max-w-7xl mx-auto px-3.5 sm:px-6 xl:px-10 z-10">
-          
+
           {/* Header */}
           <div className="max-w-3xl mb-6">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
@@ -1170,9 +1167,9 @@ export const HomePage: React.FC<HomePageProps> = ({
       ══════════════════════════════════════════════════ */}
       <RevealSection>
         <section id="about-us" className="relative py-10 md:py-14 max-w-7xl mx-auto px-5 sm:px-8 xl:px-10 z-10">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start mb-8">
-            
+
             {/* Left: Eyebrow + Domain tags */}
             <div className="lg:col-span-4 flex items-center gap-4">
               <div className="flex -space-x-3 overflow-hidden">
@@ -1205,7 +1202,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           {/* Stats & Proof Grid with Media Slot */}
           <RevealSection delay={0.15}>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-              
+
               {/* Stats Column (7 cols) */}
               <div className="lg:col-span-7">
                 <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-6">
@@ -1282,7 +1279,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       ══════════════════════════════════════════════════ */}
       <RevealSection>
         <section className="relative py-8 sm:py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-3.5 sm:px-6 xl:px-10 2xl:px-12 z-10">
-          
+
           {/* Header with Slider Arrows */}
           <div className="flex items-center justify-between mb-6 sm:mb-8">
             <div>
@@ -1297,7 +1294,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* 4-Item Bento Grid */}
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-            
+
             {/* Bento 1: Anatomical Knee Focus (3 cols) */}
             <RevealSection className="md:col-span-3" delay={0}>
               <div className="card-glass-water p-6 flex flex-col justify-between h-full">
@@ -1403,9 +1400,9 @@ export const HomePage: React.FC<HomePageProps> = ({
       ══════════════════════════════════════════════════ */}
       <RevealSection>
         <section id="testimonial" className="relative py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 z-10">
-          
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-            
+
             {/* Left: Avatar Thumbnail (3 cols) */}
             <RevealSection className="lg:col-span-3" delay={0}>
               <div className="card-glass-water p-5 flex flex-col items-center text-center">
@@ -1464,7 +1461,7 @@ export const HomePage: React.FC<HomePageProps> = ({
       ══════════════════════════════════════════════════ */}
       <RevealSection>
         <section className="relative py-10 md:py-14 max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 z-10">
-          
+
           {/* Header */}
           <div className="max-w-3xl mb-8">
             <span className="text-xs font-bold text-[#2563EB] uppercase tracking-wider block mb-2">
@@ -1630,7 +1627,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           7. FOOTER & UPLOAD CALL TO ACTION (id="contact")
       ══════════════════════════════════════════════════ */}
       <footer id="contact" className="relative pt-12 pb-8 bg-white/70 backdrop-blur-2xl border-t border-slate-200/80 z-10 overflow-hidden">
-        
+
         {/* Ambient aurora depth — soft brand glows drifting behind the finale */}
         <div aria-hidden="true" className="absolute inset-0 overflow-hidden pointer-events-none" style={{ zIndex: 0 }}>
           <div
@@ -1652,11 +1649,11 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         <div className="max-w-7xl 2xl:max-w-[1440px] mx-auto px-5 sm:px-8 xl:px-10 2xl:px-12 relative z-10">
-          
+
           {/* Top CTA & Newsletter Row */}
           <RevealSection>
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-16 border-b border-slate-200/80 items-center">
-              
+
               <div className="lg:col-span-6">
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight leading-tight mb-5">
                   Protect Bone Strength <br />
@@ -1681,7 +1678,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
               <div className="lg:col-span-6">
                 <p className="text-xs text-[#64748B] mb-3">
-                  Subscribe to receive updates on algorithm enhancements, knee radiograph benchmarking, and bone density research.
+                  Subscribe to receive updates on enhancements, knee radiograph benchmarking, and bone density research.
                 </p>
 
                 {/* Newsletter Input Form */}
@@ -1708,7 +1705,7 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           {/* Middle Nav Links & Contact Row */}
           <div className="py-14 grid grid-cols-2 md:grid-cols-12 gap-8 items-start">
-            
+
             {/* Nav Column 1: Platform */}
             <div className="md:col-span-3">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4">
@@ -1768,7 +1765,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           <div id="medical-disclaimer" className="pt-6 border-t border-slate-200/80 flex flex-col gap-3 text-xs text-slate-500 font-medium">
             <span className="text-[11px] text-slate-500 leading-relaxed">
               OsteoVision is an educational and research-oriented AI project. Its outputs are
-              generated by a machine-learning model and may contain errors. Results must not be
+              generated by a Deep-learning model and may contain errors. Results must not be
               used as a substitute for professional medical evaluation, diagnosis, or treatment
               decisions. Consult a qualified healthcare professional for clinical assessment.
             </span>
