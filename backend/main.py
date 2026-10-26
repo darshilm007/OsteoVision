@@ -39,6 +39,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def read_root():
+    return {
+        "status": "healthy",
+        "service": "OsteoVision AI API",
+        "endpoints": {
+            "predict": "/predict (POST)"
+        }
+    }
+
 @app.post("/predict")
 async def predict_image(file: UploadFile = File(...)):
     """Endpoint to process an uploaded image, validate it, and return prediction + heatmap."""

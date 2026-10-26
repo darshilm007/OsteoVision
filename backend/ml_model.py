@@ -1,6 +1,7 @@
 import io
 import base64
 import os
+import gc
 import requests
 import cv2
 import numpy as np
@@ -11,6 +12,13 @@ from torchvision import transforms
 from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
+
+# Restrict PyTorch thread memory buffers to fit within 512MB RAM
+torch.set_num_threads(1)
+try:
+    torch.set_num_interop_threads(1)
+except RuntimeError:
+    pass
 
 def download_weights_if_missing():
     """Automatically downloads model weights from Hugging Face if they don't exist locally."""
@@ -67,12 +75,15 @@ class OsteoVisionModel:
             checkpoint = torch.load("./model_weights/ConvNeXt_best.pth", map_location=self.device)
             state_dict = checkpoint["model_state_dict"] if "model_state_dict" in checkpoint else checkpoint
             self.model.load_state_dict(state_dict)
+            del checkpoint, state_dict
+            gc.collect()
             print("Successfully loaded ConvNeXt model weights.")
         except FileNotFoundError:
             print("WARNING: ConvNeXt_best.pth not found in ./model_weights/.")
             
         self.model.to(self.device)
         self.model.eval()
+        gc.collect()
         
         # 3. Define preprocessing transforms
         self.transform = transforms.Compose([
@@ -101,6 +112,8 @@ class OsteoVisionModel:
                 detector_confidence = float(detector_probs[predicted_detector_idx].item() * 100)
             
             if predicted_detector_idx == 1 and detector_confidence > 70.0:
+                del input_tensor, pil_image
+                gc.collect()
                 raise ValueError("The uploaded image does not appear to be a valid knee radiograph...")
 
         # STEP 2: Run Main OsteoVision Classification & Grad-CAM++
@@ -112,9 +125,9 @@ class OsteoVisionModel:
         predicted_class = self.classes[predicted_idx.item()]
         confidence_pct = float(round(confidence.item() * 100, 2))
         
-        # Generate the Grad-CAM++ heatmap
+        # Generate the Grad-CAM++ heatmap (aug_smooth=False prevents memory explosion)
         targets = [ClassifierOutputTarget(predicted_idx.item())]
-        grayscale_cam_224 = self.cam(input_tensor=input_tensor, targets=targets, aug_smooth=True)[0]
+        grayscale_cam_224 = self.cam(input_tensor=input_tensor, targets=targets, aug_smooth=False)[0]
         
         # Resize heatmap back to the original image dimensions
         cam_resized = cv2.resize(grayscale_cam_224, (orig_w, orig_h))
@@ -129,6 +142,10 @@ class OsteoVisionModel:
         
         # Convert the tensor probabilities to a list
         probs_list = probabilities.tolist()
+
+        # Free temporary prediction memory
+        del input_tensor, grayscale_cam_224, cam_resized, rgb_original, visualization, pil_image, buffered
+        gc.collect()
 
         return {
             "prediction": predicted_class,
