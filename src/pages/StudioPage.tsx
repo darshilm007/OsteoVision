@@ -215,7 +215,8 @@ const ingestFile = useCallback((file: File) => {
       formData.append('file', selectedFile);
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/predict', {
+        const apiUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+        const response = await fetch(`${apiUrl}/predict`, {
           method: 'POST',
           body: formData,
         });
