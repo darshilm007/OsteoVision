@@ -525,18 +525,19 @@ const ingestFile = useCallback((file: File) => {
           </div>
           
           {/* Scrolling Container */}
-          <div className="flex-1 overflow-hidden relative py-2">
+          <div className="flex-1 min-w-0 overflow-hidden relative py-2">
             <style>
               {`
                 @keyframes scrollTicker {
-                  0% { transform: translateX(70%); }
+                  0% { transform: translateX(0); }
                   100% { transform: translateX(-100%); }
                 }
                 .animate-ticker {
                   display: inline-block;
                   white-space: nowrap;
+                  /* 100% padding dynamically pushes the text to the exact right edge of the container on any screen size */
+                  padding-left: 100%; 
                   animation: scrollTicker 30s linear infinite;
-                  padding-left: 2rem;
                 }
                 .animate-ticker:hover {
                   animation-play-state: paused;
