@@ -2,11 +2,11 @@
 fastapi
 uvicorn
 python-multipart
-torch==2.2.2+cpu
-torchvision==0.17.2+cpu
+torch
+torchvision
 timm
 grad-cam
 opencv-python-headless
-numpy<2.0.0
+numpy
 Pillow
 requests
