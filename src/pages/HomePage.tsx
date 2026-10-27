@@ -615,6 +615,8 @@ export const HomePage: React.FC<HomePageProps> = ({
         className="hero-viewport relative w-full min-h-[100svh] md:h-screen md:min-h-[660px] md:max-h-[1120px] overflow-hidden flex flex-col justify-center"
       >
         {/* ── LAYER 1: Full-bleed Background Video ── */}
+        {/* ── LAYER 1: Full-bleed Background Video ── */}
+        <div className="absolute inset-0 w-full h-full bg-[#080E24] z-0" aria-hidden="true" />
         <video
           ref={heroVideoRef}
           src="/videos/watermark-removed (2).mp4"
@@ -624,20 +626,26 @@ export const HomePage: React.FC<HomePageProps> = ({
           muted
           playsInline
           aria-hidden="true"
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            objectPosition: 'center top',
-            display: 'block',
-            zIndex: 0,
-          }}
+          /* Shifts focus to the right on mobile, and drops opacity to 30% for readability */
+          className="absolute inset-0 w-full h-full object-cover object-[75%_center] md:object-center opacity-30 md:opacity-100 pointer-events-none"
+          style={{ zIndex: 0 }}
         />
 
-        {/* ── LAYER 2A: Cinematic left-to-right gradient (readability on bright left side) ── */}
+        {/* ── LAYER 2A: Adaptive Gradient (Vertical on mobile, Horizontal on desktop) ── */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 pointer-events-none z-[1]"
+          style={{
+            background: 'linear-gradient(to right, rgba(8,14,36,0.85) 0%, rgba(8,14,36,0.65) 35%, rgba(8,14,36,0.3) 60%, rgba(8,14,36,0.1) 100%)'
+          }}
+        />
+        {/* Extra mobile-only top-down gradient to protect the title text */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-[#080E24]/90 via-[#080E24]/60 to-transparent md:hidden z-[1] pointer-events-none"
+        />
+
+        {/* ── LAYER 2A: Cinematic left-to-right gradient (readability on bright left side) ──
         <div
           aria-hidden="true"
           style={{
@@ -648,7 +656,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               'linear-gradient(to right, rgba(8,14,36,0.78) 0%, rgba(8,14,36,0.58) 35%, rgba(8,14,36,0.28) 60%, rgba(8,14,36,0.12) 100%)',
             pointerEvents: 'none',
           }}
-        />
+        /> */}
 
         {/* ── LAYER 2B: Subtle vertical gradient — header area & very bottom ── */}
         <div
