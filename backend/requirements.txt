@@ -8,3 +8,4 @@ timm
 grad-cam
 numpy
 Pillow
+requests
