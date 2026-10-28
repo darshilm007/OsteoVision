@@ -1,8 +1,6 @@
 import io
 import base64
 import os
-import requests
-import cv2
 import numpy as np
 import torch
 import timm
@@ -12,36 +10,10 @@ from pytorch_grad_cam import GradCAMPlusPlus
 from pytorch_grad_cam.utils.image import show_cam_on_image
 from pytorch_grad_cam.utils.model_targets import ClassifierOutputTarget
 
-def download_weights_if_missing():
-    """Automatically downloads model weights from Hugging Face if they don't exist locally."""
-    os.makedirs("./model_weights", exist_ok=True)
-    
-    weights_files = {
-        "./model_weights/ConvNeXt_best.pth": "https://huggingface.co/darshilm007/OsteoVision-Weights/resolve/main/ConvNeXt_best.pth",
-        "./model_weights/knee_detector.pth": "https://huggingface.co/darshilm007/OsteoVision-Weights/resolve/main/knee_detector.pth"
-    }
-    
-    for path, url in weights_files.items():
-        if not os.path.exists(path):
-            print(f"Model weight missing at {path}. Downloading from Hugging Face...")
-            try:
-                response = requests.get(url, stream=True)
-                response.raise_for_status()
-                with open(path, "wb") as f:
-                    for chunk in response.iter_content(chunk_size=8192):
-                        if chunk:
-                            f.write(chunk)
-                print(f"Successfully downloaded: {path}")
-            except Exception as e:
-                print(f"ERROR: Failed to download {path}: {e}")
-
 class OsteoVisionModel:
     def __init__(self):
         """Initializes both models, transforms, and Grad-CAM on startup."""
         
-        # Ensure weights are downloaded before loading into PyTorch
-        download_weights_if_missing()
-
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.classes = ["normal", "osteopenia", "osteoporosis"]
         
@@ -49,11 +21,15 @@ class OsteoVisionModel:
         print("Loading Knee Validation Detector...")
         self.detector = timm.create_model("mobilenetv3_small_100", pretrained=False, num_classes=2)
         try:
-            detector_weights = torch.load("./model_weights/knee_detector.pth", map_location=self.device)
+            # weights_only=False bypasses PyTorch 2.6 security check
+            detector_weights = torch.load("./model_weights/knee_detector.pth", map_location=self.device, weights_only=False)
             self.detector.load_state_dict(detector_weights)
             print("Successfully loaded knee detector weights.")
         except FileNotFoundError:
             print("WARNING: knee_detector.pth not found in ./model_weights/. Validation check will be skipped.")
+            self.detector = None
+        except Exception as e:
+            print(f"ERROR loading knee detector (file might be corrupted): {e}")
             self.detector = None
             
         if self.detector:
@@ -64,14 +40,20 @@ class OsteoVisionModel:
         print("Loading OsteoVision Classifier...")
         self.model = timm.create_model("convnext_tiny.fb_in22k_ft_in1k", pretrained=False, num_classes=3)
         try:
-            checkpoint = torch.load("./model_weights/ConvNeXt_best.pth", map_location=self.device)
+            # weights_only=False bypasses PyTorch 2.6 security check
+            checkpoint = torch.load("./model_weights/ConvNeXt_best_fp16.pth", map_location=self.device, weights_only=False)
             state_dict = checkpoint["model_state_dict"] if "model_state_dict" in checkpoint else checkpoint
             self.model.load_state_dict(state_dict)
             print("Successfully loaded ConvNeXt model weights.")
         except FileNotFoundError:
-            print("WARNING: ConvNeXt_best.pth not found in ./model_weights/.")
+            print("WARNING: ConvNeXt_best_fp16.pth not found in ./model_weights/. Model will not work.")
+        except Exception as e:
+            print(f"ERROR loading ConvNeXt (file might be corrupted HTML): {e}")
             
         self.model.to(self.device)
+        
+        # Expand 16-bit weights back to 32-bit floats in memory for fast CPU inference
+        self.model.float()
         self.model.eval()
         
         # 3. Define preprocessing transforms
@@ -116,8 +98,11 @@ class OsteoVisionModel:
         targets = [ClassifierOutputTarget(predicted_idx.item())]
         grayscale_cam_224 = self.cam(input_tensor=input_tensor, targets=targets, aug_smooth=True)[0]
         
-        # Resize heatmap back to the original image dimensions
-        cam_resized = cv2.resize(grayscale_cam_224, (orig_w, orig_h))
+        # Resize heatmap back to the original image dimensions using PIL (saves 100MB by dropping OpenCV)
+        cam_uint8 = (grayscale_cam_224 * 255).astype(np.uint8)
+        cam_pil = Image.fromarray(cam_uint8).resize((orig_w, orig_h), Image.Resampling.LANCZOS)
+        cam_resized = np.array(cam_pil, dtype=np.float32) / 255.0
+        
         rgb_original = np.asarray(pil_image).astype(np.float32) / 255.0
         
         visualization = show_cam_on_image(rgb_original, cam_resized, use_rgb=True)

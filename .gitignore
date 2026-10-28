@@ -3,8 +3,12 @@ venv/
 __pycache__/
 *.pyc
 .env
-backend/model_weights/*.pth    # Ignore large model weights locally
-backend/model_weights/
+
+# DO NOT ignore model_weights anymore. 
+# The FP16 model is 54MB, which is safe for GitHub (limit is 100MB).
+# The cloud platform needs these files to run!
+# backend/model_weights/*.pth    
+# backend/model_weights/
 
 # Node / React
 node_modules/
